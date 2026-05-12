@@ -103,14 +103,12 @@ function SignUpCard() {
         },
       });
 
-      console.log(response);
-
-      // if (response.status === 201) {
-      //   saveToken(response.data.token);
-      //   await fetchUser();
-      //   navigate("/");
-      //   return;
-      // }
+      if (response.status === 201) {
+        saveToken(response.data.token);
+        await fetchUser();
+        navigate("/");
+        return;
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
@@ -188,7 +186,7 @@ function SignUpCard() {
               type={isVisible ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
+              minLength={8}
             />
           </div>
           <Button color="secondary" type="submit" isLoading={isLoading}>

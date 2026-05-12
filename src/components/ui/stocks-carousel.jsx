@@ -90,102 +90,109 @@ export const StocksCarousel = React.forwardRef(
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             {title}
           </h2>
-          <div className="flex items-center gap-2">
-            {canScrollLeft && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => scroll("left")}
-                aria-label="Scroll left"
-                className="p-1.5 rounded-full bg-background border hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5 text-foreground" />
-              </motion.button>
-            )}
-            {canScrollRight && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => scroll("right")}
-                aria-label="Scroll right"
-                className="p-1.5 rounded-full bg-background border hover:bg-muted transition-colors"
-              >
-                <ChevronRight className="h-5 w-5 text-foreground" />
-              </motion.button>
-            )}
-          </div>
+          {stocks.length > 0 && (
+            <div className="flex items-center gap-2">
+              {canScrollLeft && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => scroll("left")}
+                  aria-label="Scroll left"
+                  className="p-1.5 rounded-full bg-background border hover:bg-muted transition-colors"
+                >
+                  <ChevronLeft className="h-5 w-5 text-foreground" />
+                </motion.button>
+              )}
+              {canScrollRight && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => scroll("right")}
+                  aria-label="Scroll right"
+                  className="p-1.5 rounded-full bg-background border hover:bg-muted transition-colors"
+                >
+                  <ChevronRight className="h-5 w-5 text-foreground" />
+                </motion.button>
+              )}
+            </div>
+          )}
         </div>
-        {/* Scrollable Events Container */}
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
-        >
-          <motion.div
-            className="flex flex-nowrap gap-4"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+        {stocks.length > 0 ? (
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
           >
-            {stocks.map((stock, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="flex-shrink-0 w-72 bg-card border rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm text-foreground/70">
-                    {stock.date}
-                  </span>
-                  <VolatilityIcon riskFactor={stock.riskFactor} />
-                </div>
+            <motion.div
+              className="flex flex-nowrap gap-4"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {stocks.map((stock, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  className="flex-shrink-0 w-72 bg-card border rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm text-foreground/70">
+                      {stock.date}
+                    </span>
+                    {/* <VolatilityIcon riskFactor={stock.riskFactor} /> */}
+                  </div>
 
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={stock.logo}
-                    alt={`${stock.name} logo`}
-                    className="h-12 w-12 rounded-md object-cover bg-muted"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground text-lg truncate">
-                      {stock.name}
-                    </h3>
-                    <div className="flex gap-2">
-                      <span className="text-sm text-foreground">
-                        Rp {stock.price.toLocaleString()}
-                      </span>
-                      |
-                      <span className="text-sm text-foreground flex items-center gap-1">
-                        {stock.returnPct > 0 ? (
-                          <HiArrowUpCircle
-                            className="inline text-green-500"
-                            size={20}
-                          />
-                        ) : (
-                          <HiArrowDownCircle
-                            className="inline text-red-500"
-                            size={20}
-                          />
-                        )}
-                        {Math.abs(stock.returnPct)}%
+                  <div className="flex items-center gap-3 mb-4">
+                    <img
+                      src="https://github.com/shadcn.png"
+                      alt={`${stock.name} logo`}
+                      className="h-12 w-12 rounded-md object-cover bg-muted"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-lg truncate">
+                        {stock.name}
+                      </h3>
+                      <div className="flex gap-2">
+                        <span className="text-sm text-foreground">
+                          Rp {stock.price.toLocaleString()}
+                        </span>
+                        |
+                        <span className="text-sm text-foreground flex items-center gap-1">
+                          {stock.returnPct > 0 ? (
+                            <HiArrowUpCircle
+                              className="inline text-green-500"
+                              size={20}
+                            />
+                          ) : (
+                            <HiArrowDownCircle
+                              className="inline text-red-500"
+                              size={20}
+                            />
+                          )}
+                          {Math.abs(stock.returnPct)}%
+                        </span>
+                      </div>
+                      <span className="text-sm text-foreground/70">
+                        Stop loss:{" "}
+                        <span className="text-red-500">
+                          Rp {stock.stopLoss.toLocaleString()}
+                        </span>
                       </span>
                     </div>
-                    <span className="text-sm text-foreground/70">
-                      Stop loss:{" "}
-                      <span className="text-red-500">
-                        Rp {stock.stopLoss.toLocaleString()}
-                      </span>
-                    </span>
                   </div>
-                </div>
-                <Button variant="secondary" size="lg" className="w-full">
-                  Lihat Lebih Lanjut
-                </Button>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
+                  <Button variant="secondary" size="lg" className="w-full">
+                    Lihat Lebih Lanjut
+                  </Button>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        ) : (
+          <p className="text-sm text-foreground/70">
+            Tidak ada rekomendasi saham untuk hari ini.
+          </p>
+        )}
         {/* Footer Link */}
         {/* <a
           href="#"

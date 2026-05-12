@@ -4,7 +4,7 @@ import Gradient from "./assets/gradient.jpg";
 import Pani from "./assets/pani.png";
 import Admr from "./assets/admr.png";
 import Ptro from "./assets/ptro.png";
-import Bbca from "./assets/bbca.png";
+import Bumi from "./assets/bumi.png";
 import {
   HiFire,
   HiBolt,
@@ -28,7 +28,7 @@ import {
 import { BlurFade } from "./components/ui/blur-fade";
 import { HeroGeometric } from "./components/ui/shape-landing-hero";
 import Footer from "./components/Footer";
-import { Accordion, AccordionItem, Image, User } from "@heroui/react";
+import { Accordion, AccordionItem, Chip, Image, User } from "@heroui/react";
 import SparkleIcon from "./components/SparkleIcon";
 
 const CheckIcon = ({ className = "" }) => (
@@ -297,7 +297,7 @@ function App() {
                         : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    Mulai Gratis
+                    Coming Soon
                   </button>
                 </div>
 
@@ -425,9 +425,30 @@ function App() {
                 <CarouselItem>
                   <Card className="p-4">
                     <CardContent className={"text-left"}>
-                      <h3 className="font-semibold text-xl">
-                        Alamtri Minerals Indonesia Tbk. (ADMR)
-                      </h3>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Alamtri Minerals Indonesia Tbk. (ADMR)
+                        </h3>
+                        <div className="flex gap-2">
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              YTD:{" "}
+                              <span className="text-green-700">13,33%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">68%</span>
+                            </span>
+                          </Chip>
+                        </div>
+                      </div>
                       <Image src={Admr} alt="Admr performance" />
                     </CardContent>
                   </Card>
@@ -435,9 +456,29 @@ function App() {
                 <CarouselItem>
                   <Card className="p-4">
                     <CardContent className={"text-left"}>
-                      <h3 className="font-semibold text-xl">
-                        Pantai Indah Kapuk Dua Tbk. (PANI)
-                      </h3>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Pantai Indah Kapuk Dua Tbk. (PANI)
+                        </h3>
+                        <div className="flex gap-2">
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-red-500/10 border border-red-500"
+                          >
+                            <span className="font-bold">
+                              YTD: <span className="text-red-700">-26%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">247%</span>
+                            </span>
+                          </Chip>
+                        </div>
+                      </div>
                       <Image src={Pani} alt="Pani performance" />
                     </CardContent>
                   </Card>
@@ -445,9 +486,37 @@ function App() {
                 <CarouselItem>
                   <Card className="p-4">
                     <CardContent className={"text-left"}>
-                      <h3 className="font-semibold text-xl">
-                        Petrosea Tbk. (PTRO)
-                      </h3>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Petrosea Tbk. (PTRO)
+                        </h3>
+                        <div className="flex gap-2">
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-red-500/10 border border-red-500"
+                          >
+                            <span className="font-bold">
+                              YTD: <span className="text-red-700">-44%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">235%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              5Y: <span className="text-green-700">320%</span>
+                            </span>
+                          </Chip>
+                        </div>
+                      </div>
                       <Image src={Ptro} alt="Ptro performance" />
                     </CardContent>
                   </Card>
@@ -455,10 +524,46 @@ function App() {
                 <CarouselItem>
                   <Card className="p-4">
                     <CardContent className={"text-left"}>
-                      <h3 className="font-semibold text-xl">
-                        Bank Central Asia Tbk. (BBCA)
-                      </h3>
-                      <Image src={Bbca} alt="Bbca performance" />
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Bumi Resources Tbk. (BUMI)
+                        </h3>
+                        <div className="flex gap-2">
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-red-500/10 border border-red-500"
+                          >
+                            <span className="font-bold">
+                              YTD: <span className="text-red-700">-37,5%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">19%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">108%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              5Y: <span className="text-green-700">192%</span>
+                            </span>
+                          </Chip>
+                        </div>
+                      </div>
+                      <Image src={Bumi} alt="Bumi performance" />
                     </CardContent>
                   </Card>
                 </CarouselItem>
