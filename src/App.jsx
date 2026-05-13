@@ -1,9 +1,9 @@
 import { useState } from "react";
 import GradientMesh from "./assets/gradient-mesh.jpg";
 import Gradient from "./assets/gradient.jpg";
-import Pani from "./assets/pani.png";
+import Brms from "./assets/brms.png";
 import Admr from "./assets/admr.png";
-import Ptro from "./assets/ptro.png";
+import Pani from "./assets/pani.png";
 import Bumi from "./assets/bumi.png";
 import {
   HiFire,
@@ -30,6 +30,7 @@ import { HeroGeometric } from "./components/ui/shape-landing-hero";
 import Footer from "./components/Footer";
 import { Accordion, AccordionItem, Chip, Image, User } from "@heroui/react";
 import SparkleIcon from "./components/SparkleIcon";
+import { Logos3 } from "./components/blocks/logos3";
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -178,6 +179,60 @@ const DotGrid = () => (
     </svg>
   </div>
 );
+
+const demoData = {
+  heading: "Trusted by these companies",
+  logos: [
+    {
+      id: "logo-1",
+      description: "Ptro",
+      image: "https://assets.stockbit.com/logos/companies/PTRO.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-2",
+      description: "Pani",
+      image: "https://assets.stockbit.com/logos/companies/PANI.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-3",
+      description: "Antm",
+      image: "https://assets.stockbit.com/logos/companies/ANTM.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-4",
+      description: "Brms",
+      image: "https://assets.stockbit.com/logos/companies/BRMS.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-5",
+      description: "Admr",
+      image: "https://assets.stockbit.com/logos/companies/ADMR.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-6",
+      description: "Bumi",
+      image: "https://assets.stockbit.com/logos/companies/BUMI.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-7",
+      description: "Adro",
+      image: "https://assets.stockbit.com/logos/companies/ADRO.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-8",
+      description: "Pgeo",
+      image: "https://assets.stockbit.com/logos/companies/PGEO.png",
+      className: "h-12 w-auto",
+    },
+  ],
+};
 
 function App() {
   const faqItems = [
@@ -435,8 +490,7 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              YTD:{" "}
-                              <span className="text-green-700">13,33%</span>
+                              YTD: <span className="text-green-700">3,5%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -444,7 +498,7 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              3Y: <span className="text-green-700">68%</span>
+                              3Y: <span className="text-green-700">9,84%</span>
                             </span>
                           </Chip>
                         </div>
@@ -466,7 +520,7 @@ function App() {
                             className="font-bold bg-red-500/10 border border-red-500"
                           >
                             <span className="font-bold">
-                              YTD: <span className="text-red-700">-26%</span>
+                              YTD: <span className="text-red-700">-16,98%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -474,7 +528,15 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              3Y: <span className="text-green-700">247%</span>
+                              3Y: <span className="text-green-700">396%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              5Y: <span className="text-green-700">1121%</span>
                             </span>
                           </Chip>
                         </div>
@@ -488,7 +550,7 @@ function App() {
                     <CardContent className={"text-left"}>
                       <div className="flex items-center gap-4">
                         <h3 className="font-semibold text-xl">
-                          Petrosea Tbk. (PTRO)
+                          Bumi Resources Minerals Tbk. (BRMS)
                         </h3>
                         <div className="flex gap-2">
                           <Chip
@@ -496,7 +558,7 @@ function App() {
                             className="font-bold bg-red-500/10 border border-red-500"
                           >
                             <span className="font-bold">
-                              YTD: <span className="text-red-700">-44%</span>
+                              YTD: <span className="text-red-700">-29,32%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -504,7 +566,7 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              3Y: <span className="text-green-700">235%</span>
+                              3Y: <span className="text-green-700">161%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -512,12 +574,12 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              5Y: <span className="text-green-700">320%</span>
+                              5Y: <span className="text-green-700">269%</span>
                             </span>
                           </Chip>
                         </div>
                       </div>
-                      <Image src={Ptro} alt="Ptro performance" />
+                      <Image src={Brms} alt="Brms performance" />
                     </CardContent>
                   </Card>
                 </CarouselItem>
@@ -534,7 +596,7 @@ function App() {
                             className="font-bold bg-red-500/10 border border-red-500"
                           >
                             <span className="font-bold">
-                              YTD: <span className="text-red-700">-37,5%</span>
+                              YTD: <span className="text-red-700">-18,84%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -542,7 +604,7 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              3Y: <span className="text-green-700">19%</span>
+                              3Y: <span className="text-green-700">5,24%</span>
                             </span>
                           </Chip>
                           <Chip
@@ -550,15 +612,7 @@ function App() {
                             className="font-bold bg-green-500/10 border border-green-500"
                           >
                             <span className="font-bold">
-                              3Y: <span className="text-green-700">108%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              5Y: <span className="text-green-700">192%</span>
+                              5Y: <span className="text-green-700">31,37%</span>
                             </span>
                           </Chip>
                         </div>
@@ -729,6 +783,21 @@ function App() {
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div> */}
+
+        <div className="border-y-1 border-gray-200/70 px-8">
+          <div className="border-x-1 border-gray-200/70 py-12 px-8">
+            <div className="text-center">
+              <p className="text-sm text-gray-400 max-w-md mx-auto">
+                Beberapa saham pilihan yang dianalisis Nova AI.
+              </p>
+            </div>
+            <Logos3 {...demoData} />
+          </div>
+        </div>
+
+        <div className="px-8">
+          <div className="border-x-1 border-gray-200/70">&nbsp;</div>
+        </div>
 
         <div className="border-y-1 border-gray-200/70 px-8">
           <div className="border-x-1 border-gray-200/70 py-12 px-8">
