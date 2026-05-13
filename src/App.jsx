@@ -5,6 +5,7 @@ import Brms from "./assets/brms.png";
 import Admr from "./assets/admr.png";
 import Pani from "./assets/pani.png";
 import Bumi from "./assets/bumi.png";
+import Adro from "./assets/adro.png";
 import {
   HiFire,
   HiBolt,
@@ -504,6 +505,52 @@ function App() {
                         </div>
                       </div>
                       <Image src={Admr} alt="Admr performance" />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+                <CarouselItem>
+                  <Card className="p-4">
+                    <CardContent className={"text-left"}>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Adaro Energy Tbk. (ADRO)
+                        </h3>
+                        <div className="flex gap-2">
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              YTD: <span className="text-green-700">32%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              3Y: <span className="text-green-700">63,8%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              5Y: <span className="text-green-700">427%</span>
+                            </span>
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            className="font-bold bg-green-500/10 border border-green-500"
+                          >
+                            <span className="font-bold">
+                              10Y: <span className="text-green-700">950%</span>
+                            </span>
+                          </Chip>
+                        </div>
+                      </div>
+                      <Image src={Adro} alt="Adaro performance" />
                     </CardContent>
                   </Card>
                 </CarouselItem>
