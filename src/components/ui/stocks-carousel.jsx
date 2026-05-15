@@ -4,6 +4,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/react";
+import { generateApiOrigin } from "../../utils/apiOrigin";
+import axios from "axios";
+import { getAuthHeader } from "../../utils/token";
+import { Field, FieldDescription, FieldLabel } from "./field";
+import { Input } from "./input";
 
 const VolatilityIcon = ({ riskFactor }) => {
   const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;
@@ -23,11 +36,16 @@ const VolatilityIcon = ({ riskFactor }) => {
   );
 };
 
+const urlFetch = generateApiOrigin("/transaction/new");
+
 export const StocksCarousel = React.forwardRef(
-  ({ title, stocks, className }, ref) => {
+  ({ title, stocks, className, onBuySuccess }, ref) => {
     const scrollContainerRef = React.useRef(null);
     const [canScrollLeft, setCanScrollLeft] = React.useState(false);
     const [canScrollRight, setCanScrollRight] = React.useState(true);
+    const [selectedStock, setSelectedStock] = React.useState(null);
+    const [investmentValue, setInvestmentValue] = React.useState("");
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const handleScroll = () => {
       const container = scrollContainerRef.current;
@@ -81,6 +99,57 @@ export const StocksCarousel = React.forwardRef(
           damping: 14,
         },
       },
+    };
+
+    const handleSubmit = async (e) => {
+      try {
+        setIsLoading(true);
+
+        const result = await axios.post(
+          urlFetch,
+          {
+            stock_id: selectedStock._id,
+            name: selectedStock.name,
+            buy_date: new Date().toISOString(),
+            sell_date: null,
+            buy_price: selectedStock.initial_price,
+            sell_price: null,
+            equity: Number(investmentValue),
+          },
+          {
+            headers: getAuthHeader(),
+          },
+        );
+
+        if (result.status === 201) {
+          toast("Sukses membeli saham! Transaksi Anda telah tercatat.", {
+            type: "success",
+            position: "top-center",
+          });
+          setSelectedStock(null);
+          if (onBuySuccess) {
+            onBuySuccess();
+          }
+          return;
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status == 400) {
+            toast(
+              "Input tidak valid. Silakan periksa kembali informasi yang dimasukkan.",
+              {
+                type: "error",
+                position: "top-center",
+              },
+            );
+          }
+
+          console.error("Server error:", error.response?.data);
+          console.error("Status code:", error.response?.status);
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     return (
@@ -138,28 +207,28 @@ export const StocksCarousel = React.forwardRef(
                 >
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm text-foreground/70">
-                      {stock.date}
+                      {stock.start_date}
                     </span>
                     {/* <VolatilityIcon riskFactor={stock.riskFactor} /> */}
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">
                     <img
-                      src="https://github.com/shadcn.png"
+                      src={stock.logo}
                       alt={`${stock.name} logo`}
                       className="h-12 w-12 rounded-md object-cover bg-muted"
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground text-lg truncate">
-                        {stock.name}
+                        {stock.name.replace(".JK", "")}
                       </h3>
                       <div className="flex gap-2">
                         <span className="text-sm text-foreground">
-                          Rp {stock.price.toLocaleString()}
+                          Rp {stock.initial_price.toLocaleString()}
                         </span>
                         |
                         <span className="text-sm text-foreground flex items-center gap-1">
-                          {stock.returnPct > 0 ? (
+                          {stock.predicted_pct_change > 0 ? (
                             <HiArrowUpCircle
                               className="inline text-green-500"
                               size={20}
@@ -170,20 +239,34 @@ export const StocksCarousel = React.forwardRef(
                               size={20}
                             />
                           )}
-                          {Math.abs(stock.returnPct)}%
+                          {Math.abs(stock.predicted_pct_change)}%
                         </span>
                       </div>
                       <span className="text-sm text-foreground/70">
                         Stop loss:{" "}
                         <span className="text-red-500">
-                          Rp {stock.stopLoss.toLocaleString()}
+                          Rp {stock.stop_loss.toLocaleString()}
                         </span>
                       </span>
                     </div>
                   </div>
-                  <Button variant="secondary" size="lg" className="w-full">
-                    Lihat Lebih Lanjut
-                  </Button>
+                  <div className="flex w-full gap-2">
+                    <Button
+                      size="lg"
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => setSelectedStock(stock)}
+                    >
+                      Beli
+                    </Button>
+
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="flex-1 min-w-0"
+                    >
+                      Lihat Lebih
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -200,6 +283,112 @@ export const StocksCarousel = React.forwardRef(
         >
           See all market events ›
         </a> */}
+
+        {/* Stock Detail Modal */}
+        <Modal
+          isOpen={selectedStock !== null}
+          onOpenChange={(isOpen) => !isOpen && setSelectedStock(null)}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Kode Saham: {selectedStock?.name.replace(".JK", "")}
+                </ModalHeader>
+                <ModalBody>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={selectedStock?.logo}
+                        alt={`${selectedStock?.name} logo`}
+                        className="h-16 w-16 rounded-md object-cover bg-muted"
+                      />
+                      <div>
+                        <p className="text-sm text-foreground/70">Harga Awal</p>
+                        <p className="text-lg font-semibold">
+                          Rp {selectedStock?.initial_price.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 rounded-lg bg-muted">
+                        <p className="text-sm text-foreground/70">
+                          Prediksi Perubahan
+                        </p>
+                        <p
+                          className={`text-lg font-semibold flex items-center gap-1 ${selectedStock?.predicted_pct_change > 0 ? "text-green-600" : "text-red-600"}`}
+                        >
+                          {selectedStock?.predicted_pct_change > 0 ? (
+                            <HiArrowUpCircle size={20} />
+                          ) : (
+                            <HiArrowDownCircle size={20} />
+                          )}
+                          {Math.abs(selectedStock?.predicted_pct_change)}%
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted">
+                        <p className="text-sm text-foreground/70">Stop Loss</p>
+                        <p className="text-lg font-semibold text-red-600">
+                          Rp {selectedStock?.stop_loss.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-muted">
+                      <p className="text-sm text-foreground/70">
+                        Tanggal Analisis
+                      </p>
+                      <p className="text-base font-medium">
+                        {selectedStock?.start_date}
+                      </p>
+                    </div>
+
+                    <Field>
+                      <FieldLabel htmlFor="input-required">
+                        Nilai Investasi
+                        <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        id="input-required"
+                        placeholder="Masukkan nilai investasi"
+                        required
+                        type="number"
+                        value={investmentValue}
+                        onChange={(e) => setInvestmentValue(e.target.value)}
+                      />
+                    </Field>
+
+                    <p className="text-sm text-foreground/70">
+                      Silakan klik tombol "Beli" untuk memulai investasi pada
+                      saham {selectedStock?.name.replace(".JK", "")} sesuai
+                      dengan analisis kami.
+                    </p>
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="danger"
+                    variant="light"
+                    size="lg"
+                    onClick={onClose}
+                    className="cursor-pointer"
+                  >
+                    Tutup
+                  </Button>
+                  <Button
+                    color="primary"
+                    size="lg"
+                    onClick={handleSubmit}
+                    className="cursor-pointer"
+                  >
+                    Beli Sekarang
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     );
   },

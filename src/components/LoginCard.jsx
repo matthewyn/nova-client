@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { generateApiOrigin } from "../utils/apiOrigin";
 import { useAuth } from "../contexts/AuthContext";
 import { saveToken } from "../utils/token";
+import { toast } from "sonner";
 
 export const EyeSlashFilledIcon = (props) => {
   return (
@@ -97,12 +98,20 @@ function LoginCard() {
         saveToken(response.data.token);
         await fetchUser();
         navigate("/");
+        toast("Login berhasil! Selamat datang kembali.", {
+          type: "success",
+          position: "top-center",
+        });
         return;
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          console.error("Validation error:", error.response?.data?.message);
+          toast("Email atau password salah. Silakan coba lagi.", {
+            type: "error",
+            position: "top-center",
+          });
+          return;
         }
 
         console.error("Server error:", error.response?.data);

@@ -12,47 +12,70 @@ import {
 } from "react-icons/hi2";
 import { StocksCarousel } from "../components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
+import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
 import axios from "axios";
 import { generateApiOrigin } from "../utils/apiOrigin";
 import { Skeleton } from "../components/ui/skeleton";
 import { getAuthHeader } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { exampleStocks } from "../utils/stocksTemplate";
+import CustomChip from "../components/CustomChip";
 
-const urlFetch = generateApiOrigin("/stocks/today");
+const urlFetch = generateApiOrigin("/stocks/new");
+const urlFetchRunning = generateApiOrigin("/stocks/running");
+const urlFetchPositions = generateApiOrigin("/transaction/open");
 
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
+  const [runningStocks, setRunningStocks] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  const fetchPositions = async () => {
+    try {
+      const positionsResponse = await axios.get(urlFetchPositions, {
+        headers: getAuthHeader(),
+      });
+      if (positionsResponse.status === 200) {
+        const { transactions } = positionsResponse.data;
+        setPositions(transactions);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Server error:", error.response?.data);
+        console.error("Status code:", error.response?.status);
+      }
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const response = await axios.get(urlFetch, {
-          headers: getAuthHeader(),
-        });
-        if (response.status === 200) {
-          const { stocks } = response.data;
+        const [newStocksResponse, runningStocksResponse, positionsResponse] =
+          await Promise.all([
+            axios.get(urlFetch, { headers: getAuthHeader() }),
+            axios.get(urlFetchRunning, { headers: getAuthHeader() }),
+            axios.get(urlFetchPositions, { headers: getAuthHeader() }),
+          ]);
+        if (newStocksResponse.status === 200) {
+          const { stocks } = newStocksResponse.data;
           setStocks(stocks);
+        }
+        if (runningStocksResponse.status === 200) {
+          const { stocks } = runningStocksResponse.data;
+          setRunningStocks(stocks);
+        }
+        if (positionsResponse.status === 200) {
+          const { transactions } = positionsResponse.data;
+          setPositions(transactions);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Server error:", error.response?.data);
           console.error("Status code:", error.response?.status);
-
-          if (error.response?.status === 403) {
-            toast(
-              "Fitur ini hanya tersedia untuk pengguna pro ke atas. Silakan upgrade untuk mengaksesnya.",
-              {
-                type: "error",
-                position: "top-center",
-              },
-            );
-            navigate("/");
-            return;
-          }
         }
       } finally {
         setIsLoading(false);
@@ -110,11 +133,181 @@ function Dashboard() {
                       </div>
                     </div>
                   ) : (
-                    <StocksCarousel title="Aset Populer" stocks={stocks} />
+                    <StocksCarousel
+                      title="Aset Populer"
+                      stocks={stocks}
+                      onBuySuccess={fetchPositions}
+                    />
                   )}
                 </div>
               </CardContent>
             </Card>
+          </div>
+          <div className="grid grid-cols-2 mt-4">
+            <div>
+              <Card className="rounded-r-none">
+                <CardContent className={"text-left"}>
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-bold text-foreground">
+                        Running Trade
+                      </h2>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {isLoading ? (
+                        <div className="space-y-4">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <Skeleton className="h-12 w-12 rounded-md" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-5 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-3 w-2/3" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : runningStocks.length > 0 ? (
+                        runningStocks.map((stock, index) => (
+                          <Card key={index}>
+                            <CardContent className={"text-left"}>
+                              <div className="flex gap-3 items-center">
+                                <img
+                                  src={stock.logo}
+                                  alt={`${stock.name} logo`}
+                                  className="h-12 w-12 rounded-md"
+                                />
+                                <div className="flex-1 flex justify-between">
+                                  <div>
+                                    <h3 className="font-semibold text-medium text-foreground">
+                                      {stock.name}
+                                    </h3>
+                                    <p className="text-sm text-foreground">
+                                      Entry Price: Rp{" "}
+                                      {stock.initial_price.toLocaleString()}
+                                    </p>
+                                    <p className="text-sm text-foreground/70">
+                                      Tanggal Masuk: {stock.start_date}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="flex items-center gap-2 text-sm text-foreground">
+                                      Prediksi:{" "}
+                                      <span className="flex items-center gap-1">
+                                        {stock.predicted_pct_change > 0 ? (
+                                          <HiArrowUpCircle
+                                            className="inline text-green-500"
+                                            size={20}
+                                          />
+                                        ) : (
+                                          <HiArrowDownCircle
+                                            className="inline text-red-500"
+                                            size={20}
+                                          />
+                                        )}
+                                        {Math.abs(stock.predicted_pct_change)}%
+                                      </span>
+                                    </p>
+                                    <p className="flex items-center gap-2 text-sm text-foreground">
+                                      Sekarang:{" "}
+                                      <span className="flex items-center gap-1">
+                                        {stock.actual_pct_change > 0 ? (
+                                          <HiArrowUpCircle
+                                            className="inline text-green-500"
+                                            size={20}
+                                          />
+                                        ) : (
+                                          <HiArrowDownCircle
+                                            className="inline text-red-500"
+                                            size={20}
+                                          />
+                                        )}
+                                        {Math.abs(stock.actual_pct_change)}%
+                                      </span>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <p className="text-sm text-foreground/70">
+                          Tidak ada running trade dari saham-saham yang sedang
+                          dianalisis saat ini.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <div>
+              <Card className="rounded-l-none">
+                <CardContent className={"text-left"}>
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-bold text-foreground">
+                        Posisi Saat Ini
+                      </h2>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {isLoading ? (
+                        <div className="space-y-4">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <Skeleton className="h-12 w-12 rounded-md" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-5 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-3 w-2/3" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : positions.length > 0 ? (
+                        positions.map((stock, index) => (
+                          <Card key={index}>
+                            <CardContent className={"text-left"}>
+                              <div className="flex gap-3 items-center">
+                                <img
+                                  src={stock.logo}
+                                  alt={`${stock.name} logo`}
+                                  className="h-12 w-12 rounded-md"
+                                />
+                                <div className="flex-1 flex justify-between">
+                                  <div>
+                                    <h3 className="font-semibold text-medium text-foreground">
+                                      {stock.name}
+                                    </h3>
+                                    <p className="text-sm text-foreground">
+                                      Entry Price: Rp{" "}
+                                      {stock.buy_price.toLocaleString()}
+                                    </p>
+                                    <p className="text-sm text-foreground/70">
+                                      Tanggal Masuk:{" "}
+                                      {
+                                        new Date(stock.buy_date)
+                                          .toISOString()
+                                          .split("T")[0]
+                                      }
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <p className="text-sm text-foreground/70">
+                          Tidak ada posisi yang kamu pegang saat ini.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

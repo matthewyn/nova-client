@@ -1,4 +1,4 @@
-import { FaInstagram, FaLinkedin } from "react-icons/fa6";
+import { FaInstagram, FaSquareXTwitter } from "react-icons/fa6";
 
 function Footer() {
   return (
@@ -17,11 +17,17 @@ function Footer() {
             </span>
           </div>
           <div className="flex gap-4">
-            <FaInstagram
-              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-              size={20}
-            />
-            <FaLinkedin
+            <a
+              href="https://www.instagram.com/novainvest.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram
+                className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                size={20}
+              />
+            </a>
+            <FaSquareXTwitter
               className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
               size={20}
             />

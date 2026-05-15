@@ -29,9 +29,19 @@ import {
 import { BlurFade } from "./components/ui/blur-fade";
 import { HeroGeometric } from "./components/ui/shape-landing-hero";
 import Footer from "./components/Footer";
-import { Accordion, AccordionItem, Chip, Image, User } from "@heroui/react";
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Chip,
+  Image,
+  User,
+} from "@heroui/react";
 import SparkleIcon from "./components/SparkleIcon";
 import { Logos3 } from "./components/blocks/logos3";
+import { Link } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import CustomChip from "./components/CustomChip";
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -50,60 +60,6 @@ const CheckIcon = ({ className = "" }) => (
     />
   </svg>
 );
-
-const plans = [
-  {
-    id: "free",
-    badge: "FREE ~ Jelajahi Quant Intelligence",
-    tagline: "Investor retail",
-    name: "yang baru mulai dengan AI",
-    price: 0,
-    icon: <HiGift size={16} className="text-white" />,
-    iconBg: "bg-gray-800",
-    featured: false,
-    includedLabel: "Yang termasuk",
-    features: [
-      "Prediksi saham terbatas",
-      "Insight saham dasar",
-      "Ringkasan portofolio",
-      "Konteks pasar yang terbatas",
-    ],
-  },
-  {
-    id: "pro",
-    badge: "PRO ~ AI Market Intelligence",
-    tagline: "Investor aktif",
-    name: "yang membutuhkan insight lebih dalam",
-    price: 1000000,
-    icon: <HiFire size={16} className="text-white" />,
-    iconBg: "bg-cyan-400",
-    featured: true,
-    includedLabel: "Semua fitur Free, ditambah",
-    features: [
-      "Forecast saham berbasis AI tanpa batas",
-      "Konteks pasar terkini dan luas",
-      "Analisis risiko portofolio",
-      "Penjelasan tren pasar",
-    ],
-  },
-  {
-    id: "elite",
-    badge: "ELITE ~ Analisis Tingkat Quant",
-    tagline: "Investor serius",
-    name: "yang ingin insight lebih tajam",
-    price: 3000000,
-    icon: <HiBolt size={16} className="text-white" />,
-    iconBg: "bg-gray-800",
-    featured: false,
-    includedLabel: "Semua fitur Pro, ditambah",
-    features: [
-      "Forecast AI dengan analisis lebih mendalam",
-      "Analisis volatilitas & simulasi skenario",
-      "Insight market premium",
-      "Akses awal ke fitur dan model terbaru",
-    ],
-  },
-];
 
 const comparisonRows = [
   {
@@ -228,14 +184,15 @@ const demoData = {
     },
     {
       id: "logo-8",
-      description: "Pgeo",
-      image: "https://assets.stockbit.com/logos/companies/PGEO.png",
+      description: "Medc",
+      image: "https://assets.stockbit.com/logos/companies/MEDC.png",
       className: "h-12 w-auto",
     },
   ],
 };
 
 function App() {
+  const { user, setUser } = useAuth();
   const faqItems = [
     {
       title: "Apakah AI ini juga dipakai langsung oleh Foundernya?",
@@ -273,6 +230,65 @@ function App() {
         "Saham apa saja yang dianalisis AI ini? Apakah termasuk saham gorengan?",
       content:
         "Nova AI fokus pada seluruh saham Indonesia yang memiliki likuiditas dan data market yang memadai untuk dianalisis. Model juga dirancang untuk menghindari kondisi market yang terlalu spekulatif atau tidak stabil.",
+    },
+  ];
+
+  const plans = [
+    {
+      id: "trial",
+      badge: "TRIAL ~ Jelajahi Quant Intelligence",
+      tagline: "Investor retail",
+      name: "yang baru mulai dengan AI",
+      price: 0,
+      icon: <HiGift size={16} className="text-white" />,
+      iconBg: "bg-gray-800",
+      featured: false,
+      includedLabel: "Yang termasuk",
+      features: [
+        "Stockpick AI terbatas (5 saham pertama)",
+        "Insight saham dasar",
+        "Ringkasan portofolio",
+      ],
+      buttonLabel: "Mulai Gratis",
+      isDisabled: user !== null,
+    },
+    {
+      id: "pro",
+      badge: "PRO ~ AI Market Intelligence",
+      tagline: "Investor aktif",
+      name: "yang membutuhkan insight lebih dalam",
+      price: 1000000,
+      icon: <HiFire size={16} className="text-white" />,
+      iconBg: "bg-cyan-400",
+      featured: true,
+      includedLabel: "Semua fitur Free, ditambah",
+      features: [
+        "Stockpick AI tanpa batas",
+        "Konteks pasar terkini dan luas",
+        "Analisis risiko portofolio",
+        "Penjelasan tren pasar",
+      ],
+      buttonLabel: "Mulai Pro",
+      isDisabled: user && user.tier == "pro",
+    },
+    {
+      id: "elite",
+      badge: "ELITE ~ Analisis Tingkat Quant",
+      tagline: "Investor serius",
+      name: "yang ingin insight lebih tajam",
+      price: 3000000,
+      icon: <HiBolt size={16} className="text-white" />,
+      iconBg: "bg-gray-800",
+      featured: false,
+      includedLabel: "Semua fitur Pro, ditambah",
+      features: [
+        "Forecast AI dengan analisis lebih mendalam",
+        "Analisis volatilitas & simulasi skenario",
+        "Insight market premium",
+        "Akses awal ke fitur dan model terbaru",
+      ],
+      buttonLabel: "Mulai Elite",
+      isDisabled: true,
     },
   ];
 
@@ -346,15 +362,18 @@ function App() {
                     </span>
                     <span className="text-sm text-gray-400 ml-1">/bulan</span>
                   </div>
-                  <button
+                  <Button
                     className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all ${
                       plan.featured
                         ? "bg-gray-900 text-white hover:bg-gray-700"
                         : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
+                    as={Link}
+                    to="/signup"
+                    isDisabled={plan.isDisabled}
                   >
-                    Coming Soon
-                  </button>
+                    {plan.buttonLabel}
+                  </Button>
                 </div>
 
                 {/* Features section */}
@@ -486,22 +505,8 @@ function App() {
                           Alamtri Minerals Indonesia Tbk. (ADMR)
                         </h3>
                         <div className="flex gap-2">
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              YTD: <span className="text-green-700">3,5%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              3Y: <span className="text-green-700">9,84%</span>
-                            </span>
-                          </Chip>
+                          <CustomChip color="green" text="3,5%" prefix="YTD:" />
+                          <CustomChip color="green" text="9,84%" prefix="3Y:" />
                         </div>
                       </div>
                       <Image src={Admr} alt="Admr performance" />
@@ -516,38 +521,10 @@ function App() {
                           Adaro Energy Tbk. (ADRO)
                         </h3>
                         <div className="flex gap-2">
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              YTD: <span className="text-green-700">32%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              3Y: <span className="text-green-700">63,8%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              5Y: <span className="text-green-700">427%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              10Y: <span className="text-green-700">950%</span>
-                            </span>
-                          </Chip>
+                          <CustomChip color="green" text="32%" prefix="YTD:" />
+                          <CustomChip color="green" text="63,8%" prefix="3Y:" />
+                          <CustomChip color="green" text="427%" prefix="5Y:" />
+                          <CustomChip color="green" text="950%" prefix="10Y:" />
                         </div>
                       </div>
                       <Image src={Adro} alt="Adaro performance" />
@@ -562,30 +539,13 @@ function App() {
                           Pantai Indah Kapuk Dua Tbk. (PANI)
                         </h3>
                         <div className="flex gap-2">
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-red-500/10 border border-red-500"
-                          >
-                            <span className="font-bold">
-                              YTD: <span className="text-red-700">-16,98%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              3Y: <span className="text-green-700">396%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              5Y: <span className="text-green-700">1121%</span>
-                            </span>
-                          </Chip>
+                          <CustomChip
+                            color="red"
+                            text="-16,98%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip color="green" text="396%" prefix="3Y:" />
+                          <CustomChip color="green" text="1121%" prefix="5Y:" />
                         </div>
                       </div>
                       <Image src={Pani} alt="Pani performance" />
@@ -600,30 +560,13 @@ function App() {
                           Bumi Resources Minerals Tbk. (BRMS)
                         </h3>
                         <div className="flex gap-2">
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-red-500/10 border border-red-500"
-                          >
-                            <span className="font-bold">
-                              YTD: <span className="text-red-700">-29,32%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              3Y: <span className="text-green-700">161%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              5Y: <span className="text-green-700">269%</span>
-                            </span>
-                          </Chip>
+                          <CustomChip
+                            color="red"
+                            text="-29,32%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip color="green" text="161%" prefix="3Y:" />
+                          <CustomChip color="green" text="269%" prefix="5Y:" />
                         </div>
                       </div>
                       <Image src={Brms} alt="Brms performance" />
@@ -638,30 +581,17 @@ function App() {
                           Bumi Resources Tbk. (BUMI)
                         </h3>
                         <div className="flex gap-2">
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-red-500/10 border border-red-500"
-                          >
-                            <span className="font-bold">
-                              YTD: <span className="text-red-700">-18,84%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              3Y: <span className="text-green-700">5,24%</span>
-                            </span>
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="font-bold bg-green-500/10 border border-green-500"
-                          >
-                            <span className="font-bold">
-                              5Y: <span className="text-green-700">31,37%</span>
-                            </span>
-                          </Chip>
+                          <CustomChip
+                            color="red"
+                            text="-18,84%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip color="green" text="5,24%" prefix="3Y:" />
+                          <CustomChip
+                            color="green"
+                            text="31,37%"
+                            prefix="5Y:"
+                          />
                         </div>
                       </div>
                       <Image src={Bumi} alt="Bumi performance" />

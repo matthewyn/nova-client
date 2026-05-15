@@ -11,6 +11,7 @@ import { generateApiOrigin } from "../utils/apiOrigin";
 import { Link, useNavigate } from "react-router-dom";
 import { saveToken } from "../utils/token";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from "sonner";
 
 export const EyeSlashFilledIcon = (props) => {
   return (
@@ -107,11 +108,22 @@ function SignUpCard() {
         saveToken(response.data.token);
         await fetchUser();
         navigate("/");
+        toast("Pendaftaran berhasil! Selamat datang di Nova AI.", {
+          type: "success",
+          position: "top-center",
+        });
         return;
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
+          toast(
+            "Input tidak valid. Silakan periksa kembali informasi yang dimasukkan.",
+            {
+              type: "error",
+              position: "top-center",
+            },
+          );
         }
 
         console.error("Server error:", error.response?.data);
