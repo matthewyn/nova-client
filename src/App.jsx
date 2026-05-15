@@ -210,9 +210,9 @@ function App() {
         "Tidak. Nova AI membantu menyaring market dan memberikan insight penting sehingga pengguna hanya perlu melihat pilihan saham yang sudah dianalisis, bukan harus memantau semua pergerakan market secara manual.",
     },
     {
-      title: "Apakah modal kecil bisa tetap berkembang dengan AI ini?",
+      title: "Apakah setiap hari AI akan memberikan rekomendasi saham?",
       content:
-        "Bisa. Fokus utama Nova AI adalah membantu pengelolaan risiko dan konsistensi pengambilan keputusan, terlepas dari besar kecilnya modal.",
+        "Nova AI memberikan analisis dan insight berdasarkan kondisi market terkini. Jadi, frekuensi rekomendasi bisa bervariasi tergantung pada dinamika pasar dan peluang yang terdeteksi oleh sistem.",
     },
     {
       title:
@@ -221,15 +221,10 @@ function App() {
         "Nova AI tidak hanya menggunakan satu indikator teknikal, tetapi menggabungkan LLM, analisis struktur pasar, risk modeling, dan context intelligence dalam satu sistem terintegrasi.",
     },
     {
-      title: "Apakah ini termasuk robot trading yang sering disebut penipuan?",
-      content:
-        "Bukan. Nova AI bukan robot auto-buy atau pengelola dana. Platform ini adalah AI decision-support system yang membantu pengguna melakukan analisis dan riset market secara mandiri.",
-    },
-    {
       title:
         "Saham apa saja yang dianalisis AI ini? Apakah termasuk saham gorengan?",
       content:
-        "Nova AI fokus pada seluruh saham Indonesia yang memiliki likuiditas dan data market yang memadai untuk dianalisis. Model juga dirancang untuk menghindari kondisi market yang terlalu spekulatif atau tidak stabil.",
+        "Nova AI fokus pada beberapa pilihan saham Indonesia yang memiliki likuiditas dan data market yang memadai untuk dianalisis. Model juga dirancang untuk menghindari kondisi market yang terlalu spekulatif atau tidak stabil.",
     },
   ];
 
