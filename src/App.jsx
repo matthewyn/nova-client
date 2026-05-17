@@ -6,6 +6,7 @@ import Admr from "./assets/admr.png";
 import Pani from "./assets/pani.png";
 import Bumi from "./assets/bumi.png";
 import Adro from "./assets/adro.png";
+import Indy from "./assets/indy.png";
 import {
   HiFire,
   HiBolt,
@@ -186,6 +187,12 @@ const demoData = {
       id: "logo-8",
       description: "Medc",
       image: "https://assets.stockbit.com/logos/companies/MEDC.png",
+      className: "h-12 w-auto",
+    },
+    {
+      id: "logo-9",
+      description: "Indy",
+      image: "https://assets.stockbit.com/logos/companies/INDY.png",
       className: "h-12 w-auto",
     },
   ],
@@ -500,8 +507,12 @@ function App() {
                           Alamtri Minerals Indonesia Tbk. (ADMR)
                         </h3>
                         <div className="flex gap-2">
-                          <CustomChip color="green" text="3,5%" prefix="YTD:" />
-                          <CustomChip color="green" text="9,84%" prefix="3Y:" />
+                          <CustomChip
+                            color="green"
+                            text="13,33%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip color="green" text="30,7%" prefix="3Y:" />
                         </div>
                       </div>
                       <Image src={Admr} alt="Admr performance" />
@@ -523,6 +534,53 @@ function App() {
                         </div>
                       </div>
                       <Image src={Adro} alt="Adaro performance" />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+                <CarouselItem>
+                  <Card className="p-4">
+                    <CardContent className={"text-left"}>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Bumi Resources Tbk. (BUMI)
+                        </h3>
+                        <div className="flex gap-2">
+                          <CustomChip
+                            color="red"
+                            text="-15,55%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip color="green" text="22,5%" prefix="3Y:" />
+                          <CustomChip color="green" text="204%" prefix="5Y:" />
+                        </div>
+                      </div>
+                      <Image src={Bumi} alt="Bumi performance" />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+
+                <CarouselItem>
+                  <Card className="p-4">
+                    <CardContent className={"text-left"}>
+                      <div className="flex items-center gap-4">
+                        <h3 className="font-semibold text-xl">
+                          Indika Energy Tbk. (INDY)
+                        </h3>
+                        <div className="flex gap-2">
+                          <CustomChip
+                            color="green"
+                            text="24,8%"
+                            prefix="YTD:"
+                          />
+                          <CustomChip
+                            color="green"
+                            text="36,98%"
+                            prefix="3Y:"
+                          />
+                          <CustomChip color="green" text="96%" prefix="5Y:" />
+                        </div>
+                      </div>
+                      <Image src={Indy} alt="Indy performance" />
                     </CardContent>
                   </Card>
                 </CarouselItem>
@@ -565,31 +623,6 @@ function App() {
                         </div>
                       </div>
                       <Image src={Brms} alt="Brms performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Bumi Resources Tbk. (BUMI)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="red"
-                            text="-18,84%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip color="green" text="5,24%" prefix="3Y:" />
-                          <CustomChip
-                            color="green"
-                            text="31,37%"
-                            prefix="5Y:"
-                          />
-                        </div>
-                      </div>
-                      <Image src={Bumi} alt="Bumi performance" />
                     </CardContent>
                   </Card>
                 </CarouselItem>

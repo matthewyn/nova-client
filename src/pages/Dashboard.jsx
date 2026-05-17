@@ -10,6 +10,7 @@ import {
   HiChartBar,
   HiMiniStar,
 } from "react-icons/hi2";
+import { cn } from "@/lib/utils";
 import { StocksCarousel } from "../components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
@@ -22,6 +23,24 @@ import { toast } from "sonner";
 import { exampleStocks } from "../utils/stocksTemplate";
 import CustomChip from "../components/CustomChip";
 
+const VolatilityIcon = ({ riskFactor }) => {
+  const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;
+  return (
+    <div className="flex items-end gap-0.5 h-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <span
+          key={i}
+          className={cn(
+            "w-1 rounded-full",
+            i === 0 ? "h-2" : i === 1 ? "h-3" : "h-4",
+            i < barCount ? "bg-foreground/80" : "bg-muted",
+          )}
+        />
+      ))}
+    </div>
+  );
+};
+
 const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchPositions = generateApiOrigin("/transaction/open");
@@ -32,6 +51,8 @@ function Dashboard() {
   const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  console.log(stocks);
 
   const fetchPositions = async () => {
     try {
@@ -107,7 +128,7 @@ function Dashboard() {
                     <div className="w-full font-sans p-4">
                       <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-foreground">
-                          Aset Populer
+                          Pilihan Saham Baru
                         </h2>
                       </div>
                       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -134,7 +155,7 @@ function Dashboard() {
                     </div>
                   ) : (
                     <StocksCarousel
-                      title="Aset Populer"
+                      title="Pilihan Saham Baru"
                       stocks={stocks}
                       onBuySuccess={fetchPositions}
                     />
@@ -143,171 +164,182 @@ function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="grid grid-cols-2 mt-4">
-            <div>
-              <Card className="rounded-r-none">
-                <CardContent className={"text-left"}>
-                  <div className="p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-bold text-foreground">
-                        Running Trade
-                      </h2>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      {isLoading ? (
-                        <div className="space-y-4">
-                          {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <Skeleton className="h-12 w-12 rounded-md" />
-                              <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                                <Skeleton className="h-3 w-2/3" />
-                              </div>
+          <div className="grid grid-cols-2 mt-4 items-stretch">
+            <Card className="rounded-r-none">
+              <CardContent className={"text-left"}>
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-foreground">
+                      Running Trade
+                    </h2>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {isLoading ? (
+                      <div className="space-y-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-12 w-12 rounded-md" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-5 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-3 w-2/3" />
                             </div>
-                          ))}
-                        </div>
-                      ) : runningStocks.length > 0 ? (
-                        runningStocks.map((stock, index) => (
-                          <Card key={index}>
-                            <CardContent className={"text-left"}>
-                              <div className="flex gap-3 items-center">
-                                <img
-                                  src={stock.logo}
-                                  alt={`${stock.name} logo`}
-                                  className="h-12 w-12 rounded-md"
-                                />
-                                <div className="flex-1 flex justify-between">
-                                  <div>
-                                    <h3 className="font-semibold text-medium text-foreground">
-                                      {stock.name}
-                                    </h3>
-                                    <p className="text-sm text-foreground">
-                                      Entry Price: Rp{" "}
-                                      {stock.initial_price.toLocaleString()}
-                                    </p>
-                                    <p className="text-sm text-foreground/70">
-                                      Tanggal Masuk: {stock.start_date}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="flex items-center gap-2 text-sm text-foreground">
-                                      Prediksi:{" "}
-                                      <span className="flex items-center gap-1">
-                                        {stock.predicted_pct_change > 0 ? (
-                                          <HiArrowUpCircle
-                                            className="inline text-green-500"
-                                            size={20}
-                                          />
-                                        ) : (
-                                          <HiArrowDownCircle
-                                            className="inline text-red-500"
-                                            size={20}
-                                          />
-                                        )}
-                                        {Math.abs(stock.predicted_pct_change)}%
-                                      </span>
-                                    </p>
-                                    <p className="flex items-center gap-2 text-sm text-foreground">
-                                      Sekarang:{" "}
-                                      <span className="flex items-center gap-1">
-                                        {stock.actual_pct_change > 0 ? (
-                                          <HiArrowUpCircle
-                                            className="inline text-green-500"
-                                            size={20}
-                                          />
-                                        ) : (
-                                          <HiArrowDownCircle
-                                            className="inline text-red-500"
-                                            size={20}
-                                          />
-                                        )}
-                                        {Math.abs(stock.actual_pct_change)}%
-                                      </span>
-                                    </p>
-                                  </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : runningStocks.length > 0 ? (
+                      runningStocks.map((stock, index) => (
+                        <Card key={index}>
+                          <CardContent className={"text-left"}>
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="text-sm text-foreground/70">
+                                {stock.start_date}
+                              </span>
+                              <VolatilityIcon riskFactor={stock.risk_level} />
+                            </div>
+                            <div className="flex gap-3 items-center">
+                              <img
+                                src={stock.logo}
+                                alt={`${stock.name} logo`}
+                                className="h-12 w-12 rounded-md"
+                              />
+                              <div className="flex-1 flex justify-between">
+                                <div>
+                                  <h3 className="font-semibold text-medium text-foreground">
+                                    {stock.name.replace(".JK", "")}
+                                  </h3>
+                                  <p className="text-sm text-foreground">
+                                    Harga Masuk: Rp{" "}
+                                    {stock.initial_price.toLocaleString()}
+                                  </p>
+                                  <p className="text-sm text-foreground/70">
+                                    {stock.trailing_stop
+                                      ? "Trailing Stop"
+                                      : "Stop Loss"}
+                                    :{" "}
+                                    <span className="text-red-500">
+                                      Rp{" "}
+                                      {stock.trailing_stop
+                                        ? stock.trailing_stop.toLocaleString()
+                                        : stock.stop_loss.toLocaleString()}
+                                    </span>
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="flex items-center gap-2 text-sm text-foreground">
+                                    Prediksi:{" "}
+                                    <span className="flex items-center gap-1">
+                                      {stock.predicted_pct_change > 0 ? (
+                                        <HiArrowUpCircle
+                                          className="inline text-green-500"
+                                          size={20}
+                                        />
+                                      ) : (
+                                        <HiArrowDownCircle
+                                          className="inline text-red-500"
+                                          size={20}
+                                        />
+                                      )}
+                                      {Math.abs(stock.predicted_pct_change)}%
+                                    </span>
+                                  </p>
+                                  <p className="flex items-center gap-2 text-sm text-foreground">
+                                    Sekarang:{" "}
+                                    <span className="flex items-center gap-1">
+                                      {stock.actual_pct_change > 0 ? (
+                                        <HiArrowUpCircle
+                                          className="inline text-green-500"
+                                          size={20}
+                                        />
+                                      ) : (
+                                        <HiArrowDownCircle
+                                          className="inline text-red-500"
+                                          size={20}
+                                        />
+                                      )}
+                                      {Math.abs(stock.actual_pct_change)}%
+                                    </span>
+                                  </p>
                                 </div>
                               </div>
-                            </CardContent>
-                          </Card>
-                        ))
-                      ) : (
-                        <p className="text-sm text-foreground/70">
-                          Tidak ada running trade dari saham-saham yang sedang
-                          dianalisis saat ini.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <div>
-              <Card className="rounded-l-none">
-                <CardContent className={"text-left"}>
-                  <div className="p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-bold text-foreground">
-                        Posisi Saat Ini
-                      </h2>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      {isLoading ? (
-                        <div className="space-y-4">
-                          {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <Skeleton className="h-12 w-12 rounded-md" />
-                              <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                                <Skeleton className="h-3 w-2/3" />
-                              </div>
                             </div>
-                          ))}
-                        </div>
-                      ) : positions.length > 0 ? (
-                        positions.map((stock, index) => (
-                          <Card key={index}>
-                            <CardContent className={"text-left"}>
-                              <div className="flex gap-3 items-center">
-                                <img
-                                  src={stock.logo}
-                                  alt={`${stock.name} logo`}
-                                  className="h-12 w-12 rounded-md"
-                                />
-                                <div className="flex-1 flex justify-between">
-                                  <div>
-                                    <h3 className="font-semibold text-medium text-foreground">
-                                      {stock.name}
-                                    </h3>
-                                    <p className="text-sm text-foreground">
-                                      Entry Price: Rp{" "}
-                                      {stock.buy_price.toLocaleString()}
-                                    </p>
-                                    <p className="text-sm text-foreground/70">
-                                      Tanggal Masuk:{" "}
-                                      {
-                                        new Date(stock.buy_date)
-                                          .toISOString()
-                                          .split("T")[0]
-                                      }
-                                    </p>
-                                  </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <p className="text-sm text-foreground/70">
+                        Tidak ada running trade dari saham-saham yang sedang
+                        dianalisis saat ini.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-l-none">
+              <CardContent className={"text-left"}>
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-foreground">
+                      Portfolio
+                    </h2>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {isLoading ? (
+                      <div className="space-y-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-12 w-12 rounded-md" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-5 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-3 w-2/3" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : positions.length > 0 ? (
+                      positions.map((stock, index) => (
+                        <Card key={index}>
+                          <CardContent className={"text-left"}>
+                            <div className="flex gap-3 items-center">
+                              <img
+                                src={stock.logo}
+                                alt={`${stock.name} logo`}
+                                className="h-12 w-12 rounded-md"
+                              />
+                              <div className="flex-1 flex justify-between">
+                                <div>
+                                  <h3 className="font-semibold text-medium text-foreground">
+                                    {stock.name.replace(".JK", "")}
+                                  </h3>
+                                  <p className="text-sm text-foreground">
+                                    Harga Masuk: Rp{" "}
+                                    {stock.buy_price.toLocaleString()}
+                                  </p>
+                                  <p className="text-sm text-foreground/70">
+                                    Tanggal Masuk:{" "}
+                                    {
+                                      new Date(stock.buy_date)
+                                        .toISOString()
+                                        .split("T")[0]
+                                    }
+                                  </p>
                                 </div>
                               </div>
-                            </CardContent>
-                          </Card>
-                        ))
-                      ) : (
-                        <p className="text-sm text-foreground/70">
-                          Tidak ada posisi yang kamu pegang saat ini.
-                        </p>
-                      )}
-                    </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <p className="text-sm text-foreground/70">
+                        Tidak ada posisi yang kamu pegang saat ini.
+                      </p>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

@@ -7,7 +7,8 @@ import {
   Image,
 } from "@heroui/react";
 import { Button } from "./ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { SidebarTrigger } from "./ui/sidebar";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Avatar,
@@ -32,6 +33,8 @@ const urlFetch = generateApiOrigin("/auth/logout");
 function CustomNavbar() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const showSidebarToggle = location.pathname.startsWith("/dashboard");
 
   const handleLogout = async () => {
     try {
@@ -52,12 +55,15 @@ function CustomNavbar() {
 
   return (
     <Navbar className="py-2">
-      <Link to="/">
-        <NavbarBrand>
-          <Image src={Logo} alt="Nova Logo" width={64} className="mr-2" />
-          <p className="font-semibold text-inherit text-3xl">Nova</p>
-        </NavbarBrand>
-      </Link>
+      <div className="flex items-center gap-2">
+        {showSidebarToggle && <SidebarTrigger />}
+        <Link to="/">
+          <NavbarBrand>
+            <Image src={Logo} alt="Nova Logo" width={64} className="mr-2" />
+            <p className="font-semibold text-inherit text-3xl">Nova</p>
+          </NavbarBrand>
+        </Link>
+      </div>
       <NavbarContent justify="end">
         {user ? (
           <NavbarItem>

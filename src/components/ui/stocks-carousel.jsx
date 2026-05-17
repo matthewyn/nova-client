@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, AlertTriangleIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
 import { Button } from "../ui/button";
@@ -17,6 +17,7 @@ import axios from "axios";
 import { getAuthHeader } from "../../utils/token";
 import { Field, FieldDescription, FieldLabel } from "./field";
 import { Input } from "./input";
+import { Alert, AlertTitle, AlertDescription } from "./alert";
 
 const VolatilityIcon = ({ riskFactor }) => {
   const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;
@@ -44,6 +45,8 @@ export const StocksCarousel = React.forwardRef(
     const [canScrollLeft, setCanScrollLeft] = React.useState(false);
     const [canScrollRight, setCanScrollRight] = React.useState(true);
     const [selectedStock, setSelectedStock] = React.useState(null);
+    const [selectedStockForTrend, setSelectedStockForTrend] =
+      React.useState(null);
     const [investmentValue, setInvestmentValue] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(false);
 
@@ -104,6 +107,14 @@ export const StocksCarousel = React.forwardRef(
     const handleSubmit = async (e) => {
       try {
         setIsLoading(true);
+
+        if (!investmentValue) {
+          toast("Nilai investasi harus diisi.", {
+            type: "error",
+            position: "top-center",
+          });
+          return;
+        }
 
         const result = await axios.post(
           urlFetch,
@@ -209,7 +220,7 @@ export const StocksCarousel = React.forwardRef(
                     <span className="text-sm text-foreground/70">
                       {stock.start_date}
                     </span>
-                    {/* <VolatilityIcon riskFactor={stock.riskFactor} /> */}
+                    <VolatilityIcon riskFactor={stock.risk_level} />
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">
@@ -262,7 +273,8 @@ export const StocksCarousel = React.forwardRef(
                     <Button
                       variant="secondary"
                       size="lg"
-                      className="flex-1 min-w-0"
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => setSelectedStockForTrend(stock)}
                     >
                       Lihat Lebih
                     </Button>
@@ -344,6 +356,16 @@ export const StocksCarousel = React.forwardRef(
                       </p>
                     </div>
 
+                    <Alert className="max-w-md border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50">
+                      <AlertTriangleIcon />
+                      <AlertTitle>Catatan Penting</AlertTitle>
+                      <AlertDescription>
+                        Saham dapat disimpan maksimal selama 90 hari setelah
+                        tanggal analisis selama harga saham tidak mencapai stop
+                        loss atau trailing stop.
+                      </AlertDescription>
+                    </Alert>
+
                     <Field>
                       <FieldLabel htmlFor="input-required">
                         Nilai Investasi
@@ -387,6 +409,88 @@ export const StocksCarousel = React.forwardRef(
                 </ModalFooter>
               </>
             )}
+          </ModalContent>
+        </Modal>
+
+        {/* Trend Summary Modal */}
+        <Modal
+          isOpen={selectedStockForTrend !== null}
+          onOpenChange={(isOpen) => !isOpen && setSelectedStockForTrend(null)}
+          size="lg"
+        >
+          <ModalContent>
+            {(onClose) => {
+              const parseSummary = (summaryText) => {
+                if (!summaryText) return {};
+                const sections = {};
+                const lines = summaryText
+                  .split("\n")
+                  .filter((line) => line.trim());
+                lines.forEach((line) => {
+                  const match = line.match(/^\s*([A-Z_]+):\s*(.+)/);
+                  if (match) {
+                    sections[match[1]] = match[2].trim();
+                  }
+                });
+                return sections;
+              };
+
+              const summaryData = parseSummary(selectedStockForTrend?.summary);
+
+              return (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Ringkasan Tren:{" "}
+                    {selectedStockForTrend?.name.replace(".JK", "")}
+                  </ModalHeader>
+                  <ModalBody>
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {/* Stock Overview */}
+                      <div className="flex items-center gap-4 pb-4 border-b">
+                        <img
+                          src={selectedStockForTrend?.logo}
+                          alt={`${selectedStockForTrend?.name} logo`}
+                          className="h-16 w-16 rounded-md object-cover bg-muted"
+                        />
+                        <div>
+                          <p className="text-sm text-foreground/70">
+                            Harga Awal
+                          </p>
+                          <p className="text-lg font-semibold">
+                            Rp{" "}
+                            {selectedStockForTrend?.initial_price.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Summary Sections */}
+                      {Object.entries(summaryData).map(([key, value]) => (
+                        <div
+                          key={key}
+                          className="p-3 rounded-lg bg-muted space-y-2"
+                        >
+                          <p className="text-sm font-semibold text-foreground">
+                            {key.replace(/_/g, " ")}
+                          </p>
+                          <p className="text-sm text-foreground/70 leading-relaxed">
+                            {value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      size="lg"
+                      onClick={onClose}
+                      className="cursor-pointer"
+                    >
+                      Tutup
+                    </Button>
+                  </ModalFooter>
+                </>
+              );
+            }}
           </ModalContent>
         </Modal>
       </div>
