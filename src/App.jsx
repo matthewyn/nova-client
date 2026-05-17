@@ -195,6 +195,12 @@ const demoData = {
       image: "https://assets.stockbit.com/logos/companies/INDY.png",
       className: "h-12 w-auto",
     },
+    {
+      id: "logo-10",
+      description: "Ptba",
+      image: "https://assets.stockbit.com/logos/companies/PTBA.png",
+      className: "h-12 w-auto",
+    },
   ],
 };
 
