@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GradientMesh from "./assets/gradient-mesh.jpg";
 import Gradient from "./assets/gradient.jpg";
 import Brms from "./assets/brms.png";
@@ -43,6 +43,9 @@ import { Logos3 } from "./components/blocks/logos3";
 import { Link } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import CustomChip from "./components/CustomChip";
+import { generateApiOrigin } from "./utils/apiOrigin";
+import axios from "axios";
+import { getAuthHeader } from "./utils/token";
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -204,8 +207,11 @@ const demoData = {
   ],
 };
 
+const urlFetch = generateApiOrigin("/midtrans/create-token");
+
 function App() {
   const { user, setUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const faqItems = [
     {
       title: "Apakah AI ini juga dipakai langsung oleh Foundernya?",
@@ -307,6 +313,55 @@ function App() {
     },
   ];
 
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      setIsLoading(true);
+
+      const response = await axios.post(
+        urlFetch,
+        {
+          price: 1000000,
+        },
+        {
+          headers: getAuthHeader(),
+        },
+      );
+
+      if (response.status === 201) {
+        window.snap.pay(response.data.token);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 500) {
+          toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
+            type: "error",
+            position: "top-center",
+          });
+        }
+
+        console.error("Server error:", error.response?.data);
+        console.error("Status code:", error.response?.status);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+    const script = document.createElement("script");
+    script.src = snapScript;
+    script.setAttribute("data-client-key", clientKey);
+    document.body.appendChild(script);
+    script.async = true;
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero / Pricing header */}
@@ -379,6 +434,7 @@ function App() {
                     as={Link}
                     to="/signup"
                     isDisabled={plan.isDisabled}
+                    onClick={plan.id === "pro" ? handleSubmit : undefined}
                   >
                     {plan.buttonLabel}
                   </Button>

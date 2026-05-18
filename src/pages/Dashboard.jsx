@@ -52,8 +52,6 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log(stocks);
-
   const fetchPositions = async () => {
     try {
       const positionsResponse = await axios.get(urlFetchPositions, {
