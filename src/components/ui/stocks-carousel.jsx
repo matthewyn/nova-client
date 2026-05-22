@@ -218,7 +218,7 @@ export const StocksCarousel = React.forwardRef(
                 >
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm text-foreground/70">
-                      {stock.start_date}
+                      {new Date(stock.start_date).toISOString().split("T")[0]}
                     </span>
                     <VolatilityIcon riskFactor={stock.risk_level} />
                   </div>

@@ -68,7 +68,7 @@ const CheckIcon = ({ className = "" }) => (
 const comparisonRows = [
   {
     icon: <HiChatBubbleOvalLeftEllipsis size={16} />,
-    label: "Akses Chat AI",
+    label: "Stockpick AI",
     free: "Analisis terbatas",
     pro: "Analisis pasar tanpa batas",
     elite: "Priority quant intelligence",
@@ -259,7 +259,7 @@ function App() {
       featured: false,
       includedLabel: "Yang termasuk",
       features: [
-        "Stockpick AI terbatas (5 saham pertama)",
+        "Stockpick AI terbatas (1 saham per hari)",
         "Insight saham dasar",
         "Ringkasan portofolio",
       ],
@@ -279,8 +279,7 @@ function App() {
       features: [
         "Stockpick AI tanpa batas",
         "Konteks pasar terkini dan luas",
-        "Analisis risiko portofolio",
-        "Penjelasan tren pasar",
+        "Analisis volatilitas & simulasi skenario",
       ],
       buttonLabel: "Mulai Pro",
       isDisabled: user && user.tier == "pro",
@@ -297,7 +296,6 @@ function App() {
       includedLabel: "Semua fitur Pro, ditambah",
       features: [
         "Forecast AI dengan analisis lebih mendalam",
-        "Analisis volatilitas & simulasi skenario",
         "Insight market premium",
         "Akses awal ke fitur dan model terbaru",
       ],
