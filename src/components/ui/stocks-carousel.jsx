@@ -119,7 +119,7 @@ export const StocksCarousel = React.forwardRef(
         const result = await axios.post(
           urlFetch,
           {
-            stock_id: selectedStock._id,
+            stock_id: selectedStock.id,
             name: selectedStock.name,
             buy_date: new Date().toISOString(),
             sell_date: null,
@@ -352,7 +352,11 @@ export const StocksCarousel = React.forwardRef(
                         Tanggal Analisis
                       </p>
                       <p className="text-base font-medium">
-                        {selectedStock?.start_date}
+                        {
+                          new Date(selectedStock?.start_date)
+                            .toISOString()
+                            .split("T")[0]
+                        }
                       </p>
                     </div>
 

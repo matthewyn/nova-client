@@ -125,7 +125,7 @@ function Transactions() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-4">
-                    No transactions found.
+                    Tidak ada transaksi yang ditemukan.
                   </TableCell>
                 </TableRow>
               )}
