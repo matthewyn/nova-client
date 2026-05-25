@@ -7,9 +7,9 @@ import {
   HiLockClosed,
 } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
-import { generateApiOrigin } from "../utils/apiOrigin";
-import { useAuth } from "../contexts/AuthContext";
-import { saveToken } from "../utils/token";
+import { generateApiOrigin } from "@/utils/apiOrigin";
+import { useAuth } from "@/contexts/AuthContext";
+import { saveToken } from "@/utils/token";
 import { toast } from "sonner";
 
 export const EyeSlashFilledIcon = (props) => {
@@ -127,7 +127,7 @@ function LoginCard() {
   return (
     <>
       <div
-        className="max-w-100 relative z-10 p-4 rounded-2xl 
+        className="max-w-120 relative z-10 p-4 rounded-2xl 
          bg-white/30 backdrop-blur-xl"
       >
         <h1 className="font-semibold text-2xl text-center mt-2">
@@ -185,7 +185,7 @@ function LoginCard() {
           >
             Lupa password?
           </Link>
-          <Button color="secondary" type="submit" isLoading={isLoading}>
+          <Button className="primary" type="submit" isLoading={isLoading}>
             Masuk
           </Button>
         </form>

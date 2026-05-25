@@ -10,13 +10,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "./ui/sidebar";
+} from "@/components/ui/sidebar";
 import { Home, LayoutDashboard, LogOut, Sheet } from "lucide-react";
 import { HiMiniRectangleStack } from "react-icons/hi2";
 import axios from "axios";
-import { useAuth } from "../contexts/AuthContext";
-import { removeToken } from "../utils/token";
-import { generateApiOrigin } from "../utils/apiOrigin";
+import { useAuth } from "@/contexts/AuthContext";
+import { removeToken } from "@/utils/token";
+import { generateApiOrigin } from "@/utils/apiOrigin";
 
 const urlFetch = generateApiOrigin("/auth/logout");
 

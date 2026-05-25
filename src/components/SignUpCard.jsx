@@ -1,17 +1,22 @@
 import { Card, CardBody, Button, Input } from "@heroui/react";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   HiArrowRightEndOnRectangle,
   HiMiniEnvelope,
   HiLockClosed,
   HiMiniUser,
+  HiChevronLeft,
 } from "react-icons/hi2";
-import { generateApiOrigin } from "../utils/apiOrigin";
+import { parsePhoneNumber } from "libphonenumber-js";
+import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Link, useNavigate } from "react-router-dom";
-import { saveToken } from "../utils/token";
-import { useAuth } from "../contexts/AuthContext";
+import { saveToken } from "@/utils/token";
+import { useAuth } from "@/contexts/AuthContext";
+import { InputOtp } from "@heroui/react";
 import { toast } from "sonner";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { auth } from "@/firebase";
 
 export const EyeSlashFilledIcon = (props) => {
   return (
@@ -73,7 +78,56 @@ export const EyeFilledIcon = (props) => {
   );
 };
 
+const formatPhoneNumber = (value, countryCode) => {
+  const digits = value.replace(/\D/g, "");
+
+  const patterns = {
+    US: (d) => {
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
+    },
+    CA: (d) => {
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
+    },
+    GB: (d) => {
+      if (d.length <= 4) return d;
+      if (d.length <= 7) return `${d.slice(0, 4)} ${d.slice(4)}`;
+      return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 11)}`;
+    },
+    AU: (d) => {
+      if (d.length <= 4) return d;
+      if (d.length <= 7) return `${d.slice(0, 4)} ${d.slice(4)}`;
+      return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 10)}`;
+    },
+    IN: (d) => {
+      if (d.length <= 5) return d;
+      return `${d.slice(0, 5)} ${d.slice(5, 10)}`;
+    },
+    ID: (d) => {
+      if (d.length <= 4) return d;
+      if (d.length <= 8) return `${d.slice(0, 4)}-${d.slice(4)}`;
+      return `${d.slice(0, 4)}-${d.slice(4, 8)}-${d.slice(8, 11)}`;
+    },
+  };
+
+  const formatter = patterns[countryCode];
+  if (formatter) {
+    return formatter(digits.slice(0, 15));
+  }
+
+  let formatted = "";
+  for (let i = 0; i < digits.length && i < 15; i++) {
+    if (i > 0 && i % 4 === 0) formatted += " ";
+    formatted += digits[i];
+  }
+  return formatted;
+};
+
 const urlFetch = generateApiOrigin("/auth/signup");
+const urlConfirm = generateApiOrigin("/auth/confirm");
 
 function SignUpCard() {
   const [isVisible, setIsVisible] = useState(false);
@@ -82,26 +136,122 @@ function SignUpCard() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [isOtp, setIsOtp] = useState(false);
+  const [otp, setOtp] = useState("");
   const navigate = useNavigate();
   const { fetchUser } = useAuth();
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState(null);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSubmit = async (e) => {
+  const sendOtp = async () => {
+    if (!recaptchaVerifier) {
+      toast("Recaptcha belum siap. Silakan coba lagi.", {
+        type: "error",
+        position: "top-center",
+      });
+      return;
+    }
+
+    const phoneNumber = `+62${phone.replace(/\D/g, "")}`;
+
     try {
-      e.preventDefault();
       setIsLoading(true);
+      const confirmationResult = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        recaptchaVerifier,
+      );
+      setConfirmationResult(confirmationResult);
+      setResendCountdown(60);
+      setIsOtp(true);
+      toast("OTP berhasil dikirim ke nomor Anda.", {
+        type: "success",
+        position: "top-center",
+      });
+    } catch (error) {
+      setResendCountdown(0);
+      if (error.code === "auth/invalid-phone-number") {
+        toast("Nomor telepon tidak valid. Pastikan format benar.", {
+          type: "error",
+          position: "top-center",
+        });
+      } else if (error.code === "auth/too-many-requests") {
+        toast(
+          "Terlalu banyak permintaan. Silakan coba lagi nanti atau hubungi dukungan.",
+          {
+            type: "error",
+            position: "top-center",
+          },
+        );
+      } else {
+        toast("Gagal mengirim OTP. Pastikan nomor benar.", {
+          type: "error",
+          position: "top-center",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("email", email);
-      formData.append("password", password);
-      formData.append("phone", phone);
+  const proceedToOtp = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    if (!name || !email || !password || !phone) {
+      toast("Semua form harus diisi dengan benar", {
+        type: "error",
+        position: "top-center",
+      });
+      setIsLoading(false);
+      return;
+    }
 
-      const response = await axios.post(urlFetch, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const result = await axios.post(urlConfirm, {
+        phone: `+62${phone.replace(/\D/g, "")}`,
+        email: email,
+      });
+      if (result.status === 200) {
+        setIsLoading(false);
+        await sendOtp();
+      }
+    } catch (error) {
+      setIsLoading(false);
+      toast("Gagal mengirim OTP. Pastikan nomor dan email benar.", {
+        type: "error",
+        position: "top-center",
+      });
+    }
+  };
+
+  const handleBackToForm = () => {
+    setIsOtp(false);
+    setOtp("");
+  };
+
+  const verifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!confirmationResult) {
+      toast("OTP belum dikirim. Silakan coba lagi.", {
+        type: "error",
+        position: "top-center",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await confirmationResult.confirm(otp);
+
+      const phoneNumber = `+62${phone.replace(/\D/g, "")}`;
+      const response = await axios.post(urlFetch, {
+        name: name,
+        email: email,
+        password: password,
+        phone: phoneNumber,
       });
 
       if (response.status === 201) {
@@ -116,101 +266,195 @@ function SignUpCard() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          toast(
-            "Input tidak valid. Silakan periksa kembali informasi yang dimasukkan.",
-            {
-              type: "error",
-              position: "top-center",
-            },
-          );
+        if (error.response?.status === 500) {
+          toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
+            type: "error",
+            position: "top-center",
+          });
+          console.error("Server error:", error.response?.data);
+          console.error("Status code:", error.response?.status);
         }
-
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
+      } else {
+        toast("OTP tidak valid. Pastikan Anda memasukkan kode yang benar.", {
+          type: "error",
+          position: "top-center",
+        });
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    let timer;
+    if (resendCountdown > 0) {
+      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCountdown]);
+
+  useEffect(() => {
+    const enteredAllDigits = otp.replace(/\D/g, "").length === 6;
+    if (enteredAllDigits) {
+      verifyOtp();
+    }
+  }, [otp]);
+
+  useEffect(() => {
+    const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+      size: "invisible",
+    });
+    setRecaptchaVerifier(verifier);
+    return () => {
+      verifier.clear();
+    };
+  }, [auth]);
+
   return (
     <>
+      <div id="recaptcha-container" />
       <div
-        className="max-w-100 relative z-10 p-4 rounded-2xl 
+        className="max-w-120 relative z-10 p-4 rounded-2xl 
          bg-white/30 backdrop-blur-xl"
       >
-        <h1 className="font-semibold text-2xl text-center mt-2">
-          Mulai dengan Nova AI
-        </h1>
-        <p className="text-gray-500 text-center mt-1">
-          Pendamping investasi yang tenang dan didukung AI, dirancang untuk
-          membantu Anda dalam bertransaksi.
-        </p>
-        <form className="flex flex-col gap-3 mt-5" onSubmit={handleSubmit}>
-          <div>
-            <Input
-              isRequired
-              label="Nama"
-              type="text"
-              placeholder="Nama"
-              startContent={<HiMiniUser size={20} className="text-gray-400" />}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              minLength={2}
-            />
-          </div>
-          <div>
-            <Input
-              isRequired
-              label="Email"
-              type="email"
-              placeholder="Email"
-              startContent={
-                <HiMiniEnvelope size={20} className="text-gray-400" />
-              }
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <Input
-              isRequired
-              endContent={
-                <button
-                  aria-label="toggle password visibility"
-                  className="focus:outline-solid outline-transparent"
-                  type="button"
-                  onClick={toggleVisibility}
-                >
-                  {isVisible ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  )}
-                </button>
-              }
-              startContent={
-                <HiLockClosed size={20} className="text-gray-400" />
-              }
-              label="Password"
-              placeholder="Password"
-              type={isVisible ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
-            />
-          </div>
-          <Button color="secondary" type="submit" isLoading={isLoading}>
-            Mulai Perjalanan
-          </Button>
-          <p>
-            Sudah punya akun?{" "}
-            <Link className="text-sm text-indigo-500" to="/login">
-              Masuk
-            </Link>
-          </p>
-        </form>
+        {!isOtp ? (
+          <>
+            <h1 className="font-semibold text-2xl text-center mt-2">
+              Mulai dengan Nova AI
+            </h1>
+            <p className="text-gray-500 text-center mt-1">
+              Pendamping investasi yang tenang dan didukung AI, dirancang untuk
+              membantu Anda dalam bertransaksi.
+            </p>
+            <form className="flex flex-col gap-3 mt-5" onSubmit={proceedToOtp}>
+              <div>
+                <Input
+                  isRequired
+                  label="Nama"
+                  type="text"
+                  placeholder="Nama"
+                  startContent={
+                    <HiMiniUser size={20} className="text-gray-400" />
+                  }
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  minLength={2}
+                />
+              </div>
+              <div>
+                <Input
+                  isRequired
+                  label="Email"
+                  type="email"
+                  placeholder="Email"
+                  startContent={
+                    <HiMiniEnvelope size={20} className="text-gray-400" />
+                  }
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <Input
+                type="tel"
+                isRequired
+                label="Phone Number"
+                placeholder="Phone number"
+                value={formatPhoneNumber(phone, "ID")}
+                onChange={(e) => {
+                  const formatted = formatPhoneNumber(e.target.value, "ID");
+                  setPhone(formatted);
+                }}
+                className="flex-1"
+                minLength={10}
+                startContent={
+                  <div className="pointer-events-none flex items-center">
+                    <span className="text-default-400 text-small">+62</span>
+                  </div>
+                }
+              />
+              <div>
+                <Input
+                  isRequired
+                  endContent={
+                    <button
+                      aria-label="toggle password visibility"
+                      className="focus:outline-solid outline-transparent"
+                      type="button"
+                      onClick={toggleVisibility}
+                    >
+                      {isVisible ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                  startContent={
+                    <HiLockClosed size={20} className="text-gray-400" />
+                  }
+                  label="Password"
+                  placeholder="Password"
+                  type={isVisible ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={8}
+                />
+              </div>
+              <Button isLoading={isLoading} type="submit" className="primary">
+                Mulai Perjalanan
+              </Button>
+              <p>
+                Sudah punya akun?{" "}
+                <Link className="text-sm text-indigo-500" to="/login">
+                  Masuk
+                </Link>
+              </p>
+            </form>
+          </>
+        ) : (
+          <>
+            <Button variant="outline" size="icon-lg" onClick={handleBackToForm}>
+              <HiChevronLeft />
+            </Button>
+
+            <h1 className="font-semibold text-2xl text-center mt-2">
+              Verifikasi Nomor Anda
+            </h1>
+            <p className="text-gray-500 text-center mt-1">
+              Kami telah mengirimkan 6 digit kode OTP ke nomor{" "}
+              <span className="font-bold">+62 {phone}</span>. Masukkan kode
+              tersebut untuk melanjutkan proses pendaftaran Anda.
+            </p>
+            <form className="flex flex-col gap-2 mt-3">
+              <div className="flex justify-center">
+                <InputOtp
+                  isRequired
+                  value={otp}
+                  onValueChange={setOtp}
+                  length={6}
+                  placeholder="0"
+                />
+              </div>
+              <Button
+                isLoading={isLoading}
+                type="submit"
+                className="primary mt-2"
+                onClick={verifyOtp}
+              >
+                Verifikasi Nomor Anda
+              </Button>
+              <Button
+                isLoading={isLoading}
+                type="button"
+                variant="bordered"
+                isDisabled={resendCountdown > 0 || isLoading}
+                onClick={sendOtp}
+              >
+                Kirim Ulang OTP {resendCountdown > 0 && `(${resendCountdown}s)`}
+              </Button>
+            </form>
+          </>
+        )}
       </div>
     </>
   );

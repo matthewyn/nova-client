@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import GradientMesh from "./assets/gradient-mesh.jpg";
-import Gradient from "./assets/gradient.jpg";
-import Brms from "./assets/brms.png";
-import Admr from "./assets/admr.png";
-import Pani from "./assets/pani.png";
-import Bumi from "./assets/bumi.png";
-import Adro from "./assets/adro.png";
-import Indy from "./assets/indy.png";
+import GradientMesh from "@/assets/gradient-mesh.jpg";
+import Gradient from "@/assets/gradient.jpg";
+import Brms from "@/assets/brms.png";
+import Admr from "@/assets/admr.png";
+import Pani from "@/assets/pani.png";
+import Bumi from "@/assets/bumi.png";
+import Adro from "@/assets/adro.png";
+import Indy from "@/assets/indy.png";
 import {
   HiFire,
   HiBolt,
@@ -17,19 +17,19 @@ import {
   HiChartBar,
   HiMiniStar,
 } from "react-icons/hi2";
-import { TypewriterEffectSmooth } from "./components/ui/typewriter-effect";
-import { ContainerScroll } from "./components/ui/container-scroll-animation";
-import { Card, CardContent } from "./components/ui/card";
+import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "./components/ui/carousel";
-import { BlurFade } from "./components/ui/blur-fade";
-import { HeroGeometric } from "./components/ui/shape-landing-hero";
-import Footer from "./components/Footer";
+} from "@/components/ui/carousel";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
+import Footer from "@/components/Footer";
 import {
   Accordion,
   AccordionItem,
@@ -38,14 +38,14 @@ import {
   Image,
   User,
 } from "@heroui/react";
-import SparkleIcon from "./components/SparkleIcon";
-import { Logos3 } from "./components/blocks/logos3";
+import SparkleIcon from "@/components/SparkleIcon";
+import { Logos3 } from "@/components/blocks/logos3";
 import { Link } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
-import CustomChip from "./components/CustomChip";
-import { generateApiOrigin } from "./utils/apiOrigin";
+import { useAuth } from "@/contexts/AuthContext";
+import CustomChip from "@/components/CustomChip";
+import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
-import { getAuthHeader } from "./utils/token";
+import { getAuthHeader } from "@/utils/token";
 
 const CheckIcon = ({ className = "" }) => (
   <svg

@@ -1,6 +1,6 @@
-import SignUpCard from "../components/SignUpCard";
+import SignUpCard from "@/components/SignUpCard";
 import Lottie from "lottie-react";
-import abstractWaves from "../assets/abstract-waves.json";
+import abstractWaves from "@/assets/abstract-waves.json";
 
 function SignUp() {
   return (

@@ -1,4 +1,4 @@
-import Logo from "../assets/logo.png";
+import Logo from "@/assets/logo.png";
 import {
   Navbar,
   NavbarBrand,
@@ -6,16 +6,16 @@ import {
   NavbarItem,
   Image,
 } from "@heroui/react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { SidebarTrigger } from "./ui/sidebar";
-import { useAuth } from "../contexts/AuthContext";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
   AvatarBadge,
-} from "../components/ui/avatar";
+} from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,10 +23,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import axios from "axios";
-import { removeToken } from "../utils/token";
-import { generateApiOrigin } from "../utils/apiOrigin";
+import { removeToken } from "@/utils/token";
+import { generateApiOrigin } from "@/utils/apiOrigin";
 
 const urlFetch = generateApiOrigin("/auth/logout");
 

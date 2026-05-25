@@ -7,13 +7,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table";
-import { generateApiOrigin } from "../utils/apiOrigin";
+} from "@/components/ui/table";
+import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
-import { getAuthHeader } from "../utils/token";
-import capitalizeFirstLetter from "../utils/string";
-import { Button } from "../components/ui/button";
-import { Skeleton } from "../components/ui/skeleton";
+import { getAuthHeader } from "@/utils/token";
+import capitalizeFirstLetter from "@/utils/string";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const urlFetch = generateApiOrigin("/transaction");
 

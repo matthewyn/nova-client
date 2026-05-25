@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
-import { generateApiOrigin } from "../utils/apiOrigin";
-import { getAuthHeader, removeToken } from "../utils/token";
+import { generateApiOrigin } from "@/utils/apiOrigin";
+import { getAuthHeader, removeToken } from "@/utils/token";
 
 const AuthContext = createContext();
 

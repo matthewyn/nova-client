@@ -1,6 +1,6 @@
-import LoginCard from "../components/LoginCard";
+import LoginCard from "@/components/LoginCard";
 import Lottie from "lottie-react";
-import abstractWaves from "../assets/abstract-waves.json";
+import abstractWaves from "@/assets/abstract-waves.json";
 
 function Login() {
   return (

@@ -1,5 +1,5 @@
-import SparkleIcon from "../components/SparkleIcon";
-import { Card, CardContent } from "../components/ui/card";
+import SparkleIcon from "@/components/SparkleIcon";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   HiFire,
   HiBolt,
@@ -11,33 +11,49 @@ import {
   HiMiniStar,
 } from "react-icons/hi2";
 import { cn } from "@/lib/utils";
-import { StocksCarousel } from "../components/ui/stocks-carousel";
+import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
 import axios from "axios";
-import { generateApiOrigin } from "../utils/apiOrigin";
-import { Skeleton } from "../components/ui/skeleton";
-import { getAuthHeader } from "../utils/token";
+import { generateApiOrigin } from "@/utils/apiOrigin";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getAuthHeader } from "@/utils/token";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { exampleStocks } from "../utils/stocksTemplate";
-import CustomChip from "../components/CustomChip";
+import { exampleStocks } from "@/utils/stocksTemplate";
+import StockButton from "@/components/StockButton";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import CapitalizeFirstLetter from "@/utils/string";
+import CustomChip from "@/components/CustomChip";
+import StockModal from "@/components/StockModal";
 
 const VolatilityIcon = ({ riskFactor }) => {
   const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;
   return (
-    <div className="flex items-end gap-0.5 h-4">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <span
-          key={i}
-          className={cn(
-            "w-1 rounded-full",
-            i === 0 ? "h-2" : i === 1 ? "h-3" : "h-4",
-            i < barCount ? "bg-foreground/80" : "bg-muted",
-          )}
-        />
-      ))}
-    </div>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="flex items-end gap-0.5 h-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                "w-1 rounded-full",
+                i === 0 ? "h-2" : i === 1 ? "h-3" : "h-4",
+                i < barCount ? "bg-foreground/80" : "bg-muted",
+              )}
+            />
+          ))}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Risiko: {CapitalizeFirstLetter(riskFactor)}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 
@@ -50,6 +66,9 @@ function Dashboard() {
   const [runningStocks, setRunningStocks] = useState([]);
   const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
+  const [investmentValue, setInvestmentValue] = useState("");
   const navigate = useNavigate();
 
   const fetchPositions = async () => {
@@ -103,6 +122,65 @@ function Dashboard() {
 
     fetchData();
   }, []);
+
+  const handleSubmit = async (e) => {
+    try {
+      setIsLoading(true);
+
+      if (!investmentValue) {
+        toast("Nilai investasi harus diisi.", {
+          type: "error",
+          position: "top-center",
+        });
+        return;
+      }
+
+      const result = await axios.post(
+        urlFetch,
+        {
+          stock_id: selectedStock.id,
+          name: selectedStock.name,
+          buy_date: new Date().toISOString(),
+          sell_date: null,
+          buy_price: selectedStock.initial_price,
+          sell_price: null,
+          equity: Number(investmentValue),
+        },
+        {
+          headers: getAuthHeader(),
+        },
+      );
+
+      if (result.status === 201) {
+        toast("Sukses membeli saham! Transaksi Anda telah tercatat.", {
+          type: "success",
+          position: "top-center",
+        });
+        setSelectedStock(null);
+        if (onBuySuccess) {
+          onBuySuccess();
+        }
+        return;
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status == 400) {
+          toast(
+            "Input tidak valid. Silakan periksa kembali informasi yang dimasukkan.",
+            {
+              type: "error",
+              position: "top-center",
+            },
+          );
+        }
+
+        console.error("Server error:", error.response?.data);
+        console.error("Status code:", error.response?.status);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="bg-gray-50">
@@ -191,7 +269,11 @@ function Dashboard() {
                           <CardContent className={"text-left"}>
                             <div className="flex justify-between items-center mb-3">
                               <span className="text-sm text-foreground/70">
-                                {stock.start_date}
+                                {
+                                  new Date(stock.start_date)
+                                    .toISOString()
+                                    .split("T")[0]
+                                }
                               </span>
                               <VolatilityIcon riskFactor={stock.risk_level} />
                             </div>
@@ -207,8 +289,8 @@ function Dashboard() {
                                     {stock.name.replace(".JK", "")}
                                   </h3>
                                   <p className="text-sm text-foreground">
-                                    Harga Masuk: Rp{" "}
-                                    {stock.initial_price.toLocaleString()}
+                                    Harga Saat Ini: Rp{" "}
+                                    {stock.close.toLocaleString()}
                                   </p>
                                   <p className="text-sm text-foreground/70">
                                     {stock.trailing_stop
@@ -219,7 +301,9 @@ function Dashboard() {
                                       Rp{" "}
                                       {stock.trailing_stop
                                         ? stock.trailing_stop.toLocaleString()
-                                        : stock.stop_loss.toLocaleString()}
+                                        : Math.floor(
+                                            stock.stop_loss,
+                                          ).toLocaleString()}
                                     </span>
                                   </p>
                                 </div>
@@ -261,6 +345,14 @@ function Dashboard() {
                                 </div>
                               </div>
                             </div>
+
+                            <StockButton
+                              stock={stock}
+                              setSelectedStock={() => setSelectedStock(stock)}
+                              setSelectedStockForTrend={() =>
+                                setSelectedStockForTrend(stock)
+                              }
+                            />
                           </CardContent>
                         </Card>
                       ))
@@ -341,6 +433,14 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      <StockModal
+        investmentValue={investmentValue}
+        setInvestmentValue={setInvestmentValue}
+        selectedStock={selectedStock}
+        selectedStockForTrend={selectedStockForTrend}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 }
