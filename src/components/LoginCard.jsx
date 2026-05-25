@@ -1,11 +1,7 @@
 import { Card, CardBody, Button, Input } from "@heroui/react";
 import axios from "axios";
 import { useState } from "react";
-import {
-  HiArrowRightEndOnRectangle,
-  HiMiniEnvelope,
-  HiLockClosed,
-} from "react-icons/hi2";
+import { HiMiniEnvelope, HiLockClosed } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { useAuth } from "@/contexts/AuthContext";

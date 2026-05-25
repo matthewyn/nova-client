@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, LayoutDashboard, LogOut, Sheet } from "lucide-react";
+import { LayoutDashboard, LogOut, Sheet } from "lucide-react";
 import { HiMiniRectangleStack } from "react-icons/hi2";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";

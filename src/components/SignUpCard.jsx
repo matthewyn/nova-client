@@ -2,13 +2,11 @@ import { Card, CardBody, Button, Input } from "@heroui/react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import {
-  HiArrowRightEndOnRectangle,
   HiMiniEnvelope,
   HiLockClosed,
   HiMiniUser,
   HiChevronLeft,
 } from "react-icons/hi2";
-import { parsePhoneNumber } from "libphonenumber-js";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Link, useNavigate } from "react-router-dom";
 import { saveToken } from "@/utils/token";

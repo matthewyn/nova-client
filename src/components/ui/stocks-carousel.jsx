@@ -3,10 +3,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, AlertTriangleIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
-import { toast } from "sonner";
-import { generateApiOrigin } from "@/utils/apiOrigin";
-import axios from "axios";
-import { getAuthHeader } from "@/utils/token";
 import {
   Tooltip,
   TooltipContent,
@@ -39,10 +35,8 @@ const VolatilityIcon = ({ riskFactor }) => {
   );
 };
 
-const urlFetch = generateApiOrigin("/transaction/new");
-
 export const StocksCarousel = React.forwardRef(
-  ({ title, stocks, className, onBuySuccess }, ref) => {
+  ({ title, stocks, className }, ref) => {
     const scrollContainerRef = React.useRef(null);
     const [canScrollLeft, setCanScrollLeft] = React.useState(false);
     const [canScrollRight, setCanScrollRight] = React.useState(true);

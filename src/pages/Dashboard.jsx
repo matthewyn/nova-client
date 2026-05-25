@@ -1,65 +1,26 @@
 import SparkleIcon from "@/components/SparkleIcon";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  HiFire,
-  HiBolt,
-  HiGift,
-  HiChatBubbleOvalLeftEllipsis,
-  HiChartPie,
-  HiExclamationCircle,
-  HiChartBar,
-  HiMiniStar,
-} from "react-icons/hi2";
+import { Chip } from "@heroui/react";
+import { HiOutlineInformationCircle } from "react-icons/hi2";
 import { cn } from "@/lib/utils";
 import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
-import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import axios from "axios";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAuthHeader } from "@/utils/token";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { exampleStocks } from "@/utils/stocksTemplate";
-import StockButton from "@/components/StockButton";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import CapitalizeFirstLetter from "@/utils/string";
-import CustomChip from "@/components/CustomChip";
 import StockModal from "@/components/StockModal";
-
-const VolatilityIcon = ({ riskFactor }) => {
-  const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="flex items-end gap-0.5 h-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <span
-              key={i}
-              className={cn(
-                "w-1 rounded-full",
-                i === 0 ? "h-2" : i === 1 ? "h-3" : "h-4",
-                i < barCount ? "bg-foreground/80" : "bg-muted",
-              )}
-            />
-          ))}
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Risiko: {CapitalizeFirstLetter(riskFactor)}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-};
+import { Divider } from "@heroui/react";
 
 const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchPositions = generateApiOrigin("/transaction/open");
+const urlFetchTransaction = generateApiOrigin("/transaction/new");
 
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
@@ -136,7 +97,7 @@ function Dashboard() {
       }
 
       const result = await axios.post(
-        urlFetch,
+        urlFetchTransaction,
         {
           stock_id: selectedStock.id,
           name: selectedStock.name,
@@ -157,9 +118,7 @@ function Dashboard() {
           position: "top-center",
         });
         setSelectedStock(null);
-        if (onBuySuccess) {
-          onBuySuccess();
-        }
+        await fetchPositions();
         return;
       }
     } catch (error) {
@@ -267,108 +226,144 @@ function Dashboard() {
                       runningStocks.map((stock, index) => (
                         <Card key={index}>
                           <CardContent className={"text-left"}>
-                            <div className="flex justify-between items-center mb-3">
-                              <span className="text-sm text-foreground/70">
-                                {
-                                  new Date(stock.start_date)
-                                    .toISOString()
-                                    .split("T")[0]
-                                }
-                              </span>
-                              <VolatilityIcon riskFactor={stock.risk_level} />
-                            </div>
-                            <div className="flex gap-3 items-center">
-                              <img
-                                src={stock.logo}
-                                alt={`${stock.name} logo`}
-                                className="h-12 w-12 rounded-md"
-                              />
-                              <div className="flex-1 flex justify-between">
-                                <div>
-                                  <h3 className="font-semibold text-medium text-foreground">
-                                    {stock.name.replace(".JK", "")}
-                                  </h3>
-                                  <div className="grid grid-cols-3 gap-8">
-                                    <div className="text-sm text-foreground">
-                                      <p className="font-semibold text-foreground text-medium">
-                                        Rp{" "}
-                                        {stock.initial_price.toLocaleString()}
-                                      </p>
-                                      <p>Harga Masuk</p>
-                                    </div>
-                                    <div className="text-sm text-foreground">
-                                      <p className="font-semibold text-foreground text-medium">
-                                        Rp {stock.close.toLocaleString()}
-                                      </p>
-                                      <p>Harga Saat Ini</p>
-                                    </div>
-                                    <div className="text-sm text-foreground">
-                                      <p className="font-semibold text-medium text-red-500">
-                                        Rp{" "}
-                                        {stock.trailing_stop
-                                          ? stock.trailing_stop.toLocaleString()
-                                          : Math.floor(
-                                              stock.stop_loss,
-                                            ).toLocaleString()}
-                                      </p>
-                                      <p>
-                                        {stock.trailing_stop
-                                          ? "Trailing Stop"
-                                          : "Stop Loss"}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <p className="flex items-center gap-2 text-sm text-foreground">
-                                    Prediksi:{" "}
-                                    <span className="flex items-center gap-1">
-                                      {stock.predicted_pct_change > 0 ? (
-                                        <HiArrowUpCircle
-                                          className="inline text-green-500"
-                                          size={20}
-                                        />
-                                      ) : (
-                                        <HiArrowDownCircle
-                                          className="inline text-red-500"
-                                          size={20}
-                                        />
-                                      )}
-                                      {Math.abs(stock.predicted_pct_change)}%
-                                    </span>
-                                  </p>
-                                  <p className="flex items-center gap-2 text-sm text-foreground">
-                                    Sekarang:{" "}
-                                    <span className="flex items-center gap-1">
-                                      {stock.actual_pct_change > 0 ? (
-                                        <HiArrowUpCircle
-                                          className="inline text-green-500"
-                                          size={20}
-                                        />
-                                      ) : (
-                                        <HiArrowDownCircle
-                                          className="inline text-red-500"
-                                          size={20}
-                                        />
-                                      )}
-                                      {Math.abs(stock.actual_pct_change)}%
-                                    </span>
-                                  </p>
-                                </div>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={stock.logo}
+                                  alt={`${stock.name} logo`}
+                                  className="h-10 w-10 rounded-md"
+                                />
+                                <h3 className="font-semibold text-medium text-foreground">
+                                  {stock.name.replace(".JK", "")}
+                                </h3>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp {stock.close.toLocaleString()}
+                                </p>
+                                <span className="flex items-center gap-1">
+                                  {stock.actual_pct_change > 0 ? (
+                                    <FaCaretUp
+                                      className="inline text-green-500"
+                                      size={20}
+                                    />
+                                  ) : (
+                                    <FaCaretDown
+                                      className="inline text-red-500"
+                                      size={20}
+                                    />
+                                  )}
+                                  {Math.abs(stock.actual_pct_change).toFixed(2)}
+                                  %
+                                </span>
                               </div>
                             </div>
+                            <Divider className="my-3" />
+                            <div className="grid grid-cols-3 gap-8">
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp {stock.initial_price.toLocaleString()}
+                                </p>
+                                <p>Harga Masuk</p>
+                              </div>
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp{" "}
+                                  {Math.floor(
+                                    stock.initial_price +
+                                      (stock.initial_price *
+                                        stock.predicted_pct_change) /
+                                        100,
+                                  ).toLocaleString()}
+                                </p>
+                                <p>Take Profit</p>
+                              </div>
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-medium text-red-500">
+                                  Rp{" "}
+                                  {stock.trailing_stop
+                                    ? stock.trailing_stop
+                                        .toFixed(0)
+                                        .toLocaleString()
+                                    : Math.floor(stock.stop_loss)
+                                        .toFixed(0)
+                                        .toLocaleString()}
+                                </p>
+                                <p>
+                                  {stock.trailing_stop
+                                    ? "Trailing Stop"
+                                    : "Stop Loss"}
+                                </p>
+                              </div>
+                            </div>
+                            <Divider className="my-3 mb-5" />
+                            <div className="grid grid-cols-3 gap-8 items-center">
+                              {stock.status ? (
+                                <Chip
+                                  className="bg-indigo-500/20 text-indigo-500 col-span-2"
+                                  radius="sm"
+                                >
+                                  {stock.status}
+                                </Chip>
+                              ) : (
+                                <>
+                                  <div>
+                                    <p className="text-sm text-foreground font-semibold">
+                                      Prediksi:{" "}
+                                    </p>
+                                    <span className="flex items-center gap-1">
+                                      {stock.predicted_pct_change > 0 ? (
+                                        <FaCaretUp
+                                          className="inline text-green-500"
+                                          size={20}
+                                        />
+                                      ) : (
+                                        <FaCaretDown
+                                          className="inline text-red-500"
+                                          size={20}
+                                        />
+                                      )}
+                                      {Math.abs(
+                                        stock.predicted_pct_change,
+                                      ).toFixed(2)}
+                                      %
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-foreground font-semibold">
+                                      Risiko:{" "}
+                                    </p>
+                                    <span>
+                                      {CapitalizeFirstLetter(stock.risk_level)}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
 
-                            {!positions.some(
-                              (pos) => pos.stock_id === stock.id,
-                            ) && (
-                              <StockButton
-                                stock={stock}
-                                setSelectedStock={() => setSelectedStock(stock)}
-                                setSelectedStockForTrend={() =>
-                                  setSelectedStockForTrend(stock)
-                                }
-                              />
-                            )}
+                              {!positions.some(
+                                (pos) => pos.stock_id === stock.id,
+                              ) && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="lg"
+                                    className="flex-1 cursor-pointer"
+                                    onClick={() => setSelectedStock(stock)}
+                                  >
+                                    Beli
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="icon-lg"
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      setSelectedStockForTrend(stock)
+                                    }
+                                  >
+                                    <HiOutlineInformationCircle size={20} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </CardContent>
                         </Card>
                       ))

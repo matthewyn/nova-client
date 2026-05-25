@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/carousel";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
-import Footer from "@/components/Footer";
 import {
   Accordion,
   AccordionItem,

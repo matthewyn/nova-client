@@ -6,7 +6,7 @@ import {
   ModalFooter,
 } from "@heroui/react";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
-import { ChevronLeft, ChevronRight, AlertTriangleIcon } from "lucide-react";
+import { AlertTriangleIcon } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
