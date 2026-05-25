@@ -357,8 +357,8 @@ function SignUpCard() {
               <Input
                 type="tel"
                 isRequired
-                label="Phone Number"
-                placeholder="Phone number"
+                label="Nomor Telepon"
+                placeholder="Nomor telepon"
                 value={formatPhoneNumber(phone, "ID")}
                 onChange={(e) => {
                   const formatted = formatPhoneNumber(e.target.value, "ID");

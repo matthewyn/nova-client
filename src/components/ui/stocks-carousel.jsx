@@ -7,15 +7,12 @@ import { toast } from "sonner";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
 import { getAuthHeader } from "@/utils/token";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import CapitalizeFirstLetter from "@/utils/string";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const VolatilityIcon = ({ riskFactor }) => {
   const barCount = riskFactor === "high" ? 3 : riskFactor === "medium" ? 2 : 1;

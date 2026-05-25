@@ -288,24 +288,36 @@ function Dashboard() {
                                   <h3 className="font-semibold text-medium text-foreground">
                                     {stock.name.replace(".JK", "")}
                                   </h3>
-                                  <p className="text-sm text-foreground">
-                                    Harga Saat Ini: Rp{" "}
-                                    {stock.close.toLocaleString()}
-                                  </p>
-                                  <p className="text-sm text-foreground/70">
-                                    {stock.trailing_stop
-                                      ? "Trailing Stop"
-                                      : "Stop Loss"}
-                                    :{" "}
-                                    <span className="text-red-500">
-                                      Rp{" "}
-                                      {stock.trailing_stop
-                                        ? stock.trailing_stop.toLocaleString()
-                                        : Math.floor(
-                                            stock.stop_loss,
-                                          ).toLocaleString()}
-                                    </span>
-                                  </p>
+                                  <div className="grid grid-cols-3 gap-8">
+                                    <div className="text-sm text-foreground">
+                                      <p className="font-semibold text-foreground text-medium">
+                                        Rp{" "}
+                                        {stock.initial_price.toLocaleString()}
+                                      </p>
+                                      <p>Harga Masuk</p>
+                                    </div>
+                                    <div className="text-sm text-foreground">
+                                      <p className="font-semibold text-foreground text-medium">
+                                        Rp {stock.close.toLocaleString()}
+                                      </p>
+                                      <p>Harga Saat Ini</p>
+                                    </div>
+                                    <div className="text-sm text-foreground">
+                                      <p className="font-semibold text-medium text-red-500">
+                                        Rp{" "}
+                                        {stock.trailing_stop
+                                          ? stock.trailing_stop.toLocaleString()
+                                          : Math.floor(
+                                              stock.stop_loss,
+                                            ).toLocaleString()}
+                                      </p>
+                                      <p>
+                                        {stock.trailing_stop
+                                          ? "Trailing Stop"
+                                          : "Stop Loss"}
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
                                 <div>
                                   <p className="flex items-center gap-2 text-sm text-foreground">
@@ -346,13 +358,17 @@ function Dashboard() {
                               </div>
                             </div>
 
-                            <StockButton
-                              stock={stock}
-                              setSelectedStock={() => setSelectedStock(stock)}
-                              setSelectedStockForTrend={() =>
-                                setSelectedStockForTrend(stock)
-                              }
-                            />
+                            {!positions.some(
+                              (pos) => pos.stock_id === stock.id,
+                            ) && (
+                              <StockButton
+                                stock={stock}
+                                setSelectedStock={() => setSelectedStock(stock)}
+                                setSelectedStockForTrend={() =>
+                                  setSelectedStockForTrend(stock)
+                                }
+                              />
+                            )}
                           </CardContent>
                         </Card>
                       ))
@@ -438,7 +454,9 @@ function Dashboard() {
         investmentValue={investmentValue}
         setInvestmentValue={setInvestmentValue}
         selectedStock={selectedStock}
+        setSelectedStock={setSelectedStock}
         selectedStockForTrend={selectedStockForTrend}
+        setSelectedStockForTrend={setSelectedStockForTrend}
         handleSubmit={handleSubmit}
       />
     </div>

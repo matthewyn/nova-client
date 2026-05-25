@@ -5,13 +5,20 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
+import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
+import { ChevronLeft, ChevronRight, AlertTriangleIcon } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function StockModal({
   investmentValue,
   setInvestmentValue,
   selectedStock,
+  setSelectedStock,
   selectedStockForTrend,
+  setSelectedStockForTrend,
   handleSubmit,
 }) {
   return (
@@ -62,7 +69,8 @@ function StockModal({
                     <div className="p-3 rounded-lg bg-muted">
                       <p className="text-sm text-foreground/70">Stop Loss</p>
                       <p className="text-lg font-semibold text-red-600">
-                        Rp {selectedStock?.stop_loss.toLocaleString()}
+                        Rp{" "}
+                        {Math.floor(selectedStock?.stop_loss).toLocaleString()}
                       </p>
                     </div>
                   </div>
