@@ -100,8 +100,8 @@ const Logos3 = ({
               ))}
             </CarouselContent>
           </Carousel>
-          <div className="absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"></div>
-          <div className="absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"></div>
+          <div className="absolute inset-y-0 left-0 w-12"></div>
+          <div className="absolute inset-y-0 right-0 w-12"></div>
         </div>
       </div>
     </section>
