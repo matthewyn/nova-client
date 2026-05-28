@@ -2,7 +2,7 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, AlertTriangleIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import {
   Tooltip,
   TooltipContent,
@@ -176,12 +176,12 @@ export const StocksCarousel = React.forwardRef(
                         |
                         <span className="text-sm text-foreground flex items-center gap-1">
                           {stock.predicted_pct_change > 0 ? (
-                            <HiArrowUpCircle
+                            <FaCaretUp
                               className="inline text-green-500"
                               size={20}
                             />
                           ) : (
-                            <HiArrowDownCircle
+                            <FaCaretDown
                               className="inline text-red-500"
                               size={20}
                             />

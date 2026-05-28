@@ -45,6 +45,7 @@ import CustomChip from "@/components/CustomChip";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
 import { getAuthHeader } from "@/utils/token";
+import DotGrid from "@/components/DotGrid";
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -102,45 +103,7 @@ const comparisonRows = [
   },
 ];
 
-// Dot grid background pattern (decorative)
-const DotGrid = () => (
-  <div
-    className="absolute right-0 top-0 w-1/2 h-full overflow-hidden pointer-events-none"
-    aria-hidden="true"
-  >
-    <svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 500 400"
-      preserveAspectRatio="xMaxYMin meet"
-    >
-      {Array.from({ length: 20 }).map((_, row) =>
-        Array.from({ length: 30 }).map((_, col) => {
-          const x = col * 17 + 10;
-          const y = row * 17 + 10;
-          const distFromTopRight = Math.sqrt(
-            Math.pow(col - 29, 2) + Math.pow(row, 2),
-          );
-          const opacity = Math.max(0, 1 - distFromTopRight / 18) * 0.35;
-          return (
-            <rect
-              key={`${row}-${col}`}
-              x={x}
-              y={y}
-              width="3"
-              height="3"
-              rx="1"
-              fill="#a78bfa"
-              opacity={opacity}
-            />
-          );
-        }),
-      )}
-    </svg>
-  </div>
-);
-
-const demoData = {
+const stockData = {
   heading: "Trusted by these companies",
   logos: [
     {
@@ -213,18 +176,6 @@ const demoData = {
       id: "logo-12",
       description: "DOID",
       image: "https://assets.stockbit.com/logos/companies/DOID.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-13",
-      description: "DEWA",
-      image: "https://assets.stockbit.com/logos/companies/DEWA.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-14",
-      description: "BREN",
-      image: "https://assets.stockbit.com/logos/companies/BREN.png",
       className: "h-12 w-auto",
     },
   ],
@@ -879,7 +830,7 @@ function App() {
                 Beberapa saham pilihan yang dianalisis Nova AI.
               </p>
             </div>
-            <Logos3 {...demoData} />
+            <Logos3 {...stockData} />
           </div>
         </div>
 

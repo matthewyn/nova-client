@@ -14,6 +14,7 @@ import { getAuthHeader } from "@/utils/token";
 import capitalizeFirstLetter from "@/utils/string";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
 
 const urlFetch = generateApiOrigin("/transaction");
 
@@ -118,7 +119,11 @@ function Transactions() {
                       {capitalizeFirstLetter(transaction.type)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <Button variant="outline">Detail</Button>
+                      <Link to={`/dashboard/transactions/${transaction.id}`}>
+                        <Button variant="outline" className="cursor-pointer">
+                          Detail
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))

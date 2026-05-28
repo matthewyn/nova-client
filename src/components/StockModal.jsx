@@ -70,7 +70,13 @@ function StockModal({
                       <p className="text-sm text-foreground/70">Stop Loss</p>
                       <p className="text-lg font-semibold text-red-600">
                         Rp{" "}
-                        {Math.floor(selectedStock?.stop_loss).toLocaleString()}
+                        {selectedStock?.trailing_stop
+                          ? Math.floor(
+                              selectedStock?.trailing_stop,
+                            ).toLocaleString()
+                          : Math.floor(
+                              selectedStock?.stop_loss,
+                            ).toLocaleString()}
                       </p>
                     </div>
                   </div>

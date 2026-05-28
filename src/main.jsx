@@ -1,15 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.jsx";
-import CustomNavbar from "./components/CustomNavbar.jsx";
+import "@/index.css";
+import App from "@/App.jsx";
+import CustomNavbar from "@/components/CustomNavbar.jsx";
 import { HeroUIProvider } from "@heroui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import SignUp from "./pages/SignUp.jsx";
-import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Transactions from "./pages/Transactions.jsx";
-import RootLayout from "./layouts/RootLayout.jsx";
+import SignUp from "@/pages/SignUp.jsx";
+import Login from "@/pages/Login.jsx";
+import Dashboard from "@/pages/Dashboard.jsx";
+import Transactions from "@/pages/Transactions.jsx";
+import TransactionDetail from "@/pages/TransactionDetail.jsx";
+import RootLayout from "@/layouts/RootLayout.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "dashboard/transactions", element: <Transactions /> },
+      { path: "dashboard/transactions/:id", element: <TransactionDetail /> },
     ],
   },
 ]);
