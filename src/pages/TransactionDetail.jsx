@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import StockPriceChart from "@/components/StockPriceChart";
 import { HiArrowUpRight, HiArrowDownRight } from "react-icons/hi2";
 import { PremiumContentGate } from "@/components/PremiumContentGate";
+import { VolatilityAnalysis } from "@/components/VolatilityAnalysis";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -206,7 +207,12 @@ function TransactionDetail() {
                     userTier={user.tier}
                     previewContent={<StockPriceChart chartData={equities} />}
                   >
-                    <StockPriceChart chartData={equities} />
+                    <VolatilityAnalysis
+                      ticker={transaction?.name}
+                      initialPrice={transaction?.buy_price}
+                      stopLoss={transaction?.stop_loss}
+                      direction={transaction?.direction}
+                    />
                   </PremiumContentGate>
                 ) : (
                   <div className="space-y-4">
