@@ -132,7 +132,6 @@ function Dashboard() {
           stock_id: selectedStock.id,
           name: selectedStock.name,
           buy_date: new Date().toISOString(),
-          buy_price: selectedStock.close,
           equity: Number(investmentValue),
           direction: selectedStock.predicted_pct_change > 0 ? "long" : "short",
         },
@@ -181,8 +180,8 @@ function Dashboard() {
           <h2 className="text-4xl font-bold text-gray-900 mb-1">Dashboard</h2>
           <p className="text-sm text-gray-400 max-w-md mx-auto">
             Berikut adalah beberapa saham yang sudah dianalisis oleh Stockpick
-            AI. Klik untuk melihat detail analisis dan insight yang diberikan
-            oleh AI kami.
+            AI. Pilihan saham diperbarui setiap jam 8 malam, silahkan cek secara
+            berkala untuk melihat rekomendasi terbaru.
           </p>
           <div className="mt-12">
             <Card>

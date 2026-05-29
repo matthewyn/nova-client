@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import {
   AreaChart,
   Area,
@@ -8,9 +8,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
+import { ChartNoAxesCombined } from "lucide-react";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 function StockPriceChart({ chartData }) {
   const isPositive =
@@ -21,38 +30,53 @@ function StockPriceChart({ chartData }) {
   const strokeColor = isPositive ? "#1a6b4a" : "#dc2626";
   const gradientColor = isPositive ? "#22c55e" : "#ef4444";
 
-  const xAxisTicks =
-    chartData.length > 0
-      ? [chartData[0].date, chartData[chartData.length - 1].date]
-      : [];
+  const xAxisTickCount = 2;
 
-  const formatXAxis = (tick) => {
+  const formatXAxis = useCallback((tick) => {
     if (!tick) return "";
     return new Date(tick).toLocaleDateString("id-ID", {
       day: "numeric",
       month: "short",
     });
-  };
+  }, []);
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-md text-sm">
-          <p className="text-gray-500 text-xs">
-            {new Date(label).toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </p>
-          <p className="font-semibold text-gray-900">
-            Rp {payload[0].value.toLocaleString("id-ID")}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+  const tickStyle = useMemo(() => ({ fontSize: 12, fill: "#9ca3af" }), []);
+
+  const CustomTooltip = useMemo(
+    () =>
+      ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+          return (
+            <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-md text-sm">
+              <p className="text-gray-500 text-xs">
+                {new Date(label).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+              <p className="font-semibold text-gray-900">
+                Rp {payload[0].value.toLocaleString("id-ID")}
+              </p>
+            </div>
+          );
+        }
+        return null;
+      },
+    [],
+  );
+
+  const chartMargin = useMemo(
+    () => ({ top: 10, right: 0, left: 0, bottom: 0 }),
+    [],
+  );
+
+  const yAxisDomain = useMemo(() => ["auto", "auto"], []);
+
+  const activeDotConfig = useMemo(
+    () => ({ r: 4, fill: strokeColor, strokeWidth: 0 }),
+    [strokeColor],
+  );
 
   return (
     <div>
@@ -63,10 +87,7 @@ function StockPriceChart({ chartData }) {
             <h4>Nilai Investasi</h4>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart
-              data={chartData}
-              margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={chartData} margin={chartMargin}>
               <defs>
                 <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                   <stop
@@ -83,13 +104,13 @@ function StockPriceChart({ chartData }) {
               </defs>
               <XAxis
                 dataKey="date"
-                ticks={xAxisTicks}
+                tickCount={xAxisTickCount}
                 tickFormatter={formatXAxis}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#9ca3af" }}
+                tick={tickStyle}
               />
-              <YAxis hide domain={["auto", "auto"]} />
+              <YAxis hide domain={yAxisDomain} />
               <Tooltip content={<CustomTooltip />} />
               <Area
                 type="monotoneX"
@@ -98,18 +119,30 @@ function StockPriceChart({ chartData }) {
                 strokeWidth={2}
                 fill="url(#colorEquity)"
                 dot={false}
-                activeDot={{ r: 4, fill: strokeColor, strokeWidth: 0 }}
+                activeDot={activeDotConfig}
               />
             </AreaChart>
           </ResponsiveContainer>
         </>
       ) : (
-        <p className="text-sm text-foreground/60 text-center py-8">
-          Tidak ada data harga tersedia.
-        </p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <ChartNoAxesCombined className="h-16 w-16 text-primary/80" />
+            </EmptyMedia>
+
+            <EmptyTitle className="text-xl bg-gradient-to-r from-primary via-primary/80 to-blue-500 bg-clip-text text-transparent">
+              Tidak ada data harga tersedia
+            </EmptyTitle>
+
+            <EmptyDescription className="text-muted-foreground text-base max-w-md mx-auto">
+              Silakan coba lagi nanti.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       )}
     </div>
   );
 }
 
-export default StockPriceChart;
+export default memo(StockPriceChart);

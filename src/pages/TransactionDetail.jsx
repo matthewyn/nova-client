@@ -101,12 +101,10 @@ function TransactionDetail() {
             <CardContent className={"text-left"}>
               <div>
                 {isLoading ? (
-                  <div className="p-4">
-                    <div className="space-y-4">
-                      <Skeleton className="h-7 w-40" />
-                      <Skeleton className="h-6 w-32" />
-                      <Skeleton className="h-52 w-full" />
-                    </div>
+                  <div className="space-y-4">
+                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-52 w-full" />
                   </div>
                 ) : transaction ? (
                   transaction.type === "open" ? (
