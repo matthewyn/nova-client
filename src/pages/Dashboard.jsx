@@ -14,7 +14,7 @@ import axios from "axios";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAuthHeader } from "@/utils/token";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import CapitalizeFirstLetter from "@/utils/string";
@@ -26,53 +26,29 @@ import { stocksSector } from "@/utils/stocks";
 
 const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
-const urlFetchPositions = generateApiOrigin("/transaction/open");
 const urlFetchTransaction = generateApiOrigin("/transaction/new");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
+
+const EQUITY = 100000000;
 
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
-  const [positions, setPositions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStock, setSelectedStock] = useState(null);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
-  const [investmentValue, setInvestmentValue] = useState("");
   const [statistics, setStatistics] = useState(null);
   const navigate = useNavigate();
-
-  const fetchPositions = async () => {
-    try {
-      const positionsResponse = await axios.get(urlFetchPositions, {
-        headers: getAuthHeader(),
-      });
-      if (positionsResponse.status === 200) {
-        const { transactions } = positionsResponse.data;
-        setPositions(transactions);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
-      }
-    }
-  };
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const [
-          newStocksResponse,
-          runningStocksResponse,
-          positionsResponse,
-          statisticsResponse,
-        ] = await Promise.all([
-          axios.get(urlFetch, { headers: getAuthHeader() }),
-          axios.get(urlFetchRunning, { headers: getAuthHeader() }),
-          axios.get(urlFetchPositions, { headers: getAuthHeader() }),
-          axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
-        ]);
+        const [newStocksResponse, runningStocksResponse, statisticsResponse] =
+          await Promise.all([
+            axios.get(urlFetch, { headers: getAuthHeader() }),
+            axios.get(urlFetchRunning, { headers: getAuthHeader() }),
+            axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
+          ]);
         if (newStocksResponse.status === 200) {
           const { stocks } = newStocksResponse.data;
           setStocks(stocks);
@@ -80,10 +56,6 @@ function Dashboard() {
         if (runningStocksResponse.status === 200) {
           const { stocks } = runningStocksResponse.data;
           setRunningStocks(stocks);
-        }
-        if (positionsResponse.status === 200) {
-          const { transactions } = positionsResponse.data;
-          setPositions(transactions);
         }
         if (statisticsResponse.status === 200) {
           const {
@@ -113,61 +85,6 @@ function Dashboard() {
 
     fetchData();
   }, []);
-
-  const handleSubmit = async (e) => {
-    try {
-      setIsLoading(true);
-
-      if (!investmentValue) {
-        toast("Nilai investasi harus diisi.", {
-          type: "error",
-          position: "top-center",
-        });
-        return;
-      }
-
-      const result = await axios.post(
-        urlFetchTransaction,
-        {
-          stock_id: selectedStock.id,
-          name: selectedStock.name,
-          buy_date: new Date().toISOString(),
-          equity: Number(investmentValue),
-          direction: selectedStock.predicted_pct_change > 0 ? "long" : "short",
-        },
-        {
-          headers: getAuthHeader(),
-        },
-      );
-
-      if (result.status === 201) {
-        toast("Sukses membeli saham! Transaksi Anda telah tercatat.", {
-          type: "success",
-          position: "top-center",
-        });
-        setSelectedStock(null);
-        await fetchPositions();
-        return;
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status == 400) {
-          toast(
-            "Input tidak valid. Silakan periksa kembali informasi yang dimasukkan.",
-            {
-              type: "error",
-              position: "top-center",
-            },
-          );
-        }
-
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="bg-gray-50">
@@ -215,7 +132,6 @@ function Dashboard() {
                     <StocksCarousel
                       title="Pilihan Saham Baru"
                       stocks={stocks}
-                      onBuySuccess={fetchPositions}
                     />
                   )}
                 </div>
@@ -365,29 +281,31 @@ function Dashboard() {
                                 </>
                               )}
 
-                              {!positions.some(
-                                (pos) => pos.stock_id === stock.id,
-                              ) && (
-                                <div className="flex gap-2">
+                              <div className="flex gap-2">
+                                <Link
+                                  to={`/dashboard/transactions/${stock.id}`}
+                                  className="flex-1"
+                                >
                                   <Button
                                     size="lg"
-                                    className="flex-1 cursor-pointer"
-                                    onClick={() => setSelectedStock(stock)}
-                                  >
-                                    Beli
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="icon-lg"
-                                    className="cursor-pointer"
-                                    onClick={() =>
-                                      setSelectedStockForTrend(stock)
+                                    className="cursor-pointer w-full"
+                                    variant={
+                                      stock.predicted_pct_change < 0
+                                        ? "destructive"
+                                        : "default"
                                     }
                                   >
-                                    <HiOutlineInformationCircle size={20} />
+                                    Pantau
                                   </Button>
-                                </div>
-                              )}
+                                </Link>
+                                <Button
+                                  variant="outline"
+                                  size="icon-lg"
+                                  className="cursor-pointer"
+                                >
+                                  <HiOutlineInformationCircle size={20} />
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -426,42 +344,9 @@ function Dashboard() {
                           </div>
                         ))}
                       </div>
-                    ) : positions.length > 0 ? (
-                      positions.map((stock, index) => (
-                        <Card key={index}>
-                          <CardContent className={"text-left"}>
-                            <div className="flex gap-3 items-center">
-                              <img
-                                src={stock.logo}
-                                alt={`${stock.name} logo`}
-                                className="h-12 w-12 rounded-md"
-                              />
-                              <div className="flex-1 flex justify-between">
-                                <div>
-                                  <h3 className="font-semibold text-medium text-foreground">
-                                    {stock.name.replace(".JK", "")}
-                                  </h3>
-                                  <p className="text-sm text-foreground">
-                                    Harga Masuk: Rp{" "}
-                                    {stock.buy_price.toLocaleString()}
-                                  </p>
-                                  <p className="text-sm text-foreground/70">
-                                    Tanggal Masuk:{" "}
-                                    {
-                                      new Date(stock.buy_date)
-                                        .toISOString()
-                                        .split("T")[0]
-                                    }
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
                     ) : (
                       <p className="text-sm text-foreground/70">
-                        Tidak ada posisi yang kamu pegang saat ini.
+                        Fitur portfolio saat ini masih dalam pengembangan.
                       </p>
                     )}
                   </div>
@@ -561,7 +446,7 @@ function Dashboard() {
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-40 mb-4" />
+                    <Skeleton className="h-7 w-40" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
                       Distribusi Sektor
@@ -586,9 +471,9 @@ function Dashboard() {
                         const sectorMap = {};
                         let totalEquity = 0;
 
-                        positions.forEach((stock) => {
+                        runningStocks.forEach((stock) => {
                           const sector = stocksSector[stock.name] ?? "Lainnya";
-                          const equity = stock.equity;
+                          const equity = EQUITY;
                           sectorMap[sector] = (sectorMap[sector] ?? 0) + equity;
                           totalEquity += equity;
                         });
@@ -611,7 +496,7 @@ function Dashboard() {
                         if (sectors.length === 0) {
                           return (
                             <p className="text-sm text-foreground/70">
-                              Tidak ada posisi yang kamu pegang saat ini.
+                              Tidak ada posisi yang sedang berjalan saat ini.
                             </p>
                           );
                         }
@@ -691,13 +576,8 @@ function Dashboard() {
       </div>
 
       <StockModal
-        investmentValue={investmentValue}
-        setInvestmentValue={setInvestmentValue}
-        selectedStock={selectedStock}
-        setSelectedStock={setSelectedStock}
         selectedStockForTrend={selectedStockForTrend}
         setSelectedStockForTrend={setSelectedStockForTrend}
-        handleSubmit={handleSubmit}
       />
     </div>
   );

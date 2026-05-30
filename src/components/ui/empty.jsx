@@ -1,31 +1,30 @@
 import { cva } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-function Empty({
-  className,
-  ...props
-}) {
+function Empty({ className, ...props }) {
   return (
     <div
       data-slot="empty"
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-xl border-dashed p-6 text-center text-balance md:p-12",
-        className
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-xl border-dashed text-center text-balance",
+        className,
       )}
-      {...props} />
+      {...props}
+    />
   );
 }
 
-function EmptyHeader({
-  className,
-  ...props
-}) {
+function EmptyHeader({ className, ...props }) {
   return (
     <div
       data-slot="empty-header"
-      className={cn("flex max-w-sm flex-col items-center text-center", className)}
-      {...props} />
+      className={cn(
+        "flex max-w-sm flex-col items-center text-center",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -41,80 +40,76 @@ const emptyMediaVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
-)
+  },
+);
 
-function EmptyMedia({
-  className,
-  variant = "default",
-  ...props
-}) {
+function EmptyMedia({ className, variant = "default", ...props }) {
   return (
     <div
       data-slot="empty-media"
       data-variant={variant}
       className={cn("relative mb-6", className)}
-      {...props}>
+      {...props}
+    >
       {variant === "icon" && (
         <>
           <div
             className={cn(
               emptyMediaVariants({ variant, className }),
-              "pointer-events-none absolute bottom-px origin-bottom-left -translate-x-0.5 scale-84 -rotate-10 shadow-none"
+              "pointer-events-none absolute bottom-px origin-bottom-left -translate-x-0.5 scale-84 -rotate-10 shadow-none",
             )}
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <div
             className={cn(
               emptyMediaVariants({ variant, className }),
-              "pointer-events-none absolute bottom-px origin-bottom-right translate-x-0.5 scale-84 rotate-10 shadow-none"
+              "pointer-events-none absolute bottom-px origin-bottom-right translate-x-0.5 scale-84 rotate-10 shadow-none",
             )}
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </>
       )}
-      <div className={cn(emptyMediaVariants({ variant, className }))} {...props} />
+      <div
+        className={cn(emptyMediaVariants({ variant, className }))}
+        {...props}
+      />
     </div>
   );
 }
 
-function EmptyTitle({
-  className,
-  ...props
-}) {
+function EmptyTitle({ className, ...props }) {
   return (
     <div
       data-slot="empty-title"
       className={cn("font-heading text-xl leading-none", className)}
-      {...props} />
+      {...props}
+    />
   );
 }
 
-function EmptyDescription({
-  className,
-  ...props
-}) {
+function EmptyDescription({ className, ...props }) {
   return (
     <div
       data-slot="empty-description"
       className={cn(
         "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary [[data-slot=empty-title]+&]:mt-1",
-        className
+        className,
       )}
-      {...props} />
+      {...props}
+    />
   );
 }
 
-function EmptyContent({
-  className,
-  ...props
-}) {
+function EmptyContent({ className, ...props }) {
   return (
     <div
       data-slot="empty-content"
       className={cn(
         "flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance",
-        className
+        className,
       )}
-      {...props} />
+      {...props}
+    />
   );
 }
 
@@ -125,4 +120,4 @@ export {
   EmptyDescription,
   EmptyContent,
   EmptyMedia,
-}
+};

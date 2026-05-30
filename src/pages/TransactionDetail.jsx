@@ -10,9 +10,49 @@ import { Skeleton } from "@/components/ui/skeleton";
 import StockPriceChart from "@/components/StockPriceChart";
 import { HiArrowUpRight, HiArrowDownRight } from "react-icons/hi2";
 import { PremiumContentGate } from "@/components/PremiumContentGate";
-import { VolatilityAnalysis } from "@/components/VolatilityAnalysis";
 import { useAuth } from "@/contexts/AuthContext";
+import { ProductRevealCard } from "@/components/ui/product-reveal-card";
 import { toast } from "sonner";
+
+const projects = [
+  {
+    title: "Matthias Leidinger",
+    description:
+      "Originally hailing from Austria, Berlin-based photographer Matthias Leindinger is a young creative brimming with talent and ideas.",
+    link: "https://images.unsplash.com/photo-1605106702842-01a887a31122?q=80&w=500&auto=format&fit=crop",
+    color: "#5196fd",
+  },
+  {
+    title: "Clément Chapillon",
+    description:
+      "This is a story on the border between reality and imaginary, about the contradictory feelings that the insularity of a rocky, arid, and wild territory provokes”—so French photographer Clément.",
+    link: "https://images.unsplash.com/photo-1605106250963-ffda6d2a4b32?w=500&auto=format&fit=crop&q=60",
+    color: "#8f89ff",
+  },
+  {
+    title: "Zissou",
+    description:
+      "Though he views photography as a medium for storytelling, Zissou’s images don’t insist on a narrative. Both crisp and ethereal.",
+    link: "https://images.unsplash.com/photo-1605106901227-991bd663255c?w=500&auto=format&fit=crop",
+    color: "#13006c",
+  },
+  {
+    title: "Mathias Svold and Ulrik Hasemann",
+    description:
+      "The coastlines of Denmark are documented in tonal colors in a pensive new series by Danish photographers Ulrik Hasemann and Mathias Svold; an ongoing project investigating how humans interact with and disrupt the Danish coast.",
+    link: "https://images.unsplash.com/photo-1605106715994-18d3fecffb98?w=500&auto=format&fit=crop&q=60",
+    color: "#ed649e",
+  },
+  {
+    title: "Mark Rammers",
+    description:
+      "Dutch photographer Mark Rammers has shared with IGNANT the first chapter of his latest photographic project, ‘all over again’—captured while in residency at Hektor, an old farm in Los Valles, Lanzarote.",
+    link: "https://images.unsplash.com/photo-1506792006437-256b665541e2?w=500&auto=format&fit=crop",
+    color: "#fd521a",
+  },
+];
+
+const EQUITY = 100000000;
 
 function TransactionDetail() {
   const [transaction, setTransaction] = useState(null);
@@ -23,8 +63,7 @@ function TransactionDetail() {
 
   const pctReturn =
     transaction && equities.length > 0
-      ? (equities[equities.length - 1].equity - transaction.equity) /
-        transaction.equity
+      ? (equities[equities.length - 1].equity - EQUITY) / EQUITY
       : 0;
 
   async function fetchData() {
@@ -136,16 +175,14 @@ function TransactionDetail() {
                             <TrendingUp
                               size={16}
                               className={`${
-                                equities[equities.length - 1].equity >=
-                                transaction.equity
+                                equities[equities.length - 1].equity >= EQUITY
                                   ? "text-green-500"
                                   : "text-red-500"
                               }`}
                             />
                             <span
                               className={`text-xs text-foreground ${
-                                equities[equities.length - 1].equity >=
-                                transaction.equity
+                                equities[equities.length - 1].equity >= EQUITY
                                   ? "text-green-500"
                                   : "text-red-500"
                               }`}
@@ -174,16 +211,14 @@ function TransactionDetail() {
                           <TrendingUp
                             size={16}
                             className={`${
-                              equities[equities.length - 1].equity >=
-                              transaction.equity
+                              equities[equities.length - 1].equity >= EQUITY
                                 ? "text-green-500"
                                 : "text-red-500"
                             }`}
                           />
                           <span
                             className={`text-xs text-foreground ${
-                              equities[equities.length - 1].equity >=
-                              transaction.equity
+                              equities[equities.length - 1].equity >= EQUITY
                                 ? "text-green-500"
                                 : "text-red-500"
                             }`}
@@ -207,12 +242,7 @@ function TransactionDetail() {
                     userTier={user.tier}
                     previewContent={<StockPriceChart chartData={equities} />}
                   >
-                    <VolatilityAnalysis
-                      ticker={transaction?.name}
-                      initialPrice={transaction?.buy_price}
-                      stopLoss={transaction?.stop_loss}
-                      direction={transaction?.direction}
-                    />
+                    <ProductRevealCard />
                   </PremiumContentGate>
                 ) : (
                   <div className="space-y-4">
@@ -227,6 +257,9 @@ function TransactionDetail() {
           </Card>
         </div>
       </div>
+
+      {/* ✅ Stacking card OUTSIDE all containers */}
+      {user && user.tier === "premium" && <Component projects={projects} />}
     </div>
   );
 }

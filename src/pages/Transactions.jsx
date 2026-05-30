@@ -54,14 +54,13 @@ function Transactions() {
               <TableRow>
                 <TableHead>Nama</TableHead>
                 <TableHead>Tanggal Beli</TableHead>
-                <TableHead>Nilai Investasi</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
+                Array.from({ length: 4 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell className="flex gap-4 items-center">
                       <Skeleton className="h-10 w-10 rounded-md flex-shrink-0" />
@@ -72,9 +71,6 @@ function Transactions() {
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-32" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-20" />
@@ -97,23 +93,14 @@ function Transactions() {
                         <p className="font-semibold text-foreground">
                           {transaction.name.replace(".JK", "")}
                         </p>
-                        <p className="text-sm text-foreground/70">
-                          {Math.floor(
-                            transaction.equity / (transaction.buy_price * 100),
-                          )}{" "}
-                          lot
-                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
                       {
-                        new Date(transaction.buy_date)
+                        new Date(transaction.start_date)
                           .toISOString()
                           .split("T")[0]
                       }
-                    </TableCell>
-                    <TableCell>
-                      Rp {transaction.equity.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       {capitalizeFirstLetter(transaction.type)}
