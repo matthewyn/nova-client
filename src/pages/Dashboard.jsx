@@ -15,7 +15,6 @@ import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAuthHeader } from "@/utils/token";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import CapitalizeFirstLetter from "@/utils/string";
 import StockModal from "@/components/StockModal";
@@ -362,7 +361,7 @@ function Dashboard() {
                   <div className="flex-1 flex flex-col gap-4">
                     <div>
                       {isLoading ? (
-                        <Skeleton className="h-7 w-24 mb-2" />
+                        <Skeleton className="h-7 w-20 mb-2" />
                       ) : (
                         <h2 className="text-xl font-bold text-foreground">
                           Win Rate
@@ -370,8 +369,7 @@ function Dashboard() {
                       )}
                       {isLoading ? (
                         <div className="space-y-2">
-                          <Skeleton className="h-5 w-20" />
-                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-5 w-16" />
                         </div>
                       ) : statistics ? (
                         <p className="text-green-500 font-semibold text-xl flex items-center gap-1">
@@ -393,7 +391,7 @@ function Dashboard() {
                     <Divider />
                     <div>
                       {isLoading ? (
-                        <Skeleton className="h-7 w-32 mb-2" />
+                        <Skeleton className="h-7 w-28 mb-2" />
                       ) : (
                         <h2 className="text-xl font-bold text-fo-xltext-xlround">
                           Profit Factor
@@ -401,8 +399,7 @@ function Dashboard() {
                       )}
                       {isLoading ? (
                         <div className="space-y-2">
-                          <Skeleton className="h-5 w-20" />
-                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-5 w-16" />
                         </div>
                       ) : statistics ? (
                         <p className="font-semibold text-xl">
@@ -411,9 +408,15 @@ function Dashboard() {
                       ) : null}
                     </div>
                   </div>
-                  <div>
+                  <div className="w-40">
                     {isLoading ? (
-                      <Skeleton className="h-64 w-64 rounded-lg" />
+                      <div className="flex flex-col gap-4">
+                        <Skeleton className="h-36 w-36 rounded-full" />
+                        <div className="flex justify-between">
+                          <Skeleton className="h-12 w-16 rounded-lg" />
+                          <Skeleton className="h-12 w-16 rounded-lg" />
+                        </div>
+                      </div>
                     ) : statistics ? (
                       <>
                         <div className="w-40 h-40 flex-shrink-0">

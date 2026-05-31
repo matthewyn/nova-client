@@ -74,7 +74,7 @@ export function AppSidebar() {
                 >
                   <Link to="/dashboard/transactions">
                     <Sheet className="w-4 h-4" />
-                    <span>Transaksi</span>
+                    <span>Trade</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

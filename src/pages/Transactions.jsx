@@ -48,7 +48,7 @@ function Transactions() {
     <div className="bg-gray-50">
       <div className="border-y-1 border-gray-200/70 px-8">
         <div className="border-x-1 border-gray-200/70 py-12 px-8">
-          <h2 className="text-4xl font-bold text-gray-900 mb-1">Transaksi</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-1">Trade</h2>
           <Table className="mt-4">
             <TableHeader>
               <TableRow>
@@ -117,7 +117,7 @@ function Transactions() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-4">
-                    Tidak ada transaksi yang ditemukan.
+                    Tidak ada trade yang ditemukan.
                   </TableCell>
                 </TableRow>
               )}
