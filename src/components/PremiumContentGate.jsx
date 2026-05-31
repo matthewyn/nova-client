@@ -15,7 +15,7 @@ function ContentGate() {
           <Lock size={18} className="text-gray-500" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Buka Analisis Volatilitas AI
+          Buka Analisis Premium AI
         </h3>
         <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
           Upgrade untuk membuka simulasi skenario market yang lebih tajam,

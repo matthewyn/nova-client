@@ -301,6 +301,9 @@ function Dashboard() {
                                   variant="outline"
                                   size="icon-lg"
                                   className="cursor-pointer"
+                                  onClick={() =>
+                                    setSelectedStockForTrend(stock)
+                                  }
                                 >
                                   <HiOutlineInformationCircle size={20} />
                                 </Button>
