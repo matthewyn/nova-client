@@ -22,9 +22,19 @@ import { Divider } from "@heroui/react";
 import { ChartRadialText } from "@/components/ui/chart-radial-text";
 import DotGrid from "@/components/DotGrid";
 import { stocksSector } from "@/utils/stocks";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
+const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 const urlFetchTransaction = generateApiOrigin("/transaction/new");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 
@@ -33,6 +43,7 @@ const EQUITY = 100000000;
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
+  const [completedStocks, setCompletedStocks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
   const [statistics, setStatistics] = useState(null);
@@ -42,12 +53,20 @@ function Dashboard() {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const [newStocksResponse, runningStocksResponse, statisticsResponse] =
-          await Promise.all([
-            axios.get(urlFetch, { headers: getAuthHeader() }),
-            axios.get(urlFetchRunning, { headers: getAuthHeader() }),
-            axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
-          ]);
+        const [
+          newStocksResponse,
+          runningStocksResponse,
+          completedStocksResponse,
+          statisticsResponse,
+        ] = await Promise.all([
+          axios.get(urlFetch, { headers: getAuthHeader() }),
+          axios.get(urlFetchRunning, { headers: getAuthHeader() }),
+          axios.get(urlFetchCompleted, {
+            headers: getAuthHeader(),
+            params: { page: 1, page_size: 5 },
+          }),
+          axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
+        ]);
         if (newStocksResponse.status === 200) {
           const { stocks } = newStocksResponse.data;
           setStocks(stocks);
@@ -55,6 +74,10 @@ function Dashboard() {
         if (runningStocksResponse.status === 200) {
           const { stocks } = runningStocksResponse.data;
           setRunningStocks(stocks);
+        }
+        if (completedStocksResponse.status === 200) {
+          const { stocks } = completedStocksResponse.data;
+          setCompletedStocks(stocks);
         }
         if (statisticsResponse.status === 200) {
           const {
@@ -574,6 +597,79 @@ function Dashboard() {
                       })()
                     )}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className={"text-left"}>
+                <div className="p-4">
+                  {isLoading ? (
+                    <Skeleton className="h-7 w-40" />
+                  ) : (
+                    <h2 className="text-xl font-bold text-foreground mb-4">
+                      Trade Terbaru
+                    </h2>
+                  )}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Saham</TableHead>
+                        <TableHead>Keuntungan</TableHead>
+                        <TableHead>ID</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {isLoading ? (
+                        Array.from({ length: 3 }).map((_, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="flex gap-4 items-center">
+                              <Skeleton className="h-10 w-10 rounded-md flex-shrink-0" />
+                              <Skeleton className="h-4 w-3/4 flex-1" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton className="h-4 w-32" />
+                            </TableCell>
+                            <TableCell>
+                              <Skeleton className="h-4 w-16" />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : completedStocks && completedStocks.length > 0 ? (
+                        completedStocks.map((stock) => (
+                          <TableRow key={stock.id}>
+                            <TableCell className="flex gap-4 items-center">
+                              <img
+                                src={stock.logo}
+                                alt={`${stock.name} logo`}
+                                className="h-10 w-10 rounded-md"
+                              />
+                              <div className="flex-1">
+                                <p className="font-semibold text-foreground">
+                                  {stock.name.replace(".JK", "")}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell
+                              className={`${stock.pct_gain >= 0 ? "text-green-500" : "text-red-500"}`}
+                            >
+                              Rp{" "}
+                              {(
+                                (stock.pct_gain * EQUITY) /
+                                100
+                              ).toLocaleString()}
+                            </TableCell>
+                            <TableCell>#{stock.id}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center py-4">
+                            Tidak ada trade yang sudah selesai saat ini.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
               </CardContent>
             </Card>

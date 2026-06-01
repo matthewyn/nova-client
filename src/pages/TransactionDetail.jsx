@@ -10,12 +10,12 @@ import StockPriceChart from "@/components/StockPriceChart";
 import { HiArrowUpRight } from "react-icons/hi2";
 import { PremiumContentGate } from "@/components/PremiumContentGate";
 import { useAuth } from "@/contexts/AuthContext";
-import { Progress } from "@/components/ui/progress";
-import { Alert } from "@/components/ui/alert";
-import { TrendingUp } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import ScenarioAnalysis from "@/components/ScenarioAnalysis";
 import RiskBreakdown from "@/components/RiskBreakdown";
+import RecommendedSizing from "@/components/RecommendedSizing";
 import DotGrid from "@/components/DotGrid";
+import { TrendingUp } from "lucide-react";
 
 const EQUITY = 100000000;
 
@@ -24,6 +24,8 @@ function TransactionDetail() {
   const { user, setUser } = useAuth();
   const [equities, setEquities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [equity, setEquity] = useState(EQUITY);
+  const [riskPercentage, setRiskPercentage] = useState(1);
   const { id } = useParams();
   const description = [
     "Bandingkan proyeksi harga pada tiga skenario berbeda,",
@@ -34,14 +36,11 @@ function TransactionDetail() {
   const bullPrice = transaction?.scenario_analysis?.bull_case?.target_price;
   const basePrice = transaction?.scenario_analysis?.base_case?.target_price;
   const bearPrice = transaction?.scenario_analysis?.bear_case?.target_price;
-
   const pctReturn =
     transaction && equities.length > 0
       ? (equities[equities.length - 1].equity - EQUITY) / EQUITY
       : 0;
-
   const scenarioAnalysis = transaction?.scenario_analysis;
-
   const orderedScenarios = scenarioAnalysis
     ? (() => {
         const scenarios = [
@@ -211,6 +210,54 @@ function TransactionDetail() {
                     <RiskBreakdown
                       transaction={transaction}
                       isLoading={isLoading}
+                    />
+                  </PremiumContentGate>
+                ) : (
+                  <div className="grid grid-cols-3 gap-4">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <Card key={i} className="relative overflow-hidden">
+                        <DotGrid />
+                        <CardContent className="p-4 relative z-10">
+                          <Skeleton className="h-6 w-32 mb-3" />
+                          <Skeleton className="h-2 w-full mb-3" />
+                          <Skeleton className="h-4 w-20" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                    <div className="col-span-3">
+                      <Skeleton className="h-24 w-full" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="mt-4">
+            <CardContent className={"text-left"}>
+              <div className="p-4">
+                {user ? (
+                  <PremiumContentGate
+                    userTier={user.tier}
+                    previewContent={
+                      <RecommendedSizing
+                        transaction={transaction}
+                        equity={equity}
+                        setEquity={setEquity}
+                        riskPercentage={riskPercentage}
+                        setRiskPercentage={setRiskPercentage}
+                        isLoading={isLoading}
+                        scenarioAnalysis={scenarioAnalysis}
+                      />
+                    }
+                  >
+                    <RecommendedSizing
+                      transaction={transaction}
+                      equity={equity}
+                      setEquity={setEquity}
+                      riskPercentage={riskPercentage}
+                      setRiskPercentage={setRiskPercentage}
+                      isLoading={isLoading}
+                      scenarioAnalysis={scenarioAnalysis}
                     />
                   </PremiumContentGate>
                 ) : (

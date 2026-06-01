@@ -254,6 +254,7 @@ function App() {
         "Stockpick AI tanpa batas",
         "Konteks pasar terkini dan luas",
         "Analisis volatilitas & simulasi skenario",
+        "Rekomendasi sizing berdasarkan risk modeling",
       ],
       buttonLabel: "Mulai Pro",
       isDisabled: user && user.tier == "pro",
@@ -285,54 +286,63 @@ function App() {
     },
   ];
 
-  const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      setIsLoading(true);
+  // const handleSubmit = async (e) => {
+  //   try {
+  //     e.preventDefault();
+  //     setIsLoading(true);
 
-      const response = await axios.post(
-        urlFetch,
-        {
-          price: 1000000,
-        },
-        {
-          headers: getAuthHeader(),
-        },
-      );
+  //     const response = await axios.post(
+  //       urlFetch,
+  //       {
+  //         price: 1000000,
+  //       },
+  //       {
+  //         headers: getAuthHeader(),
+  //       },
+  //     );
 
-      if (response.status === 201) {
-        window.snap.pay(response.data.token);
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 500) {
-          toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
-            type: "error",
-            position: "top-center",
-          });
-        }
+  //     if (response.status === 201) {
+  //       window.snap.pay(response.data.token);
+  //     }
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error)) {
+  //       if (error.response?.status === 500) {
+  //         toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
+  //           type: "error",
+  //           position: "top-center",
+  //         });
+  //       }
 
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  //       console.error("Server error:", error.response?.data);
+  //       console.error("Status code:", error.response?.status);
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const handleSubmit = () => {
+    const phoneNumber = "6285121536011";
+
+    const text = encodeURIComponent(
+      "Halo, saya tertarik untuk berlangganan paket *PRO Nova AI* seharga Rp. 1.000.000/bulan. Mohon info lebih lanjut.",
+    );
+    window.open(`https://wa.me/${phoneNumber}?text=${text}`, "_blank");
   };
 
-  useEffect(() => {
-    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
-    const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
-    const script = document.createElement("script");
-    script.src = snapScript;
-    script.setAttribute("data-client-key", clientKey);
-    document.body.appendChild(script);
-    script.async = true;
+  // useEffect(() => {
+  //   const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+  //   const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+  //   const script = document.createElement("script");
+  //   script.src = snapScript;
+  //   script.setAttribute("data-client-key", clientKey);
+  //   document.body.appendChild(script);
+  //   script.async = true;
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -404,7 +414,7 @@ function App() {
                         : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                     as={Link}
-                    to="/signup"
+                    to={user ? "#" : "/signup"}
                     isDisabled={plan.isDisabled}
                     onClick={plan.id === "pro" ? handleSubmit : undefined}
                   >

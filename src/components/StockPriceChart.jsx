@@ -83,7 +83,11 @@ function StockPriceChart({ chartData }) {
       {chartData.length > 0 ? (
         <>
           <div className="flex items-center gap-2 mb-4 justify-end">
-            <div className="w-8 h-2 bg-[#1a6b4a] rounded-full">&nbsp;</div>
+            <div
+              className={`w-8 h-2 ${isPositive ? "bg-[#1a6b4a]" : "bg-red-500"} rounded-full`}
+            >
+              &nbsp;
+            </div>
             <h4>Nilai Investasi</h4>
           </div>
           <ResponsiveContainer width="100%" height={200}>
