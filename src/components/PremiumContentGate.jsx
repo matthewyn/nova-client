@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
 import { VolatilityAnalysis } from "@/components/VolatilityAnalysis";
+import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
 
 function ContentGate() {
   const navigate = useNavigate();
@@ -21,7 +22,10 @@ function ContentGate() {
           Upgrade untuk membuka simulasi skenario market yang lebih tajam,
           analisis volatilitas, dan insight risiko berbasis AI.
         </p>
-        <Button className="w-full mb-2" onClick={() => navigate("/upgrade")}>
+        <Button
+          className="w-full mb-2 cursor-pointer"
+          onClick={proceedToWhatsapp}
+        >
           <SparkleIcon />
           Upgrade ke Pro
         </Button>

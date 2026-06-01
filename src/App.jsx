@@ -20,6 +20,7 @@ import {
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { Card, CardContent } from "@/components/ui/card";
+import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
 import {
   Carousel,
   CarouselContent,
@@ -321,15 +322,6 @@ function App() {
   //   }
   // };
 
-  const handleSubmit = () => {
-    const phoneNumber = "6285121536011";
-
-    const text = encodeURIComponent(
-      "Halo, saya tertarik untuk berlangganan paket *PRO Nova AI* seharga Rp. 1.000.000/bulan. Mohon info lebih lanjut.",
-    );
-    window.open(`https://wa.me/${phoneNumber}?text=${text}`, "_blank");
-  };
-
   // useEffect(() => {
   //   const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
   //   const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
@@ -416,7 +408,7 @@ function App() {
                     as={Link}
                     to={user ? "#" : "/signup"}
                     isDisabled={plan.isDisabled}
-                    onClick={plan.id === "pro" ? handleSubmit : undefined}
+                    onClick={plan.id === "pro" ? proceedToWhatsapp : undefined}
                   >
                     {plan.buttonLabel}
                   </Button>
