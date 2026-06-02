@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard.jsx";
 import Transactions from "@/pages/Transactions.jsx";
 import TransactionDetail from "@/pages/TransactionDetail.jsx";
 import RootLayout from "@/layouts/RootLayout.jsx";
+import TermsConditions from "@/components/TermsConditions.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
       { path: "dashboard/transactions", element: <Transactions /> },
       { path: "dashboard/transactions/:id", element: <TransactionDetail /> },
+      { path: "terms", element: <TermsConditions /> },
     ],
   },
 ]);

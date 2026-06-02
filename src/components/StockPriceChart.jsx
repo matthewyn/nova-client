@@ -88,7 +88,7 @@ function StockPriceChart({ chartData }) {
             >
               &nbsp;
             </div>
-            <h4>Nilai Investasi</h4>
+            <h4>Performa Simulasi</h4>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={chartData} margin={chartMargin}>

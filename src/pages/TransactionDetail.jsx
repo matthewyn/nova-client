@@ -100,7 +100,7 @@ function TransactionDetail() {
       <div className="border-y-1 border-gray-200/70 px-8">
         <div className="border-x-1 border-gray-200/70 py-12 px-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-1">
-            Detail Transaksi
+            Detail Analisis
           </h1>
           <Card className="mt-8">
             <CardContent className={"text-left"}>
@@ -114,7 +114,7 @@ function TransactionDetail() {
                 ) : transaction ? (
                   <div className="w-full p-4">
                     <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-1">
-                      Nilai Investasi
+                      Performa Simulasi
                       <HiArrowUpRight size={12} />
                     </h2>
                     <div className="flex items-end gap-1">

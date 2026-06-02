@@ -105,7 +105,9 @@ function CustomNavbar() {
             </NavbarItem>
             <NavbarItem>
               <Link to="/signup">
-                <Button className="p-6 rounded-full">Daftar</Button>
+                <Button className="p-6 rounded-full cursor-pointer">
+                  Daftar
+                </Button>
               </Link>
             </NavbarItem>
           </>

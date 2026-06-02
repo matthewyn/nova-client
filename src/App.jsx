@@ -105,7 +105,7 @@ const comparisonRows = [
 ];
 
 const stockData = {
-  heading: "Trusted by these companies",
+  heading: "Universe saham yang dianalisis Nova AI",
   logos: [
     {
       id: "logo-1",
@@ -196,7 +196,7 @@ function App() {
     {
       title: "Apakah sinyal AI ini 100% akurat?",
       content:
-        "Tidak. Market tetap memiliki risiko dan tidak ada sistem yang selalu benar. Nova AI dirancang untuk meningkatkan probabilitas dan membantu pengguna membaca momentum serta risiko dengan lebih objektif.",
+        "Tidak. Market tetap memiliki risiko dan tidak ada sistem yang selalu benar. Nova AI tidak bertujuan memprediksi pasar secara sempurna, tetapi membantu pengguna membuat keputusan yang lebih terstruktur berdasarkan data, probabilitas, dan manajemen risiko.",
     },
     {
       title: "Apakah saya harus terus menatap layar seharian?",
@@ -204,7 +204,7 @@ function App() {
         "Tidak. Nova AI membantu menyaring market dan memberikan insight penting sehingga pengguna hanya perlu melihat pilihan saham yang sudah dianalisis, bukan harus memantau semua pergerakan market secara manual.",
     },
     {
-      title: "Apakah setiap hari AI akan memberikan rekomendasi saham?",
+      title: "Apakah Nova AI selalu menemukan peluang setiap hari?",
       content:
         "Nova AI memberikan analisis dan insight berdasarkan kondisi market terkini. Jadi, frekuensi rekomendasi bisa bervariasi tergantung pada dinamika pasar dan peluang yang terdeteksi oleh sistem.",
     },
@@ -408,7 +408,13 @@ function App() {
                     as={Link}
                     to={user ? "#" : "/signup"}
                     isDisabled={plan.isDisabled}
-                    onClick={plan.id === "pro" ? proceedToWhatsapp : undefined}
+                    onClick={
+                      plan.id === "pro"
+                        ? user
+                          ? () => proceedToWhatsapp(user)
+                          : undefined
+                        : undefined
+                    }
                   >
                     {plan.buttonLabel}
                   </Button>
@@ -520,18 +526,19 @@ function App() {
             </div>
             <BlurFade delay={0.15} inView>
               <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Dibangun untuk mengikuti
+                Dirancang untuk mengenali
               </h2>
             </BlurFade>
             <BlurFade delay={0.15 * 2} inView>
               <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">kekuatan tren market</span>
+                <span className="text-cyan-400">
+                  tren yang sedang terbentuk
+                </span>
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Nova AI membantu mendeteksi pelemahan tren lebih awal sekaligus
-              membiarkan posisi yang kuat terus berjalan agar potensi keuntungan
-              dapat berkembang lebih optimal.
+              Nova AI membantu mengenali perubahan tren lebih awal dan menjaga
+              fokus pada posisi yang masih menunjukkan kekuatan relatif.
             </p>
             <Carousel className="mt-12">
               <CarouselContent>
@@ -888,8 +895,8 @@ function App() {
         <div className="border-y-1 border-gray-200/70 px-8">
           <div className="border-x-1 border-gray-200/70">
             <HeroGeometric
-              title="Mulailah berinvestasi dengan penuh perhatian"
-              paragraph="Pendamping investasi yang tenang dan didukung AI, dirancang untuk membantu Anda merencanakan, melacak, dan memahami uang Anda tanpa gangguan."
+              title="Dari feeling menjadi framework"
+              paragraph="Nova AI membantu Anda memahami peluang, risiko, dan berbagai kemungkinan skenario pasar sehingga setiap keputusan investasi dapat dibuat dengan lebih objektif dan terstruktur."
             />
           </div>
         </div>

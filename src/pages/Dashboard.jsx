@@ -31,11 +31,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangleIcon, Info } from "lucide-react";
 
 const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
-const urlFetchTransaction = generateApiOrigin("/transaction/new");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 
 const EQUITY = 100000000;
@@ -114,15 +115,28 @@ function Dashboard() {
         <div className="border-x-1 border-gray-200/70 py-12 px-8">
           <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
             <SparkleIcon size={12} />
-            Stockpick AI
+            Stock Intelligence
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-1">Dashboard</h2>
-          <p className="text-sm text-gray-400 max-w-md mx-auto">
-            Berikut adalah beberapa saham yang sudah dianalisis oleh Stockpick
-            AI. Pilihan saham diperbarui setiap jam 8 malam, silahkan cek secara
-            berkala untuk melihat rekomendasi terbaru.
+          <p className="text-sm text-gray-400 max-w-lg mx-auto">
+            Berikut adalah saham yang saat ini berada dalam cakupan analisis
+            Nova AI. Analisis diperbarui setiap hari berdasarkan perubahan data
+            dan kondisi pasar. Silakan cek secara berkala untuk melihat insight
+            terbaru.
           </p>
-          <div className="mt-12">
+          <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 mt-12">
+            <AlertTriangleIcon />
+            <AlertTitle>Disclaimer Investasi</AlertTitle>
+            <AlertDescription>
+              Nova AI menyediakan analisis berbasis data dan machine learning
+              untuk tujuan informasi dan edukasi. Informasi yang ditampilkan
+              bukan merupakan rekomendasi investasi atau ajakan membeli maupun
+              menjual saham. Seluruh keputusan investasi dan risiko yang timbul
+              menjadi tanggung jawab pengguna. Kinerja historis tidak menjamin
+              hasil di masa mendatang.
+            </AlertDescription>
+          </Alert>
+          <div className="mt-4">
             <Card>
               <CardContent className={"text-left"}>
                 <div className="w-full bg-background flex items-center justify-center">
@@ -151,10 +165,7 @@ function Dashboard() {
                       </div>
                     </div>
                   ) : (
-                    <StocksCarousel
-                      title="Pilihan Saham Baru"
-                      stocks={stocks}
-                    />
+                    <StocksCarousel title="Insight Terbaru" stocks={stocks} />
                   )}
                 </div>
               </CardContent>
@@ -168,7 +179,7 @@ function Dashboard() {
                     <Skeleton className="h-7 w-32 mb-4" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Running Trade
+                      Saham Yang Sedang Dipantau
                     </h2>
                   )}
                   <div className="flex flex-col gap-4">
@@ -239,7 +250,7 @@ function Dashboard() {
                                         100,
                                   ).toLocaleString()}
                                 </p>
-                                <p>Take Profit</p>
+                                <p>Estimasi Target</p>
                               </div>
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-medium text-red-500">
@@ -607,23 +618,23 @@ function Dashboard() {
                     <Skeleton className="h-7 w-40" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Trade Terbaru
+                      Riwayat Analisis
                     </h2>
                   )}
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Saham</TableHead>
+                        <TableHead className="min-w-24">Saham</TableHead>
                         <TableHead>Keuntungan</TableHead>
-                        <TableHead>ID</TableHead>
+                        <TableHead>Tanggal Keluar</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {isLoading ? (
                         Array.from({ length: 3 }).map((_, i) => (
                           <TableRow key={i}>
-                            <TableCell className="flex gap-4 items-center">
-                              <Skeleton className="h-10 w-10 rounded-md flex-shrink-0" />
+                            <TableCell className="flex gap-2 items-center">
+                              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0" />
                               <Skeleton className="h-4 w-3/4 flex-1" />
                             </TableCell>
                             <TableCell>
@@ -637,11 +648,11 @@ function Dashboard() {
                       ) : completedStocks && completedStocks.length > 0 ? (
                         completedStocks.map((stock) => (
                           <TableRow key={stock.id}>
-                            <TableCell className="flex gap-4 items-center">
+                            <TableCell className="flex gap-2 items-center">
                               <img
                                 src={stock.logo}
                                 alt={`${stock.name} logo`}
-                                className="h-10 w-10 rounded-md"
+                                className="h-8 w-8 rounded-md"
                               />
                               <div className="flex-1">
                                 <p className="font-semibold text-foreground">
@@ -658,7 +669,13 @@ function Dashboard() {
                                 100
                               ).toLocaleString()}
                             </TableCell>
-                            <TableCell>#{stock.id}</TableCell>
+                            <TableCell>
+                              {
+                                new Date(stock.end_date)
+                                  .toISOString()
+                                  .split("T")[0]
+                              }
+                            </TableCell>
                           </TableRow>
                         ))
                       ) : (
