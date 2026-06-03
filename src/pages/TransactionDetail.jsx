@@ -97,7 +97,7 @@ function TransactionDetail() {
   }, [id]);
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 select-none">
       <div className="border-y-1 border-gray-200/70 px-8">
         <div className="border-x-1 border-gray-200/70 py-12 px-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-1">

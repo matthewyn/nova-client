@@ -11,7 +11,7 @@ import Dashboard from "@/pages/Dashboard.jsx";
 import Transactions from "@/pages/Transactions.jsx";
 import TransactionDetail from "@/pages/TransactionDetail.jsx";
 import RootLayout from "@/layouts/RootLayout.jsx";
-import TermsConditions from "@/components/TermsConditions.jsx";
+import { TermsConditions } from "@/components/TermsConditions.jsx";
 
 const router = createBrowserRouter([
   {
