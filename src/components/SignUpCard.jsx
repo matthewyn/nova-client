@@ -198,7 +198,7 @@ function SignUpCard() {
           },
         );
       } else {
-        toast("Gagal mengirim OTP. Pastikan nomor benar.", {
+        toast("Gagal mengirim OTP. Silahkan menggunakan nomor telepon lain.", {
           type: "error",
           position: "top-center",
         });
@@ -296,9 +296,9 @@ function SignUpCard() {
             type: "error",
             position: "top-center",
           });
-          console.error("Server error:", error.response?.data);
-          console.error("Status code:", error.response?.status);
         }
+        console.error("Server error:", error.response?.data);
+        console.error("Status code:", error.response?.status);
       } else {
         toast("OTP tidak valid. Pastikan Anda memasukkan kode yang benar.", {
           type: "error",

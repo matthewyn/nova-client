@@ -5,6 +5,8 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
+import WatermarkOverlay from "@/components/WatermarkOverlay";
+import { useAuth } from "@/contexts/AuthContext";
 import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
 import { AlertTriangleIcon } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
+  const { user, setUser } = useAuth();
+
   return (
     <>
       {/* Trend Summary Modal */}
@@ -21,7 +25,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
         onOpenChange={(isOpen) => !isOpen && setSelectedStockForTrend(null)}
         size="lg"
       >
-        <ModalContent>
+        <ModalContent className="relative">
           {(onClose) => {
             const parseSummary = (summaryText) => {
               if (!summaryText) return {};
@@ -42,6 +46,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
 
             return (
               <>
+                <WatermarkOverlay userId={user?.user_id} email={user?.email} />
                 <ModalHeader className="flex flex-col gap-1">
                   Ringkasan Tren:{" "}
                   {selectedStockForTrend?.name.replace(".JK", "")}

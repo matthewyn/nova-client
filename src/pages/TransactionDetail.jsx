@@ -14,6 +14,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import ScenarioAnalysis from "@/components/ScenarioAnalysis";
 import RiskBreakdown from "@/components/RiskBreakdown";
 import RecommendedSizing from "@/components/RecommendedSizing";
+import WatermarkOverlay from "@/components/WatermarkOverlay";
 import DotGrid from "@/components/DotGrid";
 import { TrendingUp } from "lucide-react";
 
@@ -148,7 +149,8 @@ function TransactionDetail() {
               </div>
             </CardContent>
           </Card>
-          <Card className="mt-4">
+          <Card className="mt-4 relative">
+            <WatermarkOverlay userId={user?.user_id} email={user?.email} />
             <CardContent className={"text-left"}>
               <div className="p-4">
                 {user ? (
@@ -194,7 +196,8 @@ function TransactionDetail() {
               </div>
             </CardContent>
           </Card>
-          <Card className="mt-4">
+          <Card className="mt-4 relative">
+            <WatermarkOverlay userId={user?.user_id} email={user?.email} />
             <CardContent className={"text-left"}>
               <div className="p-4">
                 {user ? (
@@ -232,7 +235,8 @@ function TransactionDetail() {
               </div>
             </CardContent>
           </Card>
-          <Card className="mt-4">
+          <Card className="mt-4 relative">
+            <WatermarkOverlay userId={user?.user_id} email={user?.email} />
             <CardContent className={"text-left"}>
               <div className="p-4">
                 {user ? (

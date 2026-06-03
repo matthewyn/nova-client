@@ -22,6 +22,8 @@ import { Divider } from "@heroui/react";
 import { ChartRadialText } from "@/components/ui/chart-radial-text";
 import DotGrid from "@/components/DotGrid";
 import { stocksSector } from "@/utils/stocks";
+import { useAuth } from "@/contexts/AuthContext";
+import WatermarkOverlay from "@/components/WatermarkOverlay";
 import {
   Table,
   TableBody,
@@ -48,6 +50,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
   const [statistics, setStatistics] = useState(null);
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -110,7 +113,7 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 select-none">
       <div className="text-center border-y-1 border-gray-200/70 px-8">
         <div className="border-x-1 border-gray-200/70 py-12 px-8">
           <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
@@ -137,7 +140,8 @@ function Dashboard() {
             </AlertDescription>
           </Alert>
           <div className="mt-4">
-            <Card>
+            <Card className="relative">
+              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
               <CardContent className={"text-left"}>
                 <div className="w-full bg-background flex items-center justify-center">
                   {isLoading ? (
@@ -172,7 +176,8 @@ function Dashboard() {
             </Card>
           </div>
           <div className="grid grid-cols-2 mt-4 items-stretch">
-            <Card className="rounded-r-none">
+            <Card className="rounded-r-none relative">
+              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
