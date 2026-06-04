@@ -115,7 +115,7 @@ function TransactionDetail() {
                 ) : transaction ? (
                   <div className="w-full p-4">
                     <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-1">
-                      Performa Simulasi
+                      Nilai Investasi
                       <HiArrowUpRight size={12} />
                     </h2>
                     <div className="flex items-end gap-1">

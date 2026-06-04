@@ -46,6 +46,8 @@ const EQUITY = 100000000;
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
+  const [swingTradeStocks, setSwingTradeStocks] = useState([]);
+  const [fastTradeStocks, setFastTradeStocks] = useState([]);
   const [completedStocks, setCompletedStocks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
@@ -77,7 +79,15 @@ function Dashboard() {
         }
         if (runningStocksResponse.status === 200) {
           const { stocks } = runningStocksResponse.data;
+          const swingTrades = stocks.filter(
+            (stock) => stock.strategy.toLowerCase() === "swing-trade",
+          );
+          const fastTrades = stocks.filter(
+            (stock) => stock.strategy.toLowerCase() === "fast-trade",
+          );
           setRunningStocks(stocks);
+          setSwingTradeStocks(swingTrades);
+          setFastTradeStocks(fastTrades);
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -90,6 +100,10 @@ function Dashboard() {
             winning_trades,
             losing_trades,
             profit_factor,
+            total_return,
+            avg_return_per_trade,
+            best_trade,
+            worst_trade,
           } = statisticsResponse.data;
           setStatistics({
             winRate: winrate,
@@ -97,6 +111,10 @@ function Dashboard() {
             winningTrades: winning_trades,
             losingTrades: losing_trades,
             profitFactor: profit_factor,
+            total_return: total_return,
+            avg_return_per_trade: avg_return_per_trade,
+            best_trade: best_trade,
+            worst_trade: worst_trade,
           });
         }
       } catch (error) {
@@ -184,7 +202,7 @@ function Dashboard() {
                     <Skeleton className="h-7 w-32 mb-4" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Saham Yang Sedang Dipantau
+                      Swing Trade
                     </h2>
                   )}
                   <div className="flex flex-col gap-4">
@@ -201,8 +219,8 @@ function Dashboard() {
                           </div>
                         ))}
                       </div>
-                    ) : runningStocks.length > 0 ? (
-                      runningStocks.map((stock, index) => (
+                    ) : swingTradeStocks.length > 0 ? (
+                      swingTradeStocks.map((stock, index) => (
                         <Card key={index}>
                           <CardContent className={"text-left"}>
                             <div className="flex justify-between items-center">
@@ -353,7 +371,185 @@ function Dashboard() {
                       ))
                     ) : (
                       <p className="text-sm text-foreground/70">
-                        Tidak ada running trade dari saham-saham yang sedang
+                        Tidak ada swing trade dari saham-saham yang sedang
+                        dianalisis saat ini.
+                      </p>
+                    )}
+                  </div>
+                  {isLoading ? (
+                    <Skeleton className="h-7 w-32 mb-4" />
+                  ) : (
+                    <h2 className="text-xl font-bold text-foreground mb-4 mt-6">
+                      Fast Trade
+                    </h2>
+                  )}
+                  <div className="flex flex-col gap-4">
+                    {isLoading ? (
+                      <div className="space-y-4">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-12 w-12 rounded-md" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-5 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-3 w-2/3" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : fastTradeStocks.length > 0 ? (
+                      fastTradeStocks.map((stock, index) => (
+                        <Card key={index}>
+                          <CardContent className={"text-left"}>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={stock.logo}
+                                  alt={`${stock.name} logo`}
+                                  className="h-10 w-10 rounded-md"
+                                />
+                                <h3 className="font-semibold text-medium text-foreground">
+                                  {stock.name.replace(".JK", "")}
+                                </h3>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp {stock.close.toLocaleString()}
+                                </p>
+                                <span className="flex items-center gap-1">
+                                  {stock.actual_pct_change > 0 ? (
+                                    <FaCaretUp
+                                      className="inline text-green-500"
+                                      size={20}
+                                    />
+                                  ) : (
+                                    <FaCaretDown
+                                      className="inline text-red-500"
+                                      size={20}
+                                    />
+                                  )}
+                                  {Math.abs(stock.actual_pct_change).toFixed(2)}
+                                  %
+                                </span>
+                              </div>
+                            </div>
+                            <Divider className="my-3" />
+                            <div className="grid grid-cols-3 gap-8">
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp {stock.initial_price.toLocaleString()}
+                                </p>
+                                <p>Harga Masuk</p>
+                              </div>
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-foreground text-medium">
+                                  Rp{" "}
+                                  {Math.floor(
+                                    stock.initial_price +
+                                      (stock.initial_price *
+                                        stock.predicted_pct_change) /
+                                        100,
+                                  ).toLocaleString()}
+                                </p>
+                                <p>Estimasi Target</p>
+                              </div>
+                              <div className="text-sm text-foreground">
+                                <p className="font-semibold text-medium text-red-500">
+                                  Rp{" "}
+                                  {stock.trailing_stop
+                                    ? Math.floor(
+                                        stock.trailing_stop,
+                                      ).toLocaleString()
+                                    : Math.floor(
+                                        stock.stop_loss,
+                                      ).toLocaleString()}
+                                </p>
+                                <p>
+                                  {stock.trailing_stop
+                                    ? "Trailing Stop"
+                                    : "Stop Loss"}
+                                </p>
+                              </div>
+                            </div>
+                            <Divider className="my-3 mb-5" />
+                            <div className="grid grid-cols-3 gap-8 items-center">
+                              {stock.status ? (
+                                <Chip
+                                  className="bg-indigo-500/20 text-indigo-500 col-span-2"
+                                  radius="sm"
+                                >
+                                  {stock.status}
+                                </Chip>
+                              ) : (
+                                <>
+                                  <div>
+                                    <p className="text-sm text-foreground font-semibold">
+                                      Prediksi:{" "}
+                                    </p>
+                                    <span className="flex items-center gap-1">
+                                      {stock.predicted_pct_change > 0 ? (
+                                        <FaCaretUp
+                                          className="inline text-green-500"
+                                          size={20}
+                                        />
+                                      ) : (
+                                        <FaCaretDown
+                                          className="inline text-red-500"
+                                          size={20}
+                                        />
+                                      )}
+                                      {Math.abs(
+                                        stock.predicted_pct_change,
+                                      ).toFixed(2)}
+                                      %
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-foreground font-semibold">
+                                      Risiko:{" "}
+                                    </p>
+                                    <span>
+                                      {CapitalizeFirstLetter(stock.risk_level)}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+
+                              <div className="flex gap-2">
+                                <Link
+                                  to={`/dashboard/transactions/${stock.id}`}
+                                  className="flex-1"
+                                >
+                                  <Button
+                                    size="lg"
+                                    className="cursor-pointer w-full"
+                                    variant={
+                                      stock.predicted_pct_change < 0
+                                        ? "destructive"
+                                        : "default"
+                                    }
+                                  >
+                                    Pantau
+                                  </Button>
+                                </Link>
+                                <Button
+                                  variant="outline"
+                                  size="icon-lg"
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    setSelectedStockForTrend(stock)
+                                  }
+                                >
+                                  <HiOutlineInformationCircle size={20} />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <p className="text-sm text-foreground/70">
+                        Tidak ada fast trade dari saham-saham yang sedang
                         dianalisis saat ini.
                       </p>
                     )}
@@ -399,91 +595,167 @@ function Dashboard() {
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className={"text-left relative z-10"}>
-                <div className="p-4 flex gap-8">
-                  <div className="flex-1 flex flex-col gap-4">
-                    <div>
+                <div className="p-4">
+                  <div className="flex gap-8">
+                    <div className="flex-1 flex flex-col gap-4">
+                      <div>
+                        {isLoading ? (
+                          <Skeleton className="h-7 w-20 mb-2" />
+                        ) : (
+                          <h2 className="text-xl font-bold text-foreground">
+                            Win Rate
+                          </h2>
+                        )}
+                        {isLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-5 w-16" />
+                          </div>
+                        ) : statistics ? (
+                          <p className="text-green-500 font-semibold text-xl flex items-center gap-1">
+                            {statistics.winRate.toFixed(1)}%{" "}
+                            {statistics.winRate >= 0 ? (
+                              <HiArrowUpRight
+                                className="text-green-500"
+                                size={16}
+                              />
+                            ) : statistics.winRate < 0 ? (
+                              <HiArrowDownRight
+                                className="text-red-500"
+                                size={16}
+                              />
+                            ) : null}
+                          </p>
+                        ) : null}
+                      </div>
+                      <Divider />
+                      <div>
+                        {isLoading ? (
+                          <Skeleton className="h-7 w-28 mb-2" />
+                        ) : (
+                          <h2 className="text-xl font-bold text-fo-xltext-xlround">
+                            Profit Factor
+                          </h2>
+                        )}
+                        {isLoading ? (
+                          <div className="space-y-2">
+                            <Skeleton className="h-5 w-16" />
+                          </div>
+                        ) : statistics ? (
+                          <p className="font-semibold text-xl">
+                            {statistics.profitFactor.toFixed(2)}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="w-40">
                       {isLoading ? (
-                        <Skeleton className="h-7 w-20 mb-2" />
-                      ) : (
-                        <h2 className="text-xl font-bold text-foreground">
-                          Win Rate
-                        </h2>
-                      )}
-                      {isLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-16" />
+                        <div className="flex flex-col gap-4">
+                          <Skeleton className="h-36 w-36 rounded-full" />
+                          <div className="flex justify-between">
+                            <Skeleton className="h-12 w-16 rounded-lg" />
+                            <Skeleton className="h-12 w-16 rounded-lg" />
+                          </div>
                         </div>
                       ) : statistics ? (
-                        <p className="text-green-500 font-semibold text-xl flex items-center gap-1">
-                          {statistics.winRate.toFixed(1)}%{" "}
-                          {statistics.winRate >= 0 ? (
+                        <>
+                          <div className="w-40 h-40 flex-shrink-0">
+                            <ChartRadialText
+                              winRate={statistics.winRate}
+                              totalTrades={statistics.totalTrades}
+                            />
+                          </div>
+                          <div className="flex justify-between">
+                            <div className="text-center">
+                              <p className="font-semibold text-lg text-green-500">
+                                {statistics.winningTrades}
+                              </p>
+                              <p>Wins</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="font-semibold text-lg text-red-500">
+                                {statistics.losingTrades}
+                              </p>
+                              <p>Losses</p>
+                            </div>
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div
+                    className={`w-full border-t border-dashed border-default-300 my-4`}
+                  />
+                  {isLoading ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i}>
+                          <Skeleton className="h-6 w-28 mb-2" />
+                          <Skeleton className="h-7 w-24" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : statistics ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h2 className="text-medium font-semibold text-foreground">
+                          Total Return
+                        </h2>
+                        <p
+                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.total_return >= 0 ? "text-green-500" : "text-red-500"}`}
+                        >
+                          {statistics.total_return.toFixed(2)}%{" "}
+                          {statistics.total_return >= 0 ? (
                             <HiArrowUpRight
                               className="text-green-500"
-                              size={16}
+                              size={12}
                             />
-                          ) : statistics.winRate < 0 ? (
+                          ) : statistics.total_return < 0 ? (
                             <HiArrowDownRight
                               className="text-red-500"
-                              size={16}
+                              size={12}
                             />
                           ) : null}
                         </p>
-                      ) : null}
-                    </div>
-                    <Divider />
-                    <div>
-                      {isLoading ? (
-                        <Skeleton className="h-7 w-28 mb-2" />
-                      ) : (
-                        <h2 className="text-xl font-bold text-fo-xltext-xlround">
-                          Profit Factor
-                        </h2>
-                      )}
-                      {isLoading ? (
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-16" />
-                        </div>
-                      ) : statistics ? (
-                        <p className="font-semibold text-xl">
-                          {statistics.profitFactor.toFixed(2)}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="w-40">
-                    {isLoading ? (
-                      <div className="flex flex-col gap-4">
-                        <Skeleton className="h-36 w-36 rounded-full" />
-                        <div className="flex justify-between">
-                          <Skeleton className="h-12 w-16 rounded-lg" />
-                          <Skeleton className="h-12 w-16 rounded-lg" />
-                        </div>
                       </div>
-                    ) : statistics ? (
-                      <>
-                        <div className="w-40 h-40 flex-shrink-0">
-                          <ChartRadialText
-                            winRate={statistics.winRate}
-                            totalTrades={statistics.totalTrades}
-                          />
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="text-center">
-                            <p className="font-semibold text-lg text-green-500">
-                              {statistics.winningTrades}
-                            </p>
-                            <p>Wins</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="font-semibold text-lg text-red-500">
-                              {statistics.losingTrades}
-                            </p>
-                            <p>Losses</p>
-                          </div>
-                        </div>
-                      </>
-                    ) : null}
-                  </div>
+                      <div>
+                        <h2 className="text-medium font-bold text-foreground">
+                          Avg Return/Trade
+                        </h2>
+                        <p
+                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.avg_return_per_trade >= 0 ? "text-green-500" : "text-red-500"}`}
+                        >
+                          {statistics.avg_return_per_trade.toFixed(2)}%{" "}
+                          {statistics.avg_return_per_trade >= 0 ? (
+                            <HiArrowUpRight
+                              className="text-green-500"
+                              size={12}
+                            />
+                          ) : statistics.avg_return_per_trade < 0 ? (
+                            <HiArrowDownRight
+                              className="text-red-500"
+                              size={12}
+                            />
+                          ) : null}
+                        </p>
+                      </div>
+                      <div>
+                        <h2 className="text-medium font-bold text-foreground">
+                          Best Trade
+                        </h2>
+                        <p className="text-green-500 font-semibold text-medium flex items-center gap-1">
+                          {statistics.best_trade}
+                        </p>
+                      </div>
+                      <div>
+                        <h2 className="text-medium font-bold text-foreground">
+                          Worst Trade
+                        </h2>
+                        <p className="text-red-500 font-semibold text-medium flex items-center gap-1">
+                          {statistics.worst_trade}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
