@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 import GradientMesh from "@/assets/gradient-mesh.jpg";
 import Gradient from "@/assets/gradient.jpg";
-import Brms from "@/assets/brms.png";
-import Admr from "@/assets/admr.png";
-import Pani from "@/assets/pani.png";
-import Bumi from "@/assets/bumi.png";
-import Adro from "@/assets/adro.png";
-import Indy from "@/assets/indy.png";
 import {
   HiFire,
   HiBolt,
   HiGift,
-  HiChatBubbleOvalLeftEllipsis,
-  HiChartPie,
   HiExclamationCircle,
-  HiChartBar,
   HiMiniStar,
+  HiGlobeAsiaAustralia,
+  HiMap,
+  HiLightBulb,
 } from "react-icons/hi2";
+import { motion } from "framer-motion";
+import Dashboard from "@/assets/dashboard.png";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
+import { Sparkles } from "@/components/ui/sparkles";
+import { Separator } from "@/components/ui/separator";
+import { CircleCheck } from "lucide-react";
+import { useTheme } from "next-themes";
+import Indonesia from "@/assets/indonesia.png";
+import USA from "@/assets/usa.png";
 import {
   Carousel,
   CarouselContent,
@@ -39,7 +41,6 @@ import {
   User,
 } from "@heroui/react";
 import SparkleIcon from "@/components/SparkleIcon";
-import { Logos3 } from "@/components/blocks/logos3";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import CustomChip from "@/components/CustomChip";
@@ -47,6 +48,7 @@ import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
 import { getAuthHeader } from "@/utils/token";
 import DotGrid from "@/components/DotGrid";
+import { Badge } from "@/components/ui/badge";
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -66,223 +68,208 @@ const CheckIcon = ({ className = "" }) => (
   </svg>
 );
 
-const comparisonRows = [
+const items = [
   {
-    icon: <HiChatBubbleOvalLeftEllipsis size={16} />,
-    label: "Stockpick AI",
-    free: "Analisis terbatas",
-    pro: "Analisis pasar tanpa batas",
-    elite: "Priority quant intelligence",
+    quarter: "STEP 01",
+    title: "Macro Data Agent",
+    description:
+      "Collects and processes the latest macroeconomic data, including money supply, inflation, interest rates, and other key economic indicators.",
+    status: "done",
   },
   {
-    icon: <HiChartPie size={16} />,
-    label: "Analisis Portofolio",
-    free: "Tracking dasar",
-    pro: "Analisis portofolio lengkap",
-    elite: "AI risk modeling",
+    quarter: "STEP 02",
+    title: "Liquidity Analysis Agent",
+    description:
+      "Analyzes global liquidity conditions using money supply trends, yield curves, currency strength, commodity prices, and other market signals to identify the current macro regime.",
+    status: "done",
   },
   {
-    icon: <HiExclamationCircle size={16} />,
-    label: "Risk Intelligence",
-    free: "-",
-    pro: "Analisis risiko portofolio",
-    elite: "Simulasi volatilitas & skenario",
+    quarter: "STEP 03",
+    title: "Sector Rotation Agent",
+    description:
+      "Identifies capital rotation across asset classes and sectors, including bonds, equities, commodities, precious metals, and other investment opportunities.",
+    status: "done",
   },
   {
-    icon: <HiChartBar size={16} />,
-    label: "Konteks Pasar",
-    free: "Summary dasar",
-    pro: "Insight AI",
-    elite: "Forecasting analysis mendalam",
-  },
-  {
-    icon: <HiMiniStar size={16} />,
-    label: "Fitur Akses Awal",
-    free: "-",
-    pro: "-",
-    elite: "Ya",
+    quarter: "STEP 04",
+    title: "Stock Ranking Agent",
+    description:
+      "Ranks every sector and identifies the top 5 stocks within each sector based on momentum, valuation, quality, liquidity, earnings strength, and alignment with the current macro regime.",
+    status: "done",
   },
 ];
 
-const stockData = {
-  heading: "Universe saham yang dianalisis Nova AI",
-  logos: [
-    {
-      id: "logo-1",
-      description: "PTRO",
-      image: "https://assets.stockbit.com/logos/companies/PTRO.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-2",
-      description: "PANI",
-      image: "https://assets.stockbit.com/logos/companies/PANI.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-3",
-      description: "ANTM",
-      image: "https://assets.stockbit.com/logos/companies/ANTM.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-4",
-      description: "BRMS",
-      image: "https://assets.stockbit.com/logos/companies/BRMS.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-5",
-      description: "ADMR",
-      image: "https://assets.stockbit.com/logos/companies/ADMR.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-6",
-      description: "BUMI",
-      image: "https://assets.stockbit.com/logos/companies/BUMI.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-7",
-      description: "ADRO",
-      image: "https://assets.stockbit.com/logos/companies/ADRO.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-8",
-      description: "MEDC",
-      image: "https://assets.stockbit.com/logos/companies/MEDC.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-9",
-      description: "INDY",
-      image: "https://assets.stockbit.com/logos/companies/INDY.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-10",
-      description: "PTBA",
-      image: "https://assets.stockbit.com/logos/companies/PTBA.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-11",
-      description: "CUAN",
-      image: "https://assets.stockbit.com/logos/companies/CUAN.png",
-      className: "h-12 w-auto",
-    },
-    {
-      id: "logo-12",
-      description: "DOID",
-      image: "https://assets.stockbit.com/logos/companies/DOID.png",
-      className: "h-12 w-auto",
-    },
-  ],
-};
+const indonesiaSectors = [
+  "Property",
+  "Consumer Staples",
+  "Consumer Discretionary",
+  "Technology",
+  "Healthcare",
+  "Coal",
+  "Nickel",
+  "Gold",
+  "Infrastructure",
+  "Telecommunication",
+  "CPO",
+  "Oil & Gas",
+  "Energy Shipping",
+];
+const americanSectors = [
+  "Technology",
+  "Healthcare",
+  "Financials",
+  "Consumer Discretionary",
+  "Industrials",
+  "Energy",
+  "Consumer Staples",
+  "Utilities",
+  "Materials",
+];
+
+const comparisonRows = [
+  {
+    icon: <HiGlobeAsiaAustralia size={16} />,
+    label: "Macro Dashboard",
+    free: "Basic",
+    pro: "Complete",
+    elite: "Complete",
+  },
+  {
+    icon: <HiLightBulb size={16} />,
+    label: "Stock Intelligence",
+    free: "1/day",
+    pro: "Unlimited",
+    elite: "Unlimited",
+  },
+  {
+    icon: <HiMap size={16} />,
+    label: "Scenario Analysis",
+    free: "-",
+    pro: "Yes",
+    elite: "Yes",
+  },
+  {
+    icon: <HiExclamationCircle size={16} />,
+    label: "Risk Modeling",
+    free: "-",
+    pro: "Yes",
+    elite: "Advanced",
+  },
+  {
+    icon: <HiMiniStar size={16} />,
+    label: "Early Access Features",
+    free: "-",
+    pro: "-",
+    elite: "Yes",
+  },
+];
 
 const urlFetch = generateApiOrigin("/midtrans/create-token");
 
 function App() {
   const { user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const { theme } = useTheme();
   const faqItems = [
     {
-      title: "Apakah AI ini juga dipakai langsung oleh Foundernya?",
+      title: "Does the founder use this AI directly?",
       content:
-        "Ya. Nova AI juga digunakan langsung dalam proses transaksi investasi oleh foundernya. Platform ini dirancang untuk membantu investor retail mendapatkan akses ke teknologi yang sama yang digunakan oleh profesional, sehingga mereka dapat membuat keputusan investasi yang lebih terinformasi dan terstruktur.",
+        "Yes. Nova AI is also used directly by the founder in investment transactions. The platform is designed to help retail investors get access to the same technology used by professionals, so they can make more informed and structured investment decisions.",
     },
     {
-      title: "Apakah sinyal AI ini 100% akurat?",
+      title: "Is this AI signal 100% accurate?",
       content:
-        "Tidak. Market tetap memiliki risiko dan tidak ada sistem yang selalu benar. Nova AI tidak bertujuan memprediksi pasar secara sempurna, tetapi membantu pengguna membuat keputusan yang lebih terstruktur berdasarkan data, probabilitas, dan manajemen risiko.",
+        "No. Markets remain risky and no system is always right. Nova AI doesn't aim to predict the market perfectly, but rather helps users make more structured decisions based on data, probability, and risk management.",
     },
     {
-      title: "Apakah saya harus terus menatap layar seharian?",
+      title: "Do I have to stare at the screen all day?",
       content:
-        "Tidak. Nova AI membantu menyaring market dan memberikan insight penting sehingga pengguna hanya perlu melihat pilihan saham yang sudah dianalisis, bukan harus memantau semua pergerakan market secara manual.",
+        "No. Nova AI helps filter the market and provides important insights so users only need to look at pre-analyzed stock options, not monitor all market movements manually.",
     },
     {
-      title: "Apakah Nova AI selalu menemukan peluang setiap hari?",
+      title: "Does Nova AI always find opportunities every day?",
       content:
-        "Nova AI memberikan analisis dan insight berdasarkan kondisi market terkini. Jadi, frekuensi rekomendasi bisa bervariasi tergantung pada dinamika pasar dan peluang yang terdeteksi oleh sistem.",
-    },
-    {
-      title:
-        "Apa yang membuat Nova AI berbeda dari indikator gratis di internet?",
-      content:
-        "Nova AI tidak hanya menggunakan satu indikator teknikal, tetapi menggabungkan LLM, analisis struktur pasar, risk modeling, dan context intelligence dalam satu sistem terintegrasi.",
+        "Not always. Nova AI is not designed to force searching for opportunities every day. The system first evaluates macroeconomic conditions, liquidity, market sentiment, and market regime before providing insights. In less favorable conditions, Nova AI may recommend being more cautious or even not investing at the moment.",
     },
     {
       title:
-        "Saham apa saja yang dianalisis AI ini? Apakah termasuk saham gorengan?",
+        "What makes Nova AI different from free indicators on the internet?",
       content:
-        "Nova AI fokus pada beberapa pilihan saham Indonesia yang memiliki likuiditas dan data market yang memadai untuk dianalisis. Model juga dirancang untuk menghindari kondisi market yang terlalu spekulatif atau tidak stabil.",
+        "Nova AI doesn't rely on just one or two technical indicators. The system combines macroeconomic analysis, global liquidity, market regime detection, risk modeling, market data, and AI reasoning in one integrated framework. The goal is not just to find stocks that might go up, but to understand market conditions behind every investment decision.",
     },
   ];
+
+  const getPlanPrice = (planId) => {
+    if (user?.country === "Indonesia") {
+      return planId === "pro" ? 1000000 : planId === "elite" ? 3000000 : 0;
+    } else {
+      return planId === "pro" ? 99.99 : planId === "elite" ? 199.99 : 0;
+    }
+  };
 
   const plans = [
     {
       id: "trial",
-      badge: "TRIAL ~ Jelajahi Quant Intelligence",
-      tagline: "Investor retail",
-      name: "yang baru mulai dengan AI",
+      badge: "TRIAL ~ Explore Market Intelligence",
+      tagline: "Retail investor",
+      name: "who wants to understand the market better",
       price: 0,
       icon: <HiGift size={16} className="text-white" />,
       iconBg: "bg-gray-800",
       featured: false,
-      includedLabel: "Yang termasuk",
+      includedLabel: "What's included",
       features: [
-        "Stockpick AI terbatas (1 saham per hari)",
-        "Insight saham dasar",
-        "Ringkasan portofolio",
+        "Basic Macro Dashboard",
+        "Sector Rotation Analysis",
+        "1 Stock Intelligence Report per day",
+        "Portfolio summary",
       ],
-      buttonLabel: "Mulai Gratis",
+      buttonLabel: "Start Free",
       isDisabled: user !== null,
     },
     {
       id: "pro",
-      badge: "PRO ~ AI Market Intelligence",
-      tagline: "Investor aktif",
-      name: "yang membutuhkan insight lebih dalam",
+      badge: "PRO ~ Macro & Quant Intelligence",
+      tagline: "Active investor",
+      name: "who wants to make data-driven decisions",
       price: 1000000,
       icon: <HiFire size={16} className="text-white" />,
       iconBg: "bg-cyan-400",
       featured: true,
-      includedLabel: "Semua fitur Free, ditambah",
+      includedLabel: "All Free features, plus",
       features: [
-        "Stockpick AI tanpa batas",
-        "Konteks pasar terkini dan luas",
-        "Analisis volatilitas & simulasi skenario",
-        "Rekomendasi sizing berdasarkan risk modeling",
+        "Unlimited Stock Intelligence",
+        "Complete Macro Dashboard",
+        "Risk Modeling & Position Sizing",
+        "Scenario Analysis",
+        "AI Market Intelligence Report",
       ],
-      buttonLabel: "Mulai Pro",
+      buttonLabel: "Start Pro",
       isDisabled: user && user.tier == "pro",
     },
     {
       id: "elite",
-      badge: "ELITE ~ Analisis Tingkat Quant",
-      tagline: "Investor serius",
-      name: "yang ingin insight lebih tajam",
+      badge: "ELITE ~ Institutional Intelligence",
+      tagline: "Serious investor",
+      name: "who wants professional-level framework",
       price: 3000000,
       icon: <HiBolt size={16} className="text-white" />,
       iconBg: "bg-gray-800",
       featured: false,
-      includedLabel: "Semua fitur Pro, ditambah",
+      includedLabel: "All Pro features, plus",
       features: [
-        "Forecast AI dengan analisis lebih mendalam",
-        "Insight market premium",
-        "Akses awal ke fitur dan model terbaru",
+        "Advanced Forecast Engine",
+        "Advanced Risk Modeling",
+        "Early access to new features and models",
       ],
-      buttonLabel: "Mulai Elite",
+      buttonLabel: "Start Elite",
       isDisabled: true,
     },
   ];
 
   const words = [
     {
-      text: "Dibangun untuk pasar Indonesia",
+      text: "Understand the market faster.",
       className: "text-4xl font-semibold text-cyan-400 leading-tight mb-4",
     },
   ];
@@ -346,17 +333,18 @@ function App() {
             <div className="relative z-10 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
                 <SparkleIcon size={12} />
-                Harga
+                Pricing
               </div>
               <h1 className="text-4xl font-semibold text-gray-900 leading-tight">
-                Investasi berbasis AI.
+                AI-powered investing.
               </h1>
               <TypewriterEffectSmooth words={words} />
               <p className="text-sm text-gray-400 leading-relaxed">
-                Nova AI (Neural Optimized Valuation Agent) adalah AI investment
-                intelligence yang dirancang untuk membantu investor memahami
-                market Indonesia melalui forecasting saham, analisis risiko, dan
-                insight berbasis data secara lebih cepat dan efisien.
+                Nova AI (Neural Optimized Valuation Agent) is a quantitative
+                investment intelligence platform that combines macroeconomic
+                analysis, capital flow, sector rotation, and AI reasoning to
+                help investors understand what's happening in the market before
+                making investment decisions.
               </p>
             </div>
           </div>
@@ -395,9 +383,10 @@ function App() {
                   </div>
                   <div className="mb-4">
                     <span className="text-4xl font-bold text-gray-900">
-                      Rp. {Number(plan.price).toLocaleString()}
+                      {user?.country === "Indonesia" ? "Rp. " : "$"}
+                      {Number(getPlanPrice(plan.id)).toLocaleString()}
                     </span>
-                    <span className="text-sm text-gray-400 ml-1">/bulan</span>
+                    <span className="text-sm text-gray-400 ml-1">/month</span>
                   </div>
                   <Button
                     className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all ${
@@ -461,21 +450,19 @@ function App() {
             <ContainerScroll>
               <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
                 <SparkleIcon size={12} />
-                Bandingkan paket
+                Compare plans
               </div>
               <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Dapatkan insight investasi
+                Get deeper investment insights
               </h2>
-              <h2 className="text-4xl font-bold text-cyan-400 mb-4">
-                lebih dalam dengan AI
-              </h2>
+              <h2 className="text-4xl font-bold text-cyan-400 mb-4">with AI</h2>
               {/* Comparison table */}
               <div className="mt-12">
                 {/* Header */}
                 <div className="grid grid-cols-4">
                   <div className="p-4" />
                   {[
-                    { label: "GRATIS", key: "free" },
+                    { label: "FREE", key: "free" },
                     { label: "PRO", key: "pro" },
                     { label: "ELITE", key: "elite" },
                   ].map((col, i) => (
@@ -518,7 +505,89 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        <div className="text-center border-y-1 border-gray-200/70 px-8">
+        <div className="text-center border-y-1 border-gray-200/70 px-8 overflow-hidden">
+          <div className="border-x-1 border-gray-200/70 py-12 px-8">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
+              <SparkleIcon size={12} />
+              How Nova AI Works
+            </div>
+            <BlurFade delay={0.15} inView>
+              <h2 className="text-4xl font-bold text-gray-900 mb-1">
+                Nova AI doesn't start from stocks
+              </h2>
+            </BlurFade>
+            <BlurFade delay={0.15 * 2} inView>
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="text-cyan-400">
+                  but from market understanding
+                </span>
+              </h2>
+            </BlurFade>
+            <p className="text-sm text-gray-400 max-w-lg mx-auto">
+              Instead of focusing on which stocks are performing well today,
+              Nova AI analyzes where capital is flowing, which sectors are
+              attracting investment, and whether those trends are likely to
+              persist.
+            </p>
+            <div className="relative mt-12">
+              <div className="absolute left-0 right-0 top-4 h-px bg-border" />
+              <div className="flex justify-between gap-4">
+                {items.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    className="relative pt-8 text-center w-1/4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.15 }}
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.2 }}
+                      className={`absolute left-1/2 top-2 -translate-x-1/2 h-4 w-4 rounded-full flex items-center justify-center ${
+                        item.status === "done" || item.status === "in-progress"
+                          ? "bg-primary"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-background" />
+                    </motion.div>
+
+                    <Badge
+                      variant={
+                        item.status === "done" || item.status === "in-progress"
+                          ? "default"
+                          : "outline"
+                      }
+                      className="mb-1 text-[11px]"
+                    >
+                      {item.quarter}
+                    </Badge>
+
+                    <h4 className="text-sm font-medium">{item.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {item.description}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="mx-auto max-w-4xl mt-12 px-6 xl:px-0">
+              <div className="relative flex flex-col items-center border border-red-500">
+                <div className="absolute -left-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
+                <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-red-500 text-white" />
+                <div className="absolute -right-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
+                <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-red-500 text-white" />
+
+                <Image
+                  src={Dashboard}
+                  alt="Dashboard preview"
+                  className="w-full rounded-lg border border-gray-200"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* <div className="text-center border-y-1 border-gray-200/70 px-8">
           <div className="border-x-1 border-gray-200/70 py-12 px-8">
             <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
               <SparkleIcon size={12} />
@@ -526,19 +595,19 @@ function App() {
             </div>
             <BlurFade delay={0.15} inView>
               <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Dirancang untuk mengenali
+                Designed to recognize
               </h2>
             </BlurFade>
             <BlurFade delay={0.15 * 2} inView>
               <h2 className="text-4xl font-bold mb-4">
                 <span className="text-cyan-400">
-                  tren yang sedang terbentuk
+                  forming trend
                 </span>
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Nova AI membantu mengenali perubahan tren lebih awal dan menjaga
-              fokus pada posisi yang masih menunjukkan kekuatan relatif.
+              Nova AI helps recognize trend changes earlier and maintains
+              focus on positions showing relative strength.
             </p>
             <Carousel className="mt-12">
               <CarouselContent>
@@ -674,7 +743,7 @@ function App() {
               <CarouselNext />
             </Carousel>
           </div>
-        </div>
+        </div> */}
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
@@ -687,14 +756,14 @@ function App() {
               Testimoni
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-1">
-              Berinvestasi terasa lebih jelas dengan
+              Investing feels clearer with
             </h2>
             <h2 className="text-4xl font-bold mb-4">
-              <span className="text-cyan-400">bimbingan yang tepat</span>
+              <span className="text-cyan-400">the right guidance</span>
             </h2>
             <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Pengalaman nyata dari orang-orang menggunakan AI untuk
-              berinvestasi secara bijak, bukan emosional
+              Real experiences from people using AI to
+              invest wisely, not emotionally
             </p>
             <div className="grid grid-cols-4 mt-12 gap-4">
               <Card
@@ -717,9 +786,9 @@ function App() {
                       ))}
                   </div>
                   <p className="mt-3">
-                    "Biasanya saya harus buka banyak aplikasi dan baca berita
-                    satu-satu. Sekarang Nova langsung kasih ringkasan market dan
-                    insight saham yang mudah dipahami."
+                    "Usually I have to open many applications and read news
+                    one by one. Now Nova directly gives me a market summary and
+                    easy-to-understand stock insights."
                   </p>
                   <User
                     avatarProps={{
@@ -758,8 +827,8 @@ function App() {
                         ))}
                     </div>
                     <p className="mt-20">
-                      "Fitur AI forecasting-nya membantu saya lebih cepat
-                      screening saham tanpa harus analisa semuanya manual."
+                      "The AI forecasting feature helps me screen stocks faster
+                      without having to analyze everything manually."
                     </p>
                   </CardContent>
                 </Card>
@@ -778,9 +847,9 @@ function App() {
                         ))}
                     </div>
                     <p className="mt-20">
-                      "Saya suka karena insight yang diberikan tidak terlalu
-                      rumit. Cocok untuk investor retail yang ingin belajar
-                      memahami market."
+                      "I like it because the insights provided are not too
+                      complex. Perfect for retail investors who want to learn
+                      to understand the market."
                     </p>
                   </CardContent>
                 </Card>
@@ -832,14 +901,75 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div> */}
 
-        <div className="border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="text-center">
-              <p className="text-sm text-gray-400 max-w-md mx-auto">
-                Beberapa saham pilihan yang dianalisis Nova AI.
-              </p>
+        <div className="text-center border-y-1 border-gray-200/70 px-8">
+          <div className="border-x-1 border-gray-200/70 pt-12 px-8">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
+              <SparkleIcon size={12} />
+              Sector Coverage
             </div>
-            <Logos3 {...stockData} />
+            <BlurFade delay={0.15} inView>
+              <h2 className="text-4xl font-bold text-gray-900 mb-1">
+                Covers various sectors
+              </h2>
+            </BlurFade>
+            <BlurFade delay={0.15 * 2} inView>
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="text-cyan-400">and investment themes</span>
+              </h2>
+            </BlurFade>
+            <p className="text-sm text-gray-400 max-w-lg mx-auto">
+              Below are the sectors currently covered by Nova AI across the
+              Indonesian and U.S. equity markets.
+            </p>
+            <div className="mt-12 flex max-w-1/2 mx-auto gap-4">
+              <Card className="flex-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    <img src={Indonesia} alt="Indonesia" className="h-6 w-6" />
+                    <p>Indonesia</p>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="mb-6" />
+                  <ul className="space-y-4">
+                    {indonesiaSectors.map((sector, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <CircleCheck className="size-4" />
+                        <span>{sector}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+              <Card className="flex-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    <img src={USA} alt="USA" className="h-6 w-6" />
+                    <p>United States</p>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="mb-6" />
+                  <ul className="space-y-4">
+                    {americanSectors.map((sector, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <CircleCheck className="size-4" />
+                        <span>{sector}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="relative -mt-32 h-96 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
+              <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom_center,#8350e8,transparent_70%)] before:opacity-40" />
+              <div className="absolute -left-1/2 top-1/2 aspect-[1/0.7] z-10 w-[200%] rounded-[100%] border-t border-zinc-900/20 dark:border-white/20 bg-white dark:bg-zinc-900" />
+              <Sparkles
+                density={1200}
+                className="absolute inset-x-0 bottom-0 h-full w-full [mask-image:radial-gradient(50%_50%,white,transparent_85%)]"
+                color={theme === "dark" ? "#ffffff" : "#000000"}
+              />
+            </div>
           </div>
         </div>
 
@@ -852,22 +982,21 @@ function App() {
             <div className="text-center">
               <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
                 <SparkleIcon size={12} />
-                Tanya Jawab
+                FAQ
               </div>
               <BlurFade delay={0.15} inView>
                 <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                  Semua yang mungkin
+                  Everything you might
                 </h2>
               </BlurFade>
               <BlurFade delay={0.15 * 2} inView>
                 <h2 className="text-4xl font-bold mb-4 text-cyan-400">
-                  Anda ingin tahu
+                  want to know
                 </h2>
               </BlurFade>
-              <p className="text-sm text-gray-400 max-w-md mx-auto">
-                Kami percaya investor yang terinformasi membuat keputusan lebih
-                baik. Berikut adalah jawaban untuk pertanyaan yang paling sering
-                kami dengar.
+              <p className="text-sm text-gray-400 max-w-lg mx-auto">
+                We believe informed investors make better decisions. Here are
+                answers to the most frequently asked questions we hear.
               </p>
             </div>
             <div className="max-w-4/5 mx-auto mt-8">
@@ -895,8 +1024,8 @@ function App() {
         <div className="border-y-1 border-gray-200/70 px-8">
           <div className="border-x-1 border-gray-200/70">
             <HeroGeometric
-              title="Dari feeling menjadi framework"
-              paragraph="Nova AI membantu Anda memahami peluang, risiko, dan berbagai kemungkinan skenario pasar sehingga setiap keputusan investasi dapat dibuat dengan lebih objektif dan terstruktur."
+              title="From picking stocks to understanding the market"
+              paragraph="It's like having a personal investment intelligence assistant that shows you where capital is flowing, which sectors are attracting liquidity, and where the next opportunities may emerge."
             />
           </div>
         </div>

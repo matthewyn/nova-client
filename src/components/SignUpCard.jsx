@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { InputOtp } from "@heroui/react";
 import { toast } from "sonner";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { COUNTRIES, PhoneInput } from "@/components/PhoneInput.jsx";
 import { TermsConditionsContent } from "@/components/TermsConditions.jsx";
 import {
   Modal,
@@ -85,54 +86,6 @@ export const EyeFilledIcon = (props) => {
   );
 };
 
-const formatPhoneNumber = (value, countryCode) => {
-  const digits = value.replace(/\D/g, "");
-
-  const patterns = {
-    US: (d) => {
-      if (d.length <= 3) return d;
-      if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
-    },
-    CA: (d) => {
-      if (d.length <= 3) return d;
-      if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-      return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
-    },
-    GB: (d) => {
-      if (d.length <= 4) return d;
-      if (d.length <= 7) return `${d.slice(0, 4)} ${d.slice(4)}`;
-      return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 11)}`;
-    },
-    AU: (d) => {
-      if (d.length <= 4) return d;
-      if (d.length <= 7) return `${d.slice(0, 4)} ${d.slice(4)}`;
-      return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7, 10)}`;
-    },
-    IN: (d) => {
-      if (d.length <= 5) return d;
-      return `${d.slice(0, 5)} ${d.slice(5, 10)}`;
-    },
-    ID: (d) => {
-      if (d.length <= 4) return d;
-      if (d.length <= 8) return `${d.slice(0, 4)}-${d.slice(4)}`;
-      return `${d.slice(0, 4)}-${d.slice(4, 8)}-${d.slice(8, 11)}`;
-    },
-  };
-
-  const formatter = patterns[countryCode];
-  if (formatter) {
-    return formatter(digits.slice(0, 15));
-  }
-
-  let formatted = "";
-  for (let i = 0; i < digits.length && i < 15; i++) {
-    if (i > 0 && i % 4 === 0) formatted += " ";
-    formatted += digits[i];
-  }
-  return formatted;
-};
-
 const urlFetch = generateApiOrigin("/auth/signup");
 const urlConfirm = generateApiOrigin("/auth/confirm");
 
@@ -142,6 +95,7 @@ function SignUpCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
   const [phone, setPhone] = useState("");
   const [isOtp, setIsOtp] = useState(false);
   const [otp, setOtp] = useState("");
@@ -154,20 +108,20 @@ function SignUpCard() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [confirmationResult, setConfirmationResult] = useState(null);
 
-  console.log(agreedToTerms);
+  console.log("Country selected:", selectedCountry);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const sendOtp = async () => {
     if (!recaptchaVerifier) {
-      toast("Recaptcha belum siap. Silakan coba lagi.", {
+      toast("Recaptcha not ready. Please try again.", {
         type: "error",
         position: "top-center",
       });
       return;
     }
 
-    const phoneNumber = `+62${phone.replace(/\D/g, "")}`;
+    const phoneNumber = `${selectedCountry.dialCode}${phone.replace(/\D/g, "")}`;
 
     try {
       setIsLoading(true);
@@ -179,27 +133,24 @@ function SignUpCard() {
       setConfirmationResult(confirmationResult);
       setResendCountdown(60);
       setIsOtp(true);
-      toast("OTP berhasil dikirim ke nomor Anda.", {
+      toast("OTP successfully sent to your number.", {
         type: "success",
         position: "top-center",
       });
     } catch (error) {
       setResendCountdown(0);
       if (error.code === "auth/invalid-phone-number") {
-        toast("Nomor telepon tidak valid. Pastikan format benar.", {
+        toast("Invalid phone number. Please ensure the format is correct.", {
           type: "error",
           position: "top-center",
         });
       } else if (error.code === "auth/too-many-requests") {
-        toast(
-          "Terlalu banyak permintaan. Silakan coba lagi nanti atau hubungi dukungan.",
-          {
-            type: "error",
-            position: "top-center",
-          },
-        );
+        toast("Too many requests. Please try again later or contact support.", {
+          type: "error",
+          position: "top-center",
+        });
       } else {
-        toast("Gagal mengirim OTP. Silahkan menggunakan nomor telepon lain.", {
+        toast("Failed to send OTP. Please use another phone number.", {
           type: "error",
           position: "top-center",
         });
@@ -213,7 +164,7 @@ function SignUpCard() {
     e.preventDefault();
     setIsLoading(true);
     if (!name || !email || !password || !phone) {
-      toast("Semua form harus diisi dengan benar", {
+      toast("All fields must be filled correctly", {
         type: "error",
         position: "top-center",
       });
@@ -222,7 +173,7 @@ function SignUpCard() {
     }
 
     if (!agreedToTerms) {
-      toast("Anda harus menyetujui syarat dan ketentuan terlebih dahulu.", {
+      toast("You must agree to the terms and conditions first.", {
         type: "error",
         position: "top-center",
       });
@@ -232,7 +183,7 @@ function SignUpCard() {
 
     try {
       const result = await axios.post(urlConfirm, {
-        phone: `+62${phone.replace(/\D/g, "")}`,
+        phone: `${selectedCountry.dialCode}${phone.replace(/\D/g, "")}`,
         email: email,
       });
       if (result.status === 200) {
@@ -241,10 +192,13 @@ function SignUpCard() {
       }
     } catch (error) {
       setIsLoading(false);
-      toast("Gagal mengirim OTP. Pastikan nomor dan email benar.", {
-        type: "error",
-        position: "top-center",
-      });
+      toast(
+        "Failed to send OTP. Please ensure the number and email are correct.",
+        {
+          type: "error",
+          position: "top-center",
+        },
+      );
     }
   };
 
@@ -261,7 +215,7 @@ function SignUpCard() {
   const verifyOtp = async (e) => {
     if (e) e.preventDefault();
     if (!confirmationResult) {
-      toast("OTP belum dikirim. Silakan coba lagi.", {
+      toast("OTP not sent yet. Please try again.", {
         type: "error",
         position: "top-center",
       });
@@ -272,19 +226,20 @@ function SignUpCard() {
       setIsLoading(true);
       await confirmationResult.confirm(otp);
 
-      const phoneNumber = `+62${phone.replace(/\D/g, "")}`;
+      const phoneNumber = `${selectedCountry.dialCode}${phone.replace(/\D/g, "")}`;
       const response = await axios.post(urlFetch, {
         name: name,
         email: email,
         password: password,
         phone: phoneNumber,
+        country: selectedCountry.name,
       });
 
       if (response.status === 201) {
         saveToken(response.data.token);
         await fetchUser();
         navigate("/");
-        toast("Pendaftaran berhasil! Selamat datang di Nova AI.", {
+        toast("Registration successful! Welcome to Nova AI.", {
           type: "success",
           position: "top-center",
         });
@@ -293,7 +248,7 @@ function SignUpCard() {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 500) {
-          toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
+          toast("Server error occurred. Please try again later.", {
             type: "error",
             position: "top-center",
           });
@@ -301,7 +256,7 @@ function SignUpCard() {
         console.error("Server error:", error.response?.data);
         console.error("Status code:", error.response?.status);
       } else {
-        toast("OTP tidak valid. Pastikan Anda memasukkan kode yang benar.", {
+        toast("Invalid OTP. Please ensure you entered the correct code.", {
           type: "error",
           position: "top-center",
         });
@@ -346,19 +301,18 @@ function SignUpCard() {
         {!isOtp ? (
           <>
             <h1 className="font-semibold text-2xl text-center mt-2">
-              Mulai dengan Nova AI
+              Join Nova AI
             </h1>
             <p className="text-gray-500 text-center mt-1">
-              Pendamping investasi yang tenang dan didukung AI, dirancang untuk
-              membantu Anda dalam bertransaksi.
+              Please fill out the form to start your journey with Nova AI.
             </p>
             <form className="flex flex-col gap-3 mt-5" onSubmit={proceedToOtp}>
               <div>
                 <Input
                   isRequired
-                  label="Nama"
+                  label="Name"
                   type="text"
-                  placeholder="Nama"
+                  placeholder="Name"
                   startContent={
                     <HiMiniUser size={20} className="text-gray-400" />
                   }
@@ -380,24 +334,14 @@ function SignUpCard() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <Input
-                type="tel"
-                isRequired
-                label="Nomor Telepon"
-                placeholder="Nomor telepon"
-                value={formatPhoneNumber(phone, "ID")}
-                onChange={(e) => {
-                  const formatted = formatPhoneNumber(e.target.value, "ID");
-                  setPhone(formatted);
-                }}
-                className="flex-1"
-                minLength={10}
-                startContent={
-                  <div className="pointer-events-none flex items-center">
-                    <span className="text-default-400 text-small">+62</span>
-                  </div>
-                }
-              />
+              <div>
+                <PhoneInput
+                  selectedCountry={selectedCountry}
+                  setSelectedCountry={setSelectedCountry}
+                  phone={phone}
+                  setPhone={setPhone}
+                />
+              </div>
               <div>
                 <Input
                   isRequired
@@ -427,23 +371,24 @@ function SignUpCard() {
                 />
               </div>
               <p className="text-sm text-gray-500">
-                Dengan mendaftar, Anda menyetujui{" "}
+                By registering, you agree to{" "}
                 <button
                   type="button"
                   className="text-indigo-500 underline cursor-pointer"
                   onClick={onOpen}
+                  disabled={agreedToTerms}
                 >
-                  Syarat dan Ketentuan
+                  Terms and Conditions
                 </button>
               </p>
 
               <Button isLoading={isLoading} type="submit" className="primary">
-                Mulai Perjalanan
+                Start Your Journey
               </Button>
               <p>
-                Sudah punya akun?{" "}
+                Already have an account?{" "}
                 <Link className="text-sm text-indigo-500" to="/login">
-                  Masuk
+                  Sign In
                 </Link>
               </p>
             </form>
@@ -455,12 +400,12 @@ function SignUpCard() {
             </Button>
 
             <h1 className="font-semibold text-2xl text-center mt-2">
-              Verifikasi Nomor Anda
+              Verify Your Account
             </h1>
             <p className="text-gray-500 text-center mt-1">
-              Kami telah mengirimkan 6 digit kode OTP ke nomor{" "}
-              <span className="font-bold">+62 {phone}</span>. Masukkan kode
-              tersebut untuk melanjutkan proses pendaftaran Anda.
+              We've sent a 6-digit OTP code to the number{" "}
+              <span className="font-bold">+62 {phone}</span>. Enter the code to
+              continue your registration.
             </p>
             <form className="flex flex-col gap-2 mt-3">
               <div className="flex justify-center">
@@ -478,7 +423,7 @@ function SignUpCard() {
                 className="primary mt-2"
                 onClick={verifyOtp}
               >
-                Verifikasi Nomor Anda
+                Verify Your Number
               </Button>
               <Button
                 isLoading={isLoading}
@@ -487,7 +432,7 @@ function SignUpCard() {
                 isDisabled={resendCountdown > 0 || isLoading}
                 onClick={sendOtp}
               >
-                Kirim Ulang OTP {resendCountdown > 0 && `(${resendCountdown}s)`}
+                Resend OTP {resendCountdown > 0 && `(${resendCountdown}s)`}
               </Button>
             </form>
           </>
@@ -503,7 +448,7 @@ function SignUpCard() {
           {(onClose) => (
             <>
               <ModalHeader className="text-lg font-semibold border-b-1 pb-2">
-                Syarat dan Ketentuan
+                Terms and Conditions
               </ModalHeader>
 
               <ModalBody className="text-sm text-gray-700 pt-4 gap-0">
@@ -524,12 +469,12 @@ function SignUpCard() {
                     htmlFor="agree-checkbox"
                     className="text-sm cursor-pointer"
                   >
-                    Saya menyetujui syarat dan ketentuan.
+                    I agree to the terms and conditions.
                   </label>
                 </div>
                 <div className="flex justify-between w-full">
                   <Button variant="bordered" onPress={onClose}>
-                    Batal
+                    Cancel
                   </Button>
                   <Button
                     className="primary"
@@ -539,7 +484,7 @@ function SignUpCard() {
                       onClose();
                     }}
                   >
-                    Setuju dan Lanjutkan
+                    Agree and Continue
                   </Button>
                 </div>
               </ModalFooter>

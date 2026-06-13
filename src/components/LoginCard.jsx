@@ -94,7 +94,7 @@ function LoginCard() {
         saveToken(response.data.token);
         await fetchUser();
         navigate("/");
-        toast("Login berhasil! Selamat datang kembali.", {
+        toast("Login successful! Welcome back.", {
           type: "success",
           position: "top-center",
         });
@@ -103,7 +103,7 @@ function LoginCard() {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          toast("Email atau password salah. Silakan coba lagi.", {
+          toast("Email or password is incorrect. Please try again.", {
             type: "error",
             position: "top-center",
           });
@@ -126,12 +126,9 @@ function LoginCard() {
         className="max-w-120 relative z-10 p-4 rounded-2xl 
          bg-white/30 backdrop-blur-xl"
       >
-        <h1 className="font-semibold text-2xl text-center mt-2">
-          Selamat Datang
-        </h1>
+        <h1 className="font-semibold text-2xl text-center mt-2">Welcome</h1>
         <p className="text-gray-500 text-center mt-1">
-          Silahkan masukkan kredensial Anda untuk melanjutkan perjalanan
-          investasi Anda.
+          Please enter your credentials to continue your investment journey.
         </p>
         <form className="flex flex-col gap-3 mt-5" onSubmit={handleSubmit}>
           <div>
@@ -179,10 +176,10 @@ function LoginCard() {
             className="text-right text-gray-500 text-sm"
             to="/forgotpassword"
           >
-            Lupa password?
+            Forgot password?
           </Link>
           <Button className="primary" type="submit" isLoading={isLoading}>
-            Masuk
+            Sign In
           </Button>
         </form>
       </div>

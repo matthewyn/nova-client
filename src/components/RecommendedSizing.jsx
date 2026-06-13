@@ -47,18 +47,19 @@ function AnimatedContainer({ className, delay = 0.1, children }) {
 function RecommendedSizing({
   isLoading,
   transaction,
-  equity,
-  setEquity,
+  startEquity,
+  setStartEquity,
   riskPercentage,
   setRiskPercentage,
   scenarioAnalysis,
+  equityType,
 }) {
   const riskLevel = transaction?.risk_level || "medium";
   const riskPerShare =
     transaction && transaction?.initial_price && transaction?.stop_loss
       ? Math.abs(transaction.initial_price - transaction.stop_loss)
       : 0;
-  const maxLoss = (riskPercentage / 100) * equity;
+  const maxLoss = (riskPercentage / 100) * startEquity;
   const recommendedPositionSize =
     riskPerShare > 0 ? Math.floor(maxLoss / riskPerShare) : 0;
   const recommendedInvestment = transaction
@@ -97,7 +98,7 @@ function RecommendedSizing({
   return (
     <>
       <h2 className="text-xl font-bold text-foreground mb-4">
-        Rekomendasi Sizing
+        Recommended Position Sizing
       </h2>
       {isLoading ? (
         <div className="grid grid-cols-4 gap-4">
@@ -120,9 +121,10 @@ function RecommendedSizing({
             <DotGrid />
             <CardContent className="p-4 relative z-10">
               <h3 className="text-xl font-semibold">
-                Rp {equity.toLocaleString()}
+                {equityType === "IDR" ? "Rp " : "$"}
+                {startEquity.toLocaleString()}
               </h3>
-              <p className="text-lg text-white/70">Modal</p>
+              <p className="text-lg text-white/70">Starting Capital</p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
@@ -131,25 +133,27 @@ function RecommendedSizing({
               <h3 className="text-xl font-semibold">
                 {riskPercentage.toFixed(1)}%
               </h3>
-              <p className="text-lg text-white/70">Risiko Per Trade</p>
+              <p className="text-lg text-white/70">Risk Per Trade</p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
             <DotGrid />
             <CardContent className="p-4 relative z-10">
               <h3 className="text-xl font-semibold">
-                Rp {recommendedInvestment.toLocaleString()}
+                {equityType === "IDR" ? "Rp " : "$"}
+                {recommendedInvestment.toLocaleString()}
               </h3>
-              <p className="text-lg text-white/70">Rekomendasi Investasi</p>
+              <p className="text-lg text-white/70">Recommended Investment</p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
             <DotGrid />
             <CardContent className="p-4 relative z-10">
               <h3 className="text-xl font-semibold">
-                Rp {maxLoss.toLocaleString()}
+                {equityType === "IDR" ? "Rp " : "$"}
+                {maxLoss.toLocaleString()}
               </h3>
-              <p className="text-lg text-white/70">Kerugian Maksimum</p>
+              <p className="text-lg text-white/70">Maximum Loss</p>
             </CardContent>
           </Card>
         </div>
@@ -157,22 +161,22 @@ function RecommendedSizing({
       <div className="grid grid-cols-3 mt-6 gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground">
-            Alokasi Portfolio
+            Portfolio Allocation
           </h2>
           <div className="my-3">
             <div
               className="relative h-2 w-full overflow-hidden rounded-full bg-primary-foreground/20"
               role="progressbar"
-              aria-valuenow={(recommendedInvestment / equity) * 100}
+              aria-valuenow={(recommendedInvestment / startEquity) * 100}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label={`Progress bar showing ${(recommendedInvestment / equity) * 100}% completion`}
+              aria-label={`Progress bar showing ${(recommendedInvestment / startEquity) * 100}% completion`}
             >
               <motion.div
                 className="absolute left-0 top-0 h-full rounded-full bg-primary"
                 initial={{ width: 0 }}
                 animate={{
-                  width: `${Math.min((recommendedInvestment / equity) * 100, 100)}%`,
+                  width: `${Math.min((recommendedInvestment / startEquity) * 100, 100)}%`,
                 }}
                 transition={{
                   duration: 1.2,
@@ -183,9 +187,7 @@ function RecommendedSizing({
           </div>
         </div>
         <div>
-          <h2 className="text-xl font-bold text-foreground">
-            Risiko per Trade
-          </h2>
+          <h2 className="text-xl font-bold text-foreground">Risk per Trade</h2>
           <div className="my-3">
             <Slider
               value={[riskPercentage]}
@@ -202,19 +204,20 @@ function RecommendedSizing({
         </div>
         <div>
           <h2 className="text-xl font-bold text-foreground">
-            Modal yang Ditempatkan
+            Starting Capital
           </h2>
           <div className="my-3">
             <Slider
-              value={[equity]}
-              onValueChange={(value) => setEquity(value[0])}
+              value={[startEquity]}
+              onValueChange={(value) => setStartEquity(value[0])}
               max={1000000000}
               min={1000000}
               step={1000000}
               className="w-full"
             />
             <p className="text-sm text-gray-600 mt-2">
-              Rp {equity.toLocaleString()}
+              {equityType === "IDR" ? "Rp " : "$"}
+              {startEquity.toLocaleString()}
             </p>
           </div>
         </div>
@@ -224,16 +227,17 @@ function RecommendedSizing({
           <AlertTriangleIcon />
           <AlertTitle>Insight Nova AI</AlertTitle>
           <AlertDescription>
-            Dengan risk level {transaction.risk_level?.toUpperCase()} dan stop
-            loss Rp {transaction.stop_loss?.toLocaleString()}, Nova menyarankan
-            ukuran posisi maksimal Rp {recommendedInvestment.toLocaleString()}{" "}
-            agar kerugian maksimum tetap berada di bawah{" "}
-            {riskPercentage.toFixed(1)}% modal investasi.
+            With a {transaction.risk_level?.toUpperCase()} risk level and stop
+            loss at {equityType === "IDR" ? "Rp " : "$"}
+            {transaction.stop_loss?.toLocaleString()}, Nova recommends a maximum
+            position size of {equityType === "IDR" ? "Rp " : "$"}
+            {recommendedInvestment.toLocaleString()} to keep maximum loss under{" "}
+            {riskPercentage.toFixed(1)}% of your investment capital.
           </AlertDescription>
         </Alert>
       )}
       <h2 className="text-xl font-bold text-foreground mt-6">
-        Dampak kepada Skenario
+        Impact in Different Scenarios
       </h2>
       <div className="flex flex-col gap-4 mt-4">
         <AnimatedContainer
@@ -241,7 +245,7 @@ function RecommendedSizing({
           className="grid grid-cols-1 divide-x divide-y divide-dashed border border-dashed sm:grid-cols-2 md:grid-cols-3"
         >
           {features.map((feature, i) => (
-            <FeatureCard key={i} feature={feature} />
+            <FeatureCard key={i} feature={feature} equityType={equityType} />
           ))}
         </AnimatedContainer>
       </div>

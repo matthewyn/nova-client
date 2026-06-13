@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import SparkleIcon from "@/components/SparkleIcon";
-import { VolatilityAnalysis } from "@/components/VolatilityAnalysis";
 import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
 
 function ContentGate() {
@@ -16,18 +15,18 @@ function ContentGate() {
           <Lock size={18} className="text-gray-500" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Buka Analisis Premium AI
+          Unlock Premium AI Analysis
         </h3>
         <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
-          Upgrade untuk membuka simulasi skenario market yang lebih tajam,
-          analisis volatilitas, dan insight risiko berbasis AI.
+          Upgrade to unlock sharper market scenario simulations, volatility
+          analysis, and AI-based risk insights.
         </p>
         <Button
           className="w-full mb-2 cursor-pointer"
           onClick={proceedToWhatsapp}
         >
           <SparkleIcon />
-          Upgrade ke Pro
+          Upgrade to Pro
         </Button>
       </CardContent>
     </Card>

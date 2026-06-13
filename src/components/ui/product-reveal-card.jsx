@@ -11,7 +11,13 @@ const StatItem = ({ label, value }) => (
   </div>
 );
 
-function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
+function ScenarioPriceBar({
+  currentPrice,
+  bullPrice,
+  basePrice,
+  bearPrice,
+  equityType,
+}) {
   const min = bearPrice;
   const max = bullPrice;
   const range = max - min;
@@ -102,7 +108,7 @@ function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
           }}
         >
           <span style={{ fontSize: 11, color: "hsl(var(--muted-foreground))" }}>
-            Sekarang{" "}
+            Now{" "}
           </span>
           <span
             style={{
@@ -111,7 +117,8 @@ function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
               color: "hsl(var(--foreground))",
             }}
           >
-            Rp {currentPrice.toLocaleString()}
+            {equityType === "IDR" ? "Rp " : "$"}
+            {currentPrice.toLocaleString()}
           </span>
           <div
             style={{
@@ -161,7 +168,8 @@ function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
               color: "hsl(var(--foreground))",
             }}
           >
-            Rp {basePrice.toLocaleString()}
+            {equityType === "IDR" ? "Rp " : "$"}
+            {basePrice.toLocaleString()}
           </span>
         </div>
       </div>
@@ -179,7 +187,8 @@ function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
             Bear{" "}
           </span>
           <span style={{ fontSize: 11, fontWeight: 500, color: "#ef4444" }}>
-            Rp {bearPrice.toLocaleString()}
+            {equityType === "IDR" ? "Rp " : "$"}
+            {bearPrice.toLocaleString()}
           </span>
         </div>
         <div style={{ textAlign: "right" }}>
@@ -187,7 +196,8 @@ function ScenarioPriceBar({ currentPrice, bullPrice, basePrice, bearPrice }) {
             Bull{" "}
           </span>
           <span style={{ fontSize: 11, fontWeight: 500, color: "#22c55e" }}>
-            Rp {bullPrice.toLocaleString()}
+            {equityType === "IDR" ? "Rp " : "$"}
+            {bullPrice.toLocaleString()}
           </span>
         </div>
       </div>
@@ -203,6 +213,7 @@ export function ProductRevealCard({
   targetPrice,
   image,
   probability,
+  equityType,
   reasons = [],
   enableAnimations = true,
   className,
@@ -357,14 +368,18 @@ export function ProductRevealCard({
           </div>
           <div className="my-4 h-px w-full bg-border" />
           <div className="flex justify-between">
-            <StatItem label="Probabilitas" value={`${probability}%`} />
-            <StatItem label="Target" value={`Rp ${targetPrice}`} />
+            <StatItem label="Probability" value={`${probability}%`} />
+            <StatItem
+              label="Target"
+              value={`${equityType === "IDR" ? "Rp " : "$"}${targetPrice}`}
+            />
           </div>
           <ScenarioPriceBar
             currentPrice={currentPrice}
             bullPrice={bullPrice}
             basePrice={basePrice}
             bearPrice={bearPrice}
+            equityType={equityType}
           />
         </div>
       </div>
@@ -375,7 +390,7 @@ export function ProductRevealCard({
         <div className="p-6 space-y-4">
           {/* Product Description */}
           <motion.div variants={contentVariants}>
-            <h4 className="font-semibold mb-2">Detail Skenario</h4>
+            <h4 className="font-semibold mb-2">Scenario Details</h4>
             <div className="text-sm text-muted-foreground leading-relaxed">
               {reasons.length > 0 ? (
                 <ul className="list-disc list-inside space-y-1">
@@ -385,7 +400,7 @@ export function ProductRevealCard({
                 </ul>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Tidak ada alasan yang tersedia.
+                  No reasons available.
                 </p>
               )}
             </div>
@@ -396,11 +411,14 @@ export function ProductRevealCard({
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="bg-muted/50 rounded-lg p-2 text-center">
                 <div className="font-semibold">{probability}%</div>
-                <div className="text-muted-foreground">Probabilitas</div>
+                <div className="text-muted-foreground">Probability</div>
               </div>
               <div className="bg-muted/50 rounded-lg p-2 text-center">
-                <div className="font-semibold">Rp {targetPrice}</div>
-                <div className="text-muted-foreground">Target Harga</div>
+                <div className="font-semibold">
+                  {equityType === "IDR" ? "Rp " : "$"}
+                  {targetPrice}
+                </div>
+                <div className="text-muted-foreground">Target Price</div>
               </div>
             </div>
           </motion.div>

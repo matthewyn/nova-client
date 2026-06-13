@@ -21,7 +21,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-function StockPriceChart({ chartData }) {
+function StockPriceChart({ chartData, equityType }) {
   const isPositive =
     chartData.length >= 2
       ? chartData[chartData.length - 1].equity >= chartData[0].equity
@@ -56,7 +56,8 @@ function StockPriceChart({ chartData }) {
                 })}
               </p>
               <p className="font-semibold text-gray-900">
-                Rp {payload[0].value.toLocaleString("id-ID")}
+                {equityType === "IDR" ? "Rp " : "$"}
+                {payload[0].value.toLocaleString("id-ID")}
               </p>
             </div>
           );
@@ -88,7 +89,7 @@ function StockPriceChart({ chartData }) {
             >
               &nbsp;
             </div>
-            <h4>Nilai Investasi</h4>
+            <h4>Investment Value</h4>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={chartData} margin={chartMargin}>
@@ -136,11 +137,11 @@ function StockPriceChart({ chartData }) {
             </EmptyMedia>
 
             <EmptyTitle className="text-xl bg-gradient-to-r from-primary via-primary/80 to-blue-500 bg-clip-text text-transparent">
-              Tidak ada data harga tersedia
+              No price data available
             </EmptyTitle>
 
             <EmptyDescription className="text-muted-foreground text-base max-w-md mx-auto">
-              Silakan coba lagi nanti.
+              Please try again later.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

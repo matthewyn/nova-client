@@ -13,9 +13,9 @@ function Footer() {
           </div>
           <div className="text-center">
             <span className="text-sm text-gray-400">
-              Dengan mendaftar, saya menyetujui{" "}
+              By registering, I agree to{" "}
               <Link to="/terms" className="text-blue-500 hover:underline">
-                Syarat & Ketentuan
+                Terms & Conditions
               </Link>
             </span>
           </div>
@@ -36,8 +36,8 @@ function Footer() {
             />
           </div>
           <div className="text-sm text-gray-400 col-span-3 text-center">
-            Disclaimer Risiko: Nova AI tidak menjamin keuntungan, tingkat
-            keberhasilan tertentu, ataupun akurasi prediksi di masa mendatang.
+            Risk Disclaimer: Nova AI does not guarantee profits, specific
+            success rates, or prediction accuracy in the future.
           </div>
         </footer>
       </div>

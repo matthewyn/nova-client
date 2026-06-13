@@ -92,7 +92,7 @@ function CustomNavbar() {
                     variant="destructive"
                     onClick={handleLogout}
                   >
-                    Keluar
+                    Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -101,12 +101,12 @@ function CustomNavbar() {
         ) : (
           <>
             <NavbarItem className="hidden lg:flex">
-              <Link to="/login">Masuk</Link>
+              <Link to="/login">Sign In</Link>
             </NavbarItem>
             <NavbarItem>
               <Link to="/signup">
                 <Button className="p-6 rounded-full cursor-pointer">
-                  Daftar
+                  Sign Up
                 </Button>
               </Link>
             </NavbarItem>

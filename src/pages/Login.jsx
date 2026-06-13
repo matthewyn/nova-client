@@ -27,18 +27,18 @@ function Login() {
         {/* Text content */}
         <div className="relative z-10 flex items-center gap-3">
           <span className="text-xs tracking-widest uppercase opacity-80">
-            Nova AI Intelligence
+            Macro & Quant Intelligence
           </span>
           <div className="flex-1 h-px bg-white/30" />
         </div>
         <div className="relative z-10">
           <h2 className="text-5xl font-bold leading-tight mb-4">
-            Investasi lebih tenang dengan bantuan AI
+            Understand the market before picking stocks
           </h2>
-          <p className="text-sm opacity-75 leading-relaxed max-w-xs">
-            Seperti memiliki asisten investasi pribadi yang membantu memberi
-            tahu kapan waktu masuk dan keluar market — dengan biaya yang bahkan
-            kurang dari UMR.
+          <p className="text-sm opacity-75 leading-relaxed max-w-md">
+            Nova AI combines macroeconomic analysis, capital flow, market regime
+            detection, and stock intelligence to help you make more objective
+            and data-driven investment decisions.
           </p>
         </div>
       </div>

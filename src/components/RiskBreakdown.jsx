@@ -30,125 +30,101 @@ function RiskBreakdown({ isLoading, transaction }) {
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">
-                  Risiko Keseluruhan
-                </h3>
+                <h3 className="text-lg font-semibold mb-2">Overall Risk</h3>
                 <Progress
                   value={transaction.risk_breakdown?.overall || 0}
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.overall || 0}%
+                  At {transaction.risk_breakdown?.overall || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  Gambaran umum tingkat risiko berdasarkan kombinasi
-                  volatilitas, momentum, tren, berita, dan likuiditas saham.
+                  A comprehensive overview of risk levels based on a combination
+                  of volatility, momentum, trend, news, and stock liquidity.
                 </p>
               </CardContent>
             </Card>
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">
-                  Risiko Volatilitas
-                </h3>
+                <h3 className="text-lg font-semibold mb-2">Volatility Risk</h3>
                 <Progress
                   value={transaction.risk_breakdown?.volatility || 0}
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.volatility || 0}%
+                  At {transaction.risk_breakdown?.volatility || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  Mengukur seberapa besar harga berpotensi bergerak naik atau
-                  turun dalam waktu singkat. Semakin tinggi nilainya, semakin
-                  besar fluktuasi harga yang mungkin terjadi.
+                  Measures how large a price can potentially move up or down in
+                  a short time. The higher the value, the greater the price
+                  fluctuations that may occur.
                 </p>
               </CardContent>
             </Card>
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">Risiko Momentum</h3>
+                <h3 className="text-lg font-semibold mb-2">Momentum Risk</h3>
                 <Progress
                   value={transaction.risk_breakdown?.momentum || 0}
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.momentum || 0}%
+                  At {transaction.risk_breakdown?.momentum || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  Mengukur kekuatan pergerakan harga saat ini. Risiko meningkat
-                  ketika momentum mulai melemah dan peluang pembalikan arah
-                  menjadi lebih besar.
+                  Measures the strength of current price movement. Risk
+                  increases when momentum begins to weaken and the chance of
+                  reversal becomes greater.
                 </p>
               </CardContent>
             </Card>
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">Risiko Trend</h3>
+                <h3 className="text-lg font-semibold mb-2">Trend Risk</h3>
                 <Progress
                   value={transaction.risk_breakdown?.trend || 0}
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.trend || 0}%
+                  At {transaction.risk_breakdown?.trend || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  Mengukur kekuatan tren utama saham. Risiko meningkat ketika
-                  harga mulai menunjukkan tanda-tanda pelemahan terhadap arah
-                  tren yang sedang berlangsung.
+                  Measures the strength of the stock's main trend. Risk
+                  increases when price begins to show signs of weakening against
+                  the direction of the current trend.
                 </p>
               </CardContent>
             </Card>
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">Risiko Berita</h3>
-                <Progress
-                  value={transaction.risk_breakdown?.news || 0}
-                  className="h-2 mb-2"
-                />
-                <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.news || 0}%
-                </p>
-                <p className="text-xs text-gray-500">
-                  Menilai tingkat ketidakpastian yang berasal dari berita, aksi
-                  korporasi, perubahan regulasi, atau peristiwa lain yang dapat
-                  memengaruhi harga saham.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="relative overflow-hidden">
-              <DotGrid />
-              <CardContent className="p-4 relative z-10">
-                <h3 className="text-lg font-semibold mb-2">
-                  Risiko Likuiditas
-                </h3>
+                <h3 className="text-lg font-semibold mb-2">Liquidity Risk</h3>
                 <Progress
                   value={transaction.risk_breakdown?.liquidity || 0}
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  Sebesar {transaction.risk_breakdown?.liquidity || 0}%
+                  At {transaction.risk_breakdown?.liquidity || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
-                  Mengukur kemudahan masuk dan keluar posisi berdasarkan
-                  aktivitas transaksi saham. Likuiditas rendah dapat membuat
-                  harga lebih mudah bergerak ekstrem.
+                  Measures the ease of entering and exiting positions based on
+                  stock transaction activity. Low liquidity can make prices move
+                  more extremely.
                 </p>
               </CardContent>
             </Card>
           </div>
-          <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 mt-4">
+          {/* <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 mt-4">
             <AlertTriangleIcon />
-            <AlertTitle>Catatan Penting</AlertTitle>
+            <AlertTitle>Important Note</AlertTitle>
             <AlertDescription>
               {transaction.risk_breakdown?.news_reason ||
                 "No risk information available"}
             </AlertDescription>
-          </Alert>
+          </Alert> */}
         </>
       ) : null}
     </>

@@ -14,11 +14,12 @@ function ScenarioAnalysis({
   bullPrice,
   basePrice,
   bearPrice,
+  equityType,
 }) {
   return (
     <>
       <h2 className="text-xl font-bold text-foreground mb-4">
-        Analisis Skenario AI
+        Scenario Analysis
       </h2>
       {isLoading ? (
         <div className="grid grid-cols-4 gap-4">
@@ -58,7 +59,7 @@ function ScenarioAnalysis({
                     </div>
                   </div>
                   <h3 className="mb-4 text-3xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent animate-pulse transform group-hover:scale-105 transition-transform duration-300">
-                    Perbandingan Skenario
+                    Scenario Comparison
                   </h3>
                   <div className="space-y-1 max-w-sm">
                     {description.map((line, idx) => (
@@ -105,6 +106,7 @@ function ScenarioAnalysis({
               targetPct={scenario.target_pct}
               targetPrice={scenario.target_price}
               probability={scenario.probability}
+              equityType={equityType}
               reasons={scenario.reasons}
               currentPrice={transaction?.close}
               bullPrice={bullPrice}

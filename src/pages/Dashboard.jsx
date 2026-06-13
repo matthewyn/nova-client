@@ -1,6 +1,6 @@
 import SparkleIcon from "@/components/SparkleIcon";
 import { Card, CardContent } from "@/components/ui/card";
-import { Chip } from "@heroui/react";
+import { Chip, Image } from "@heroui/react";
 import {
   HiOutlineInformationCircle,
   HiArrowUpRight,
@@ -13,6 +13,8 @@ import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import axios from "axios";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Skeleton } from "@/components/ui/skeleton";
+import Indonesia from "@/assets/indonesia.png";
+import USA from "@/assets/usa.png";
 import { getAuthHeader } from "@/utils/token";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -46,8 +48,6 @@ const EQUITY = 100000000;
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
-  const [swingTradeStocks, setSwingTradeStocks] = useState([]);
-  const [fastTradeStocks, setFastTradeStocks] = useState([]);
   const [completedStocks, setCompletedStocks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
@@ -79,15 +79,7 @@ function Dashboard() {
         }
         if (runningStocksResponse.status === 200) {
           const { stocks } = runningStocksResponse.data;
-          const swingTrades = stocks.filter(
-            (stock) => stock.strategy.toLowerCase() === "swing-trade",
-          );
-          const fastTrades = stocks.filter(
-            (stock) => stock.strategy.toLowerCase() === "fast-trade",
-          );
           setRunningStocks(stocks);
-          setSwingTradeStocks(swingTrades);
-          setFastTradeStocks(fastTrades);
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -140,21 +132,20 @@ function Dashboard() {
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-1">Dashboard</h2>
           <p className="text-sm text-gray-400 max-w-lg mx-auto">
-            Berikut adalah saham yang saat ini berada dalam cakupan analisis
-            Nova AI. Analisis diperbarui setiap hari berdasarkan perubahan data
-            dan kondisi pasar. Silakan cek secara berkala untuk melihat insight
-            terbaru.
+            Here are the stocks currently covered by Nova AI analysis. Analysis
+            is updated daily based on data changes and market conditions. Please
+            check regularly to see the latest insights.
           </p>
           <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 mt-12">
             <AlertTriangleIcon />
-            <AlertTitle>Disclaimer Investasi</AlertTitle>
+            <AlertTitle>Investment Disclaimer</AlertTitle>
             <AlertDescription>
-              Nova AI menyediakan analisis berbasis data dan machine learning
-              untuk tujuan informasi dan edukasi. Informasi yang ditampilkan
-              bukan merupakan rekomendasi investasi atau ajakan membeli maupun
-              menjual saham. Seluruh keputusan investasi dan risiko yang timbul
-              menjadi tanggung jawab pengguna. Kinerja historis tidak menjamin
-              hasil di masa mendatang.
+              Nova AI provides data-driven and machine learning-based analysis
+              for informational and educational purposes. The information
+              displayed is not investment advice or a solicitation to buy or
+              sell stocks. All investment decisions and associated risks are the
+              responsibility of the user. Past performance does not guarantee
+              future results.
             </AlertDescription>
           </Alert>
           <div className="mt-4">
@@ -187,7 +178,7 @@ function Dashboard() {
                       </div>
                     </div>
                   ) : (
-                    <StocksCarousel title="Insight Terbaru" stocks={stocks} />
+                    <StocksCarousel title="Latest Insights" stocks={stocks} />
                   )}
                 </div>
               </CardContent>
@@ -202,7 +193,7 @@ function Dashboard() {
                     <Skeleton className="h-7 w-32 mb-4" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Swing Trade
+                      Running Trades
                     </h2>
                   )}
                   <div className="flex flex-col gap-4">
@@ -219,8 +210,8 @@ function Dashboard() {
                           </div>
                         ))}
                       </div>
-                    ) : swingTradeStocks.length > 0 ? (
-                      swingTradeStocks.map((stock, index) => (
+                    ) : runningStocks.length > 0 ? (
+                      runningStocks.map((stock, index) => (
                         <Card key={index}>
                           <CardContent className={"text-left"}>
                             <div className="flex justify-between items-center">
@@ -236,7 +227,8 @@ function Dashboard() {
                               </div>
                               <div className="text-right">
                                 <p className="font-semibold text-foreground text-medium">
-                                  Rp {stock.close.toLocaleString()}
+                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.close.toLocaleString()}
                                 </p>
                                 <span className="flex items-center gap-1">
                                   {stock.actual_pct_change > 0 ? (
@@ -259,13 +251,14 @@ function Dashboard() {
                             <div className="grid grid-cols-3 gap-8">
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-foreground text-medium">
-                                  Rp {stock.initial_price.toLocaleString()}
+                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.initial_price.toLocaleString()}
                                 </p>
-                                <p>Harga Masuk</p>
+                                <p>Entry Price</p>
                               </div>
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-foreground text-medium">
-                                  Rp{" "}
+                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
                                   {Math.floor(
                                     stock.initial_price +
                                       (stock.initial_price *
@@ -273,11 +266,11 @@ function Dashboard() {
                                         100,
                                   ).toLocaleString()}
                                 </p>
-                                <p>Estimasi Target</p>
+                                <p>Estimated Target</p>
                               </div>
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-medium text-red-500">
-                                  Rp{" "}
+                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
                                   {stock.trailing_stop
                                     ? Math.floor(
                                         stock.trailing_stop,
@@ -306,7 +299,7 @@ function Dashboard() {
                                 <>
                                   <div>
                                     <p className="text-sm text-foreground font-semibold">
-                                      Prediksi:{" "}
+                                      Prediction:{" "}
                                     </p>
                                     <span className="flex items-center gap-1">
                                       {stock.predicted_pct_change > 0 ? (
@@ -328,7 +321,7 @@ function Dashboard() {
                                   </div>
                                   <div>
                                     <p className="text-sm text-foreground font-semibold">
-                                      Risiko:{" "}
+                                      Risk:{" "}
                                     </p>
                                     <span>
                                       {CapitalizeFirstLetter(stock.risk_level)}
@@ -351,7 +344,7 @@ function Dashboard() {
                                         : "default"
                                     }
                                   >
-                                    Pantau
+                                    Monitor
                                   </Button>
                                 </Link>
                                 <Button
@@ -371,186 +364,7 @@ function Dashboard() {
                       ))
                     ) : (
                       <p className="text-sm text-foreground/70">
-                        Tidak ada swing trade dari saham-saham yang sedang
-                        dianalisis saat ini.
-                      </p>
-                    )}
-                  </div>
-                  {isLoading ? (
-                    <Skeleton className="h-7 w-32 mb-4" />
-                  ) : (
-                    <h2 className="text-xl font-bold text-foreground mb-4 mt-6">
-                      Fast Trade
-                    </h2>
-                  )}
-                  <div className="flex flex-col gap-4">
-                    {isLoading ? (
-                      <div className="space-y-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-12 w-12 rounded-md" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-5 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-3 w-2/3" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : fastTradeStocks.length > 0 ? (
-                      fastTradeStocks.map((stock, index) => (
-                        <Card key={index}>
-                          <CardContent className={"text-left"}>
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={stock.logo}
-                                  alt={`${stock.name} logo`}
-                                  className="h-10 w-10 rounded-md"
-                                />
-                                <h3 className="font-semibold text-medium text-foreground">
-                                  {stock.name.replace(".JK", "")}
-                                </h3>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold text-foreground text-medium">
-                                  Rp {stock.close.toLocaleString()}
-                                </p>
-                                <span className="flex items-center gap-1">
-                                  {stock.actual_pct_change > 0 ? (
-                                    <FaCaretUp
-                                      className="inline text-green-500"
-                                      size={20}
-                                    />
-                                  ) : (
-                                    <FaCaretDown
-                                      className="inline text-red-500"
-                                      size={20}
-                                    />
-                                  )}
-                                  {Math.abs(stock.actual_pct_change).toFixed(2)}
-                                  %
-                                </span>
-                              </div>
-                            </div>
-                            <Divider className="my-3" />
-                            <div className="grid grid-cols-3 gap-8">
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-foreground text-medium">
-                                  Rp {stock.initial_price.toLocaleString()}
-                                </p>
-                                <p>Harga Masuk</p>
-                              </div>
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-foreground text-medium">
-                                  Rp{" "}
-                                  {Math.floor(
-                                    stock.initial_price +
-                                      (stock.initial_price *
-                                        stock.predicted_pct_change) /
-                                        100,
-                                  ).toLocaleString()}
-                                </p>
-                                <p>Estimasi Target</p>
-                              </div>
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-medium text-red-500">
-                                  Rp{" "}
-                                  {stock.trailing_stop
-                                    ? Math.floor(
-                                        stock.trailing_stop,
-                                      ).toLocaleString()
-                                    : Math.floor(
-                                        stock.stop_loss,
-                                      ).toLocaleString()}
-                                </p>
-                                <p>
-                                  {stock.trailing_stop
-                                    ? "Trailing Stop"
-                                    : "Stop Loss"}
-                                </p>
-                              </div>
-                            </div>
-                            <Divider className="my-3 mb-5" />
-                            <div className="grid grid-cols-3 gap-8 items-center">
-                              {stock.status ? (
-                                <Chip
-                                  className="bg-indigo-500/20 text-indigo-500 col-span-2"
-                                  radius="sm"
-                                >
-                                  {stock.status}
-                                </Chip>
-                              ) : (
-                                <>
-                                  <div>
-                                    <p className="text-sm text-foreground font-semibold">
-                                      Prediksi:{" "}
-                                    </p>
-                                    <span className="flex items-center gap-1">
-                                      {stock.predicted_pct_change > 0 ? (
-                                        <FaCaretUp
-                                          className="inline text-green-500"
-                                          size={20}
-                                        />
-                                      ) : (
-                                        <FaCaretDown
-                                          className="inline text-red-500"
-                                          size={20}
-                                        />
-                                      )}
-                                      {Math.abs(
-                                        stock.predicted_pct_change,
-                                      ).toFixed(2)}
-                                      %
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-foreground font-semibold">
-                                      Risiko:{" "}
-                                    </p>
-                                    <span>
-                                      {CapitalizeFirstLetter(stock.risk_level)}
-                                    </span>
-                                  </div>
-                                </>
-                              )}
-
-                              <div className="flex gap-2">
-                                <Link
-                                  to={`/dashboard/transactions/${stock.id}`}
-                                  className="flex-1"
-                                >
-                                  <Button
-                                    size="lg"
-                                    className="cursor-pointer w-full"
-                                    variant={
-                                      stock.predicted_pct_change < 0
-                                        ? "destructive"
-                                        : "default"
-                                    }
-                                  >
-                                    Pantau
-                                  </Button>
-                                </Link>
-                                <Button
-                                  variant="outline"
-                                  size="icon-lg"
-                                  className="cursor-pointer"
-                                  onClick={() =>
-                                    setSelectedStockForTrend(stock)
-                                  }
-                                >
-                                  <HiOutlineInformationCircle size={20} />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ) : (
-                      <p className="text-sm text-foreground/70">
-                        Tidak ada fast trade dari saham-saham yang sedang
-                        dianalisis saat ini.
+                        No running trades from stocks currently being analyzed.
                       </p>
                     )}
                   </div>
@@ -583,7 +397,7 @@ function Dashboard() {
                       </div>
                     ) : (
                       <p className="text-sm text-foreground/70">
-                        Fitur portfolio saat ini masih dalam pengembangan.
+                        Portfolio feature is currently in development.
                       </p>
                     )}
                   </div>
@@ -751,7 +565,9 @@ function Dashboard() {
                           Worst Trade
                         </h2>
                         <p className="text-red-500 font-semibold text-medium flex items-center gap-1">
-                          {statistics.worst_trade}
+                          {statistics.worst_trade
+                            ? statistics.worst_trade
+                            : "N/A"}
                         </p>
                       </div>
                     </div>
@@ -766,7 +582,7 @@ function Dashboard() {
                     <Skeleton className="h-7 w-40" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Distribusi Sektor
+                      Sector Distribution
                     </h2>
                   )}
                   <div className="flex flex-col gap-4 mt-4">
@@ -813,7 +629,7 @@ function Dashboard() {
                         if (sectors.length === 0) {
                           return (
                             <p className="text-sm text-foreground/70">
-                              Tidak ada posisi yang sedang berjalan saat ini.
+                              No active positions at this time.
                             </p>
                           );
                         }
@@ -867,17 +683,83 @@ function Dashboard() {
                                           <p className="text-sm font-semibold text-foreground">
                                             {sector}
                                           </p>
-                                          <p className="text-xs text-foreground/60">
-                                            {pct.toFixed(0)}%
-                                          </p>
                                         </div>
                                       </div>
                                       <p className="text-sm text-foreground">
-                                        Rp {value.toLocaleString("id-ID")}
+                                        {pct.toFixed(0)}%
                                       </p>
                                     </div>
                                   );
                                 })}
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="flex flex-col gap-3">
+                                {(() => {
+                                  let indonesiaEquity = 0;
+                                  let usEquity = 0;
+
+                                  runningStocks.forEach((stock) => {
+                                    const equity = EQUITY;
+                                    if (stock.name.endsWith(".JK")) {
+                                      indonesiaEquity += equity;
+                                    } else {
+                                      usEquity += equity;
+                                    }
+                                  });
+
+                                  const totalMarketEquity =
+                                    indonesiaEquity + usEquity;
+                                  const marketData = [];
+
+                                  if (indonesiaEquity > 0)
+                                    marketData.push({
+                                      name: "Indonesia",
+                                      value: indonesiaEquity,
+                                      color: "#ef4444",
+                                    });
+                                  if (usEquity > 0)
+                                    marketData.push({
+                                      name: "United States",
+                                      value: usEquity,
+                                      color: "#3b82f6",
+                                    });
+
+                                  return marketData.map(
+                                    ({ name, value, color }) => {
+                                      const pct =
+                                        totalMarketEquity > 0
+                                          ? (value / totalMarketEquity) * 100
+                                          : 0;
+                                      return (
+                                        <div
+                                          key={name}
+                                          className="flex items-center justify-between"
+                                        >
+                                          <div className="flex items-center gap-3">
+                                            <Image
+                                              src={
+                                                name === "Indonesia"
+                                                  ? Indonesia
+                                                  : USA
+                                              }
+                                              alt={name}
+                                              className="h-6 w-6"
+                                            />
+                                            <div>
+                                              <p className="text-sm font-semibold text-foreground">
+                                                {name}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <p className="text-sm text-foreground">
+                                            {pct.toFixed(0)}%
+                                          </p>
+                                        </div>
+                                      );
+                                    },
+                                  );
+                                })()}
                               </CardContent>
                             </Card>
                           </>
@@ -895,15 +777,15 @@ function Dashboard() {
                     <Skeleton className="h-7 w-40" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
-                      Riwayat Analisis
+                      Trade History
                     </h2>
                   )}
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-24">Saham</TableHead>
-                        <TableHead>Keuntungan</TableHead>
-                        <TableHead>Tanggal Keluar</TableHead>
+                        <TableHead className="min-w-24">Stock</TableHead>
+                        <TableHead>Profit</TableHead>
+                        <TableHead>Exit Date</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -940,11 +822,7 @@ function Dashboard() {
                             <TableCell
                               className={`${stock.pct_gain >= 0 ? "text-green-500" : "text-red-500"}`}
                             >
-                              Rp{" "}
-                              {(
-                                (stock.pct_gain * EQUITY) /
-                                100
-                              ).toLocaleString()}
+                              {stock.pct_gain.toFixed(2)}%
                             </TableCell>
                             <TableCell>
                               {
@@ -958,7 +836,7 @@ function Dashboard() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={3} className="text-center py-4">
-                            Tidak ada trade yang sudah selesai saat ini.
+                            No completed trades at this time.
                           </TableCell>
                         </TableRow>
                       )}

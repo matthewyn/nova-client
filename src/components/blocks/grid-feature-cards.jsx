@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 
-export function FeatureCard({ feature, className, ...props }) {
+export function FeatureCard({ feature, className, equityType, ...props }) {
   const p = genRandomPattern();
 
   return (
@@ -25,7 +25,7 @@ export function FeatureCard({ feature, className, ...props }) {
       />
       <h3 className="mt-10 text-sm md:text-base">{feature.title}</h3>
       <span className="text-lg font-semibold text-primary">
-        {feature.impact >= 0 ? "+" : "-"} Rp{" "}
+        {feature.impact >= 0 ? "+" : "-"} {equityType === "IDR" ? "Rp " : "$"}
         {Math.abs(feature.impact).toLocaleString()}
       </span>
       <span

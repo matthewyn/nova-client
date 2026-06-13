@@ -29,7 +29,7 @@ const VolatilityIcon = ({ riskFactor }) => {
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Risiko: {CapitalizeFirstLetter(riskFactor)}</p>
+        <p>Risk: {CapitalizeFirstLetter(riskFactor)}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -171,7 +171,8 @@ export const StocksCarousel = React.forwardRef(
                       </h3>
                       <div className="flex gap-2">
                         <span className="text-sm text-foreground">
-                          Rp {stock.initial_price.toLocaleString()}
+                          {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                          {stock.initial_price.toLocaleString()}
                         </span>
                         |
                         <span className="text-sm text-foreground flex items-center gap-1">
@@ -203,7 +204,7 @@ export const StocksCarousel = React.forwardRef(
           </div>
         ) : (
           <p className="text-sm text-foreground/70">
-            Tidak ada rekomendasi saham untuk hari ini.
+            No stock recommendations for today.
           </p>
         )}
         {/* Footer Link */}

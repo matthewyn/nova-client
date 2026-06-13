@@ -48,7 +48,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
               <>
                 <WatermarkOverlay userId={user?.user_id} email={user?.email} />
                 <ModalHeader className="flex flex-col gap-1">
-                  Ringkasan Tren:{" "}
+                  Trend Summary:{" "}
                   {selectedStockForTrend?.name.replace(".JK", "")}
                 </ModalHeader>
                 <ModalBody>
@@ -61,9 +61,13 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
                         className="h-16 w-16 rounded-md object-cover bg-muted"
                       />
                       <div>
-                        <p className="text-sm text-foreground/70">Harga Awal</p>
+                        <p className="text-sm text-foreground/70">
+                          Starting Price
+                        </p>
                         <p className="text-lg font-semibold">
-                          Rp{" "}
+                          {selectedStockForTrend?.name.endsWith(".JK")
+                            ? "Rp "
+                            : "$"}
                           {selectedStockForTrend?.initial_price.toLocaleString()}
                         </p>
                       </div>
@@ -91,7 +95,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
                     onClick={onClose}
                     className="cursor-pointer"
                   >
-                    Tutup
+                    Close
                   </Button>
                 </ModalFooter>
               </>

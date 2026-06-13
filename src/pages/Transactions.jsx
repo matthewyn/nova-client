@@ -67,20 +67,19 @@ function Transactions() {
           <Table className="mt-4">
             <TableHeader>
               <TableRow>
-                <TableHead>Nama</TableHead>
-                <TableHead>Signal</TableHead>
-                <TableHead>Tanggal</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Entry</TableHead>
                 <TableHead>TP</TableHead>
                 <TableHead>SL</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Return</TableHead>
-                <TableHead className="text-center">Aksi</TableHead>
+                <TableHead className="text-center">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                Array.from({ length: 9 }).map((_, i) => (
+                Array.from({ length: 8 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell className="flex gap-4 items-center">
                       <Skeleton className="h-10 w-10 rounded-md flex-shrink-0" />
@@ -88,9 +87,6 @@ function Transactions() {
                         <Skeleton className="h-4 w-24" />
                         <Skeleton className="h-3 w-16" />
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-6 w-16 rounded-lg" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-24" />
@@ -131,27 +127,6 @@ function Transactions() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {transaction.predicted_pct_change >= 0 ? (
-                        <Chip
-                          size="sm"
-                          className="font-bold bg-green-500/10 border border-green-500"
-                        >
-                          <span className="font-bold">
-                            <span className="text-green-700">Buy</span>
-                          </span>
-                        </Chip>
-                      ) : (
-                        <Chip
-                          size="sm"
-                          className="font-bold bg-red-500/10 border border-red-500"
-                        >
-                          <span className="font-bold">
-                            <span className="text-red-700">Sell</span>
-                          </span>
-                        </Chip>
-                      )}
-                    </TableCell>
-                    <TableCell>
                       {
                         new Date(transaction.start_date)
                           .toISOString()
@@ -159,10 +134,11 @@ function Transactions() {
                       }
                     </TableCell>
                     <TableCell>
-                      Rp {transaction.initial_price.toLocaleString()}
+                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
+                      {transaction.initial_price.toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      Rp{" "}
+                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
                       {Math.floor(
                         transaction.initial_price +
                           (transaction.initial_price *
@@ -171,7 +147,7 @@ function Transactions() {
                       ).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      Rp{" "}
+                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
                       {transaction.trailing_stop
                         ? transaction.trailing_stop.toLocaleString()
                         : transaction.stop_loss.toLocaleString()}
@@ -206,7 +182,7 @@ function Transactions() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-4">
-                    Tidak ada trade yang ditemukan.
+                    No trades found.
                   </TableCell>
                 </TableRow>
               )}
