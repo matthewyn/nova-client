@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 import { getAuthHeader } from "@/utils/token";
 import capitalizeFirstLetter from "@/utils/string";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ function Transactions() {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const { user, setUser } = useAuth();
   const PAGE_SIZE = 20;
 
   useEffect(() => {
@@ -59,6 +61,26 @@ function Transactions() {
     fetchData();
   }, [page]);
 
+  const handleCloseTrade = async (transactionId) => {
+    try {
+      await axios.post(
+        generateApiOrigin(`/transaction/${transactionId}/close`),
+        {},
+        { headers: getAuthHeader() },
+      );
+      setTransactions((prev) =>
+        prev.map((t) =>
+          t.id === transactionId ? { ...t, type: "completed" } : t,
+        ),
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Server error:", error.response?.data);
+        console.error("Status code:", error.response?.status);
+      }
+    }
+  };
+
   return (
     <div className="bg-gray-50">
       <div className="border-y-1 border-gray-200/70 px-8">
@@ -74,7 +96,7 @@ function Transactions() {
                 <TableHead>SL</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Return</TableHead>
-                <TableHead className="text-center">Action</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -170,12 +192,22 @@ function Transactions() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="space-x-2">
                       <Link to={`/dashboard/transactions/${transaction.id}`}>
                         <Button variant="outline" className="cursor-pointer">
                           Detail
                         </Button>
                       </Link>
+                      {transaction.type === "running" &&
+                        user?.role === "admin" && (
+                          <Button
+                            variant="destructive"
+                            className="cursor-pointer"
+                            onClick={() => handleCloseTrade(transaction.id)}
+                          >
+                            Close
+                          </Button>
+                        )}
                     </TableCell>
                   </TableRow>
                 ))

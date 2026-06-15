@@ -918,8 +918,10 @@ function App() {
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Below are the sectors currently covered by Nova AI across the
-              Indonesian and U.S. equity markets.
+              Nova AI continuously tracks capital flows across more than 200
+              Indonesian and U.S. stocks, helping investors identify which
+              sectors and investment themes are attracting liquidity in the
+              current market environment.
             </p>
             <div className="mt-12 flex max-w-1/2 mx-auto gap-4">
               <Card className="flex-1">

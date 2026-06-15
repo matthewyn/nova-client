@@ -7,6 +7,7 @@ import {
   HiArrowDownRight,
 } from "react-icons/hi2";
 import { cn } from "@/lib/utils";
+import { BipolarProgress } from "@/components/ui/bipolar-progress";
 import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
@@ -35,6 +36,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangleIcon, Info } from "lucide-react";
 
@@ -42,8 +52,57 @@ const urlFetch = generateApiOrigin("/stocks/new");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
+const urlFetchMacro = generateApiOrigin("/macro/current");
 
 const EQUITY = 100000000;
+
+function getGrowthDescription(score) {
+  if (score >= 50)
+    return "Economic activity is accelerating. Business expansion, employment, and demand indicators point to above-trend growth.";
+  if (score >= 15)
+    return "Growth remains healthy. Economic indicators suggest steady expansion with supportive business conditions.";
+  if (score >= -15)
+    return "Growth is near trend. Economic activity shows limited acceleration or slowdown.";
+  if (score >= -50)
+    return "Growth momentum is weakening. Leading indicators suggest softer demand and slower economic expansion.";
+  return "Economic activity is contracting. Recessionary pressures and weakening demand are becoming more evident.";
+}
+
+function getInflationDescription(score) {
+  if (score >= 50)
+    return "Inflation pressures are elevated. Prices, wages, and input costs continue to rise above target levels.";
+  if (score >= 15)
+    return "Inflation remains moderately above target but appears manageable.";
+  if (score >= -15)
+    return "Inflation is close to central bank targets with relatively stable price conditions.";
+  if (score >= -50)
+    return "Inflation pressures are easing as price growth moderates across the economy.";
+  return "Disinflation or deflation risks are emerging as pricing power and demand weaken.";
+}
+
+function getLiquidityDescription(score) {
+  if (score >= 50)
+    return "Financial conditions are highly accommodative. Liquidity is abundant and credit availability is strong.";
+  if (score >= 15)
+    return "Liquidity conditions are supportive. Funding markets and credit channels remain healthy.";
+  if (score >= -15)
+    return "Liquidity conditions are balanced with no significant tightening or easing pressures.";
+  if (score >= -50)
+    return "Liquidity is becoming tighter as funding costs rise and credit conditions become more restrictive.";
+  return "Liquidity conditions are restrictive. Access to capital and credit is increasingly constrained.";
+}
+
+function getRiskDescription(score) {
+  if (score >= 50)
+    return "Investors are actively embracing risk. Capital flows favor equities, growth assets, and cyclical sectors.";
+  if (score >= 15)
+    return "Risk appetite remains constructive with investors showing confidence in market conditions.";
+  if (score >= -15)
+    return "Market sentiment is balanced with no clear preference for risk-taking or defensiveness.";
+  if (score >= -50)
+    return "Risk appetite is fading as investors rotate toward defensive assets and safer sectors.";
+  return "Risk aversion dominates markets. Capital flows favor cash, bonds, and defensive positioning.";
+}
 
 function Dashboard() {
   const [stocks, setStocks] = useState([]);
@@ -52,8 +111,12 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
   const [statistics, setStatistics] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [macroRegime, setMacroRegime] = useState(null);
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const PAGE_SIZE = 5;
 
   useEffect(() => {
     async function fetchData() {
@@ -64,22 +127,28 @@ function Dashboard() {
           runningStocksResponse,
           completedStocksResponse,
           statisticsResponse,
+          macroResponse,
         ] = await Promise.all([
           axios.get(urlFetch, { headers: getAuthHeader() }),
-          axios.get(urlFetchRunning, { headers: getAuthHeader() }),
+          axios.get(urlFetchRunning, {
+            headers: getAuthHeader(),
+            params: { page: page, page_size: PAGE_SIZE },
+          }),
           axios.get(urlFetchCompleted, {
             headers: getAuthHeader(),
-            params: { page: 1, page_size: 5 },
+            params: { page: 1, page_size: PAGE_SIZE },
           }),
           axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
+          axios.get(urlFetchMacro, { headers: getAuthHeader() }),
         ]);
         if (newStocksResponse.status === 200) {
           const { stocks } = newStocksResponse.data;
           setStocks(stocks);
         }
         if (runningStocksResponse.status === 200) {
-          const { stocks } = runningStocksResponse.data;
-          setRunningStocks(stocks);
+          const { data } = runningStocksResponse;
+          setRunningStocks(data.stocks);
+          setTotalPages(Math.ceil(data.total / PAGE_SIZE));
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -108,6 +177,9 @@ function Dashboard() {
             best_trade: best_trade,
             worst_trade: worst_trade,
           });
+        }
+        if (macroResponse.status === 200) {
+          setMacroRegime(macroResponse.data);
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -231,7 +303,7 @@ function Dashboard() {
                                   {stock.close.toLocaleString()}
                                 </p>
                                 <span className="flex items-center gap-1">
-                                  {stock.actual_pct_change > 0 ? (
+                                  {stock.pct_gain > 0 ? (
                                     <FaCaretUp
                                       className="inline text-green-500"
                                       size={20}
@@ -242,8 +314,7 @@ function Dashboard() {
                                       size={20}
                                     />
                                   )}
-                                  {Math.abs(stock.actual_pct_change).toFixed(2)}
-                                  %
+                                  {Math.abs(stock.pct_gain).toFixed(2)}%
                                 </span>
                               </div>
                             </div>
@@ -368,6 +439,52 @@ function Dashboard() {
                       </p>
                     )}
                   </div>
+                  <Pagination className="mt-6">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (page > 1) setPage(page - 1);
+                          }}
+                          className={
+                            page === 1 ? "pointer-events-none opacity-50" : ""
+                          }
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (pageNum) => (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              href="#"
+                              isActive={pageNum === page}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setPage(pageNum);
+                              }}
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ),
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (page < totalPages) setPage(page + 1);
+                          }}
+                          className={
+                            page === totalPages
+                              ? "pointer-events-none opacity-50"
+                              : ""
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               </CardContent>
             </Card>
@@ -376,31 +493,132 @@ function Dashboard() {
                 <div className="p-4">
                   {isLoading ? (
                     <Skeleton className="h-7 w-28 mb-4" />
-                  ) : (
-                    <h2 className="text-xl font-bold text-foreground mb-4">
-                      Portfolio
-                    </h2>
-                  )}
-                  <div className="flex flex-col gap-4">
-                    {isLoading ? (
-                      <div className="space-y-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-12 w-12 rounded-md" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-5 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-3 w-2/3" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-foreground/70">
-                        Portfolio feature is currently in development.
+                  ) : macroRegime ? (
+                    <>
+                      <h2 className="text-xl font-bold text-foreground mb-3">
+                        Macro Regime Summary
+                      </h2>
+                      <p className="text-sm text-foreground/70 mb-4">
+                        This section provides an overview of the current macro
+                        regime based on the Nova AI framework. Growth,
+                        inflation, liquidity, and risk indicators are combined
+                        to assess the overall investment environment and market
+                        positioning.
                       </p>
-                    )}
-                  </div>
+                      <div className="flex gap-2 mb-6">
+                        <div className="flex-1">
+                          <p className="mb-2">Risk On Percentage</p>
+                          <p>
+                            <span className="font-semibold text-foreground text-3xl">
+                              {macroRegime.confidence.toFixed(0)}
+                            </span>
+                            /100
+                          </p>
+                        </div>
+                        <div className="flex-1">
+                          <p className="mb-3">Regime</p>
+                          <Chip
+                            color="primary"
+                            radius="sm"
+                            size="lg"
+                            variant="faded"
+                          >
+                            {macroRegime.regime}
+                          </Chip>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <Card className="relative overflow-hidden">
+                          <DotGrid />
+                          <CardContent className="relative z-10">
+                            <h3 className="text-lg font-semibold mb-2">
+                              Growth
+                            </h3>
+                            <BipolarProgress
+                              value={macroRegime.scores.growth}
+                              className="h-2 mb-2"
+                            />
+                            <p className="text-small text-foreground mb-2">
+                              <span className="font-semibold text-foreground text-3xl">
+                                {macroRegime.scores.growth.toFixed(0)}
+                              </span>
+                              /100
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getGrowthDescription(macroRegime.scores.growth)}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="relative overflow-hidden">
+                          <DotGrid />
+                          <CardContent className="relative z-10">
+                            <h3 className="text-lg font-semibold mb-2">
+                              Inflation
+                            </h3>
+                            <BipolarProgress
+                              value={macroRegime.scores.inflation}
+                              className="h-2 mb-2"
+                            />
+                            <p className="text-small text-foreground mb-2">
+                              <span className="font-semibold text-foreground text-3xl">
+                                {macroRegime.scores.inflation.toFixed(0)}
+                              </span>
+                              /100
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getInflationDescription(
+                                macroRegime.scores.inflation,
+                              )}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="relative overflow-hidden">
+                          <DotGrid />
+                          <CardContent className="relative z-10">
+                            <h3 className="text-lg font-semibold mb-2">
+                              Liquidity
+                            </h3>
+                            <BipolarProgress
+                              value={macroRegime.scores.liquidity}
+                              className="h-2 mb-2"
+                            />
+                            <p className="text-small text-foreground mb-2">
+                              <span className="font-semibold text-foreground text-3xl">
+                                {macroRegime.scores.liquidity.toFixed(0)}
+                              </span>
+                              /100
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getLiquidityDescription(
+                                macroRegime.scores.liquidity,
+                              )}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="relative overflow-hidden">
+                          <DotGrid />
+                          <CardContent className="relative z-10">
+                            <h3 className="text-lg font-semibold mb-2">Risk</h3>
+                            <BipolarProgress
+                              value={macroRegime.scores.risk}
+                              className="h-2 mb-2"
+                            />
+                            <p className="text-small text-foreground mb-2">
+                              <span className="font-semibold text-foreground text-3xl">
+                                {macroRegime.scores.risk.toFixed(0)}
+                              </span>
+                              /100
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getRiskDescription(macroRegime.scores.risk)}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </>
+                  ) : (
+                    <h1>Macro Regime Summary</h1>
+                  )}
                 </div>
               </CardContent>
             </Card>
