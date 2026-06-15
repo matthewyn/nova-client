@@ -330,12 +330,15 @@ function Dashboard() {
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-foreground text-medium">
                                   {stock.name.endsWith(".JK") ? "Rp " : "$"}
-                                  {Math.floor(
+                                  {(
                                     stock.initial_price +
-                                      (stock.initial_price *
-                                        stock.predicted_pct_change) /
-                                        100,
-                                  ).toLocaleString()}
+                                    (stock.initial_price *
+                                      stock.predicted_pct_change) /
+                                      100
+                                  ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
                                 </p>
                                 <p>Estimated Target</p>
                               </div>
@@ -343,12 +346,8 @@ function Dashboard() {
                                 <p className="font-semibold text-medium text-red-500">
                                   {stock.name.endsWith(".JK") ? "Rp " : "$"}
                                   {stock.trailing_stop
-                                    ? Math.floor(
-                                        stock.trailing_stop,
-                                      ).toLocaleString()
-                                    : Math.floor(
-                                        stock.stop_loss,
-                                      ).toLocaleString()}
+                                    ? stock.trailing_stop.toLocaleString()
+                                    : stock.stop_loss.toLocaleString()}
                                 </p>
                                 <p>
                                   {stock.trailing_stop

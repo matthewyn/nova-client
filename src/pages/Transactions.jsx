@@ -161,12 +161,15 @@ function Transactions() {
                     </TableCell>
                     <TableCell>
                       {transaction.name.endsWith(".JK") ? "Rp " : "$"}
-                      {Math.floor(
+                      {(
                         transaction.initial_price +
-                          (transaction.initial_price *
-                            transaction.predicted_pct_change) /
-                            100,
-                      ).toLocaleString()}
+                        (transaction.initial_price *
+                          transaction.predicted_pct_change) /
+                          100
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </TableCell>
                     <TableCell>
                       {transaction.name.endsWith(".JK") ? "Rp " : "$"}
