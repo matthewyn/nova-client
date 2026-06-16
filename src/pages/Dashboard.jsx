@@ -24,9 +24,9 @@ import StockModal from "@/components/StockModal";
 import { Divider } from "@heroui/react";
 import { ChartRadialText } from "@/components/ui/chart-radial-text";
 import DotGrid from "@/components/DotGrid";
-import { stocksSector } from "@/utils/stocks";
 import { useAuth } from "@/contexts/AuthContext";
 import WatermarkOverlay from "@/components/WatermarkOverlay";
+import { stocksSector } from "@/utils/stocks";
 import {
   Table,
   TableBody,
@@ -53,8 +53,9 @@ const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 const urlFetchMacro = generateApiOrigin("/macro/current");
-
-const EQUITY = 100000000;
+const urlFetchDistribution = generateApiOrigin(
+  "/transaction/sector-distribution",
+);
 
 function getGrowthDescription(score) {
   if (score >= 50)
@@ -114,6 +115,8 @@ function Dashboard() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [macroRegime, setMacroRegime] = useState(null);
+  const [sectorDistributions, setSectorDistributions] = useState(null);
+  const [countryDistributions, setCountryDistributions] = useState(null);
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const PAGE_SIZE = 5;
@@ -128,6 +131,7 @@ function Dashboard() {
           completedStocksResponse,
           statisticsResponse,
           macroResponse,
+          distributionsResponse,
         ] = await Promise.all([
           axios.get(urlFetch, { headers: getAuthHeader() }),
           axios.get(urlFetchRunning, {
@@ -140,6 +144,7 @@ function Dashboard() {
           }),
           axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
           axios.get(urlFetchMacro, { headers: getAuthHeader() }),
+          axios.get(urlFetchDistribution, { headers: getAuthHeader() }),
         ]);
         if (newStocksResponse.status === 200) {
           const { stocks } = newStocksResponse.data;
@@ -181,6 +186,11 @@ function Dashboard() {
         if (macroResponse.status === 200) {
           setMacroRegime(macroResponse.data);
         }
+        if (distributionsResponse.status === 200) {
+          const { data } = distributionsResponse;
+          setSectorDistributions(data.sectors);
+          setCountryDistributions(data.countries);
+        }
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Server error:", error.response?.data);
@@ -193,6 +203,30 @@ function Dashboard() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const { data } = await axios.get(urlFetchRunning, {
+          headers: getAuthHeader(),
+          params: { page: page, page_size: PAGE_SIZE },
+        });
+
+        setRunningStocks(data.stocks);
+        setTotalPages(Math.ceil(data.total / PAGE_SIZE));
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error("Server error:", error.response?.data);
+          console.error("Status code:", error.response?.status);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [page]);
 
   return (
     <div className="bg-gray-50 select-none">
@@ -272,12 +306,28 @@ function Dashboard() {
                     {isLoading ? (
                       <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-12 w-12 rounded-md" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-5 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-3 w-2/3" />
+                          <div
+                            key={i}
+                            className="border rounded-lg p-4 space-y-3"
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-3">
+                                <Skeleton className="h-10 w-10 rounded-md" />
+                                <Skeleton className="h-5 w-32" />
+                              </div>
+                              <div className="text-right space-y-1">
+                                <Skeleton className="h-5 w-20" />
+                                <Skeleton className="h-4 w-16" />
+                              </div>
+                            </div>
+                            <Skeleton className="h-px w-full" />
+                            <div className="grid grid-cols-3 gap-4">
+                              {Array.from({ length: 3 }).map((_, j) => (
+                                <div key={j} className="space-y-1">
+                                  <Skeleton className="h-4 w-20" />
+                                  <Skeleton className="h-3 w-24" />
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ))}
@@ -491,7 +541,33 @@ function Dashboard() {
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-28 mb-4" />
+                    <div className="space-y-4">
+                      <Skeleton className="h-7 w-40 mb-4" />
+                      <Skeleton className="h-16 w-full" />
+                      <div className="flex gap-4 mb-6">
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-8 w-20" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-10 w-28" />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="p-4 border rounded-lg space-y-2"
+                          >
+                            <Skeleton className="h-6 w-24" />
+                            <Skeleton className="h-2 w-full" />
+                            <Skeleton className="h-8 w-16" />
+                            <Skeleton className="h-12 w-full" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : macroRegime ? (
                     <>
                       <h2 className="text-xl font-bold text-foreground mb-3">
@@ -805,33 +881,38 @@ function Dashboard() {
                   <div className="flex flex-col gap-4 mt-4">
                     {isLoading ? (
                       <div className="space-y-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-12 w-12 rounded-md" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-5 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-3 w-2/3" />
+                        <Skeleton className="h-2 w-full rounded-full" />
+                        <div className="border rounded-lg p-4 space-y-3">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Skeleton className="h-3 w-3 rounded-sm" />
+                                <Skeleton className="h-4 w-24" />
+                              </div>
+                              <Skeleton className="h-4 w-8" />
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                        <div className="border rounded-lg p-4 space-y-3">
+                          {Array.from({ length: 2 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Skeleton className="h-6 w-6" />
+                                <Skeleton className="h-4 w-24" />
+                              </div>
+                              <Skeleton className="h-4 w-8" />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       (() => {
-                        const sectorMap = {};
-                        let totalEquity = 0;
-
-                        runningStocks.forEach((stock) => {
-                          const sector = stocksSector[stock.name] ?? "Lainnya";
-                          const equity = EQUITY;
-                          sectorMap[sector] = (sectorMap[sector] ?? 0) + equity;
-                          totalEquity += equity;
-                        });
-
-                        const sectors = Object.entries(sectorMap).sort(
-                          (a, b) => b[1] - a[1],
-                        );
-
                         const SECTOR_COLORS = [
                           "#22c55e",
                           "#6366f1",
@@ -842,6 +923,12 @@ function Dashboard() {
                           "#3b82f6",
                           "#f97316",
                         ];
+
+                        const sectors = sectorDistributions || [];
+                        const totalSectorCount = sectors.reduce(
+                          (sum, item) => sum + item.count,
+                          0,
+                        );
 
                         if (sectors.length === 0) {
                           return (
@@ -854,21 +941,21 @@ function Dashboard() {
                         return (
                           <>
                             <div className="flex w-full h-2 rounded-full overflow-hidden mb-5 gap-0.5">
-                              {sectors.map(([sector, value], i) => {
+                              {sectors.map((item, i) => {
                                 const pct =
-                                  totalEquity > 0
-                                    ? (value / totalEquity) * 100
+                                  totalSectorCount > 0
+                                    ? (item.count / totalSectorCount) * 100
                                     : 0;
                                 return (
                                   <div
-                                    key={sector}
+                                    key={item.sector}
                                     style={{
                                       width: `${pct}%`,
                                       backgroundColor:
                                         SECTOR_COLORS[i % SECTOR_COLORS.length],
                                     }}
                                     className="h-full rounded-sm"
-                                    title={`${sector}: ${pct.toFixed(1)}%`}
+                                    title={`${item.sector}: ${pct.toFixed(1)}%`}
                                   />
                                 );
                               })}
@@ -876,14 +963,14 @@ function Dashboard() {
 
                             <Card>
                               <CardContent className="flex flex-col gap-3">
-                                {sectors.map(([sector, value], i) => {
+                                {sectors.map((item, i) => {
                                   const pct =
-                                    totalEquity > 0
-                                      ? (value / totalEquity) * 100
+                                    totalSectorCount > 0
+                                      ? (item.count / totalSectorCount) * 100
                                       : 0;
                                   return (
                                     <div
-                                      key={sector}
+                                      key={item.sector}
                                       className="flex items-center justify-between"
                                     >
                                       <div className="flex items-center gap-3">
@@ -898,7 +985,7 @@ function Dashboard() {
                                         />
                                         <div>
                                           <p className="text-sm font-semibold text-foreground">
-                                            {sector}
+                                            {stocksSector[item.sector]}
                                           </p>
                                         </div>
                                       </div>
@@ -910,72 +997,61 @@ function Dashboard() {
                                 })}
                               </CardContent>
                             </Card>
+
                             <Card>
                               <CardContent className="flex flex-col gap-3">
                                 {(() => {
-                                  let indonesiaEquity = 0;
-                                  let usEquity = 0;
+                                  const countries = countryDistributions || [];
+                                  const totalCountryCount = countries.reduce(
+                                    (sum, item) => sum + item.count,
+                                    0,
+                                  );
 
-                                  runningStocks.forEach((stock) => {
-                                    const equity = EQUITY;
-                                    if (stock.name.endsWith(".JK")) {
-                                      indonesiaEquity += equity;
-                                    } else {
-                                      usEquity += equity;
-                                    }
-                                  });
-
-                                  const totalMarketEquity =
-                                    indonesiaEquity + usEquity;
-                                  const marketData = [];
-
-                                  if (indonesiaEquity > 0)
-                                    marketData.push({
-                                      name: "Indonesia",
-                                      value: indonesiaEquity,
+                                  const countryMap = {
+                                    Indonesia: {
+                                      image: Indonesia,
                                       color: "#ef4444",
-                                    });
-                                  if (usEquity > 0)
-                                    marketData.push({
-                                      name: "United States",
-                                      value: usEquity,
-                                      color: "#3b82f6",
-                                    });
+                                    },
+                                    US: { image: USA, color: "#3b82f6" },
+                                  };
 
-                                  return marketData.map(
-                                    ({ name, value, color }) => {
-                                      const pct =
-                                        totalMarketEquity > 0
-                                          ? (value / totalMarketEquity) * 100
-                                          : 0;
-                                      return (
-                                        <div
-                                          key={name}
-                                          className="flex items-center justify-between"
-                                        >
-                                          <div className="flex items-center gap-3">
+                                  return countries.map((item) => {
+                                    const pct =
+                                      totalCountryCount > 0
+                                        ? (item.count / totalCountryCount) * 100
+                                        : 0;
+                                    const countryConfig =
+                                      countryMap[item.country];
+
+                                    return (
+                                      <div
+                                        key={item.country}
+                                        className="flex items-center justify-between"
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          {countryConfig ? (
                                             <Image
-                                              src={
-                                                name === "Indonesia"
-                                                  ? Indonesia
-                                                  : USA
-                                              }
-                                              alt={name}
+                                              src={countryConfig.image}
+                                              alt={item.country}
                                               className="h-6 w-6"
                                             />
-                                            <div>
-                                              <p className="text-sm font-semibold text-foreground">
-                                                {name}
-                                              </p>
-                                            </div>
+                                          ) : null}
+                                          <div>
+                                            <p className="text-sm font-semibold text-foreground">
+                                              {item.country === "Indonesia"
+                                                ? "Indonesia"
+                                                : item.country === "US"
+                                                  ? "United States"
+                                                  : item.country}
+                                            </p>
                                           </div>
-                                          <p className="text-sm text-foreground">
-                                            {pct.toFixed(0)}%
-                                          </p>
                                         </div>
-                                      );
-                                    },
-                                  );
+                                        <p className="text-sm text-foreground">
+                                          {pct.toFixed(0)}%
+                                        </p>
+                                      </div>
+                                    );
+                                  });
                                 })()}
                               </CardContent>
                             </Card>

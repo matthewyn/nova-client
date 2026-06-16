@@ -193,7 +193,8 @@ export const StocksCarousel = React.forwardRef(
                       <span className="text-sm text-foreground/70">
                         Stop loss:{" "}
                         <span className="text-red-500">
-                          Rp {stock.stop_loss.toLocaleString()}
+                          {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                          {stock.stop_loss.toLocaleString()}
                         </span>
                       </span>
                     </div>

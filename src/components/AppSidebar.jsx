@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, LogOut, Sheet } from "lucide-react";
+import { LayoutDashboard, LogOut, Sheet, Globe } from "lucide-react";
 import { HiMiniRectangleStack } from "react-icons/hi2";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +25,12 @@ export function AppSidebar() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === "/dashboard/transactions") {
+      return location.pathname.startsWith(path);
+    }
+    return location.pathname === path;
+  };
 
   const handleLogout = async () => {
     try {
@@ -66,6 +71,21 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
+            {user.tier !== "trial" && (
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive("/dashboard/macro")}
+                  >
+                    <Link to="/dashboard/macro">
+                      <Globe className="w-4 h-4" />
+                      <span>Macro</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            )}
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton

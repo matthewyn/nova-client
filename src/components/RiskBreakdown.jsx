@@ -8,7 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 function RiskBreakdown({ isLoading, transaction }) {
   return (
     <>
-      <h2 className="text-xl font-bold text-foreground mb-4">Risk Breakdown</h2>
+      <h2 className="text-xl font-bold text-foreground mb-4">
+        Institutional & Risk Analysis
+      </h2>
       {isLoading ? (
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -27,6 +29,27 @@ function RiskBreakdown({ isLoading, transaction }) {
       ) : transaction ? (
         <>
           <div className="grid grid-cols-3 gap-4">
+            <Card className="relative overflow-hidden">
+              <DotGrid />
+              <CardContent className="p-4 relative z-10">
+                <h3 className="text-lg font-semibold mb-2">
+                  Institutional Score
+                </h3>
+                <Progress
+                  value={transaction.institutional_score || 0}
+                  className="h-2 mb-2"
+                />
+                <p className="text-small text-foreground mb-2">
+                  At {transaction.institutional_score || 0}%
+                </p>
+                <p className="text-xs text-gray-500">
+                  A proprietary score derived from macro conditions, sector
+                  leadership, capital allocation trends, asset flows, and
+                  company fundamentals to measure institutional conviction and
+                  investment quality.
+                </p>
+              </CardContent>
+            </Card>
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">
