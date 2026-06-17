@@ -71,7 +71,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-            {user.tier !== "trial" && (
+            {user?.tier !== "trial" && (
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
