@@ -22,21 +22,26 @@ function ScenarioAnalysis({
         Scenario Analysis
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-6 w-24 mb-3" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-4 w-32 mb-4" />
-                <Skeleton className="h-10 w-full mb-3" />
-                <Skeleton className="h-4 w-20" />
+            <Card
+              key={i}
+              className="relative overflow-hidden border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] backdrop-blur-xl"
+            >
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center">
+                  <Skeleton className="h-12 w-12 rounded-full mb-4 bg-white/10" />
+                  <Skeleton className="h-6 w-24 mb-3 bg-white/10 rounded-md" />
+                  <Skeleton className="h-4 w-20 mb-4 bg-white/10 rounded-md" />
+                  <Skeleton className="h-8 w-full mb-3 bg-white/10 rounded-md" />
+                  <Skeleton className="h-3 w-16 bg-white/10 rounded-md" />
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="group cursor-pointer transform transition-all duration-500 hover:scale-105 hover:-rotate-1 p-0">
             <CardContent className="h-full text-left text-white rounded-2xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-2xl relative backdrop-blur-xl overflow-hidden hover:border-white/25 hover:shadow-white/5 hover:shadow-3xl">
               <div>

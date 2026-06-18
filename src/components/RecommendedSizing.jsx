@@ -101,7 +101,7 @@ function RecommendedSizing({
         Recommended Position Sizing
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Card
               key={i}
@@ -109,14 +109,14 @@ function RecommendedSizing({
             >
               <DotGrid />
               <CardContent className="p-4 relative z-10">
-                <Skeleton className="h-6 w-24 mb-3 bg-white/10" />
-                <Skeleton className="h-4 w-16 bg-white/10" />
+                <Skeleton className="h-8 w-32 mb-3 bg-white/10 rounded-md" />
+                <Skeleton className="h-4 w-24 bg-white/10 rounded-md" />
               </CardContent>
             </Card>
           ))}
         </div>
       ) : transaction ? (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
             <DotGrid />
             <CardContent className="p-4 relative z-10">

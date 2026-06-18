@@ -65,7 +65,6 @@ function AllocationBar({
   horizontal = false,
 }) {
   if (horizontal) {
-    // Horizontal bar layout for mobile
     return (
       <div className="flex items-center gap-3">
         <span className="text-xs text-gray-600 w-24 shrink-0 text-right leading-tight">
@@ -101,7 +100,6 @@ function AllocationBar({
     );
   }
 
-  // Vertical bar layout for desktop
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
@@ -301,21 +299,21 @@ function Macro() {
                       <div className="flex flex-col gap-3">
                         {Array.from({ length: 9 }).map((_, i) => (
                           <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
-                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
+                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-9 gap-4">
+                      <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-4">
                         {Array.from({ length: 9 }).map((_, i) => (
                           <div
                             key={i}
                             className="flex flex-col items-center gap-3"
                           >
-                            <Skeleton className="w-full h-44 rounded-2xl" />
-                            <Skeleton className="h-3 w-16 rounded-full" />
-                            <Skeleton className="h-3 w-12 rounded-full" />
+                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
+                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
+                            <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
                           </div>
                         ))}
                       </div>
@@ -398,20 +396,20 @@ function Macro() {
                       <div className="flex flex-col gap-3">
                         {Array.from({ length: 14 }).map((_, i) => (
                           <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
-                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
+                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-7 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                         {Array.from({ length: 14 }).map((_, i) => (
                           <div
                             key={i}
                             className="flex flex-col items-center gap-3"
                           >
-                            <Skeleton className="w-full h-44 rounded-2xl" />
-                            <Skeleton className="h-3 w-16 rounded-full" />
+                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
+                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
                           </div>
                         ))}
                       </div>
@@ -469,20 +467,20 @@ function Macro() {
                       <div className="flex flex-col gap-3">
                         {Array.from({ length: 14 }).map((_, i) => (
                           <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
-                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
+                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-7 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                         {Array.from({ length: 14 }).map((_, i) => (
                           <div
                             key={i}
                             className="flex flex-col items-center gap-3"
                           >
-                            <Skeleton className="w-full h-44 rounded-2xl" />
-                            <Skeleton className="h-3 w-16 rounded-full" />
+                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
+                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
                           </div>
                         ))}
                       </div>

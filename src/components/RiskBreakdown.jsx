@@ -12,23 +12,22 @@ function RiskBreakdown({ isLoading, transaction }) {
         Institutional & Risk Analysis
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-6 w-32 mb-3" />
-                <Skeleton className="h-2 w-full mb-3" />
-                <Skeleton className="h-4 w-20" />
+            <Card key={i} className="relative overflow-hidden">
+              <DotGrid />
+              <CardContent className="p-4 relative z-10">
+                <Skeleton className="h-6 w-40 mb-3 bg-white/10 rounded-md" />
+                <Skeleton className="h-2 w-full mb-3 bg-white/10 rounded-full" />
+                <Skeleton className="h-4 w-24 mb-3 bg-white/10 rounded-md" />
+                <Skeleton className="h-3 w-full bg-white/10 rounded-md" />
               </CardContent>
             </Card>
           ))}
-          <div className="col-span-3">
-            <Skeleton className="h-24 w-full" />
-          </div>
         </div>
       ) : transaction ? (
         <>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">

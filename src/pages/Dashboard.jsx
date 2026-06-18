@@ -261,24 +261,24 @@ function Dashboard() {
                 <div className="w-full bg-background flex items-center justify-center">
                   {isLoading ? (
                     <div className="w-full font-sans p-4">
-                      <div className="flex gap-4 overflow-x-auto pb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {Array.from({ length: 4 }).map((_, i) => (
                           <div
                             key={i}
-                            className="flex-shrink-0 w-72 bg-card border rounded-2xl p-4 space-y-3"
+                            className="bg-card border border-gray-200 rounded-2xl p-4 space-y-3"
                           >
                             <div className="flex justify-between items-center">
-                              <Skeleton className="h-4 w-20" />
+                              <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
                             </div>
                             <div className="flex items-center gap-3">
-                              <Skeleton className="h-12 w-12 rounded-md" />
+                              <Skeleton className="h-12 w-12 rounded-md bg-gray-200 flex-shrink-0" />
                               <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                                <Skeleton className="h-3 w-2/3" />
+                                <Skeleton className="h-5 w-3/4 bg-gray-200 rounded-md" />
+                                <Skeleton className="h-4 w-1/2 bg-gray-200 rounded-md" />
+                                <Skeleton className="h-3 w-2/3 bg-gray-200 rounded-md" />
                               </div>
                             </div>
-                            <Skeleton className="h-10 w-full rounded-md" />
+                            <Skeleton className="h-10 w-full rounded-md bg-gray-200" />
                           </div>
                         ))}
                       </div>
@@ -308,24 +308,24 @@ function Dashboard() {
                         {Array.from({ length: 3 }).map((_, i) => (
                           <div
                             key={i}
-                            className="border rounded-lg p-4 space-y-3"
+                            className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white"
                           >
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-3">
-                                <Skeleton className="h-10 w-10 rounded-md" />
-                                <Skeleton className="h-5 w-32" />
+                                <Skeleton className="h-10 w-10 rounded-md bg-gray-200 flex-shrink-0" />
+                                <Skeleton className="h-5 w-32 bg-gray-200 rounded-md" />
                               </div>
                               <div className="text-right space-y-1">
-                                <Skeleton className="h-5 w-20" />
-                                <Skeleton className="h-4 w-16" />
+                                <Skeleton className="h-5 w-20 bg-gray-200 rounded-md" />
+                                <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
                               </div>
                             </div>
-                            <Skeleton className="h-px w-full" />
-                            <div className="grid grid-cols-3 gap-4">
+                            <Skeleton className="h-px w-full bg-gray-200" />
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                               {Array.from({ length: 3 }).map((_, j) => (
                                 <div key={j} className="space-y-1">
-                                  <Skeleton className="h-4 w-20" />
-                                  <Skeleton className="h-3 w-24" />
+                                  <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
+                                  <Skeleton className="h-3 w-24 bg-gray-200 rounded-md" />
                                 </div>
                               ))}
                             </div>
@@ -542,28 +542,28 @@ function Dashboard() {
                 <div className="p-4">
                   {isLoading ? (
                     <div className="space-y-4">
-                      <Skeleton className="h-7 w-40 mb-4" />
-                      <Skeleton className="h-16 w-full" />
-                      <div className="flex gap-4 mb-6">
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-8 w-20" />
+                      <Skeleton className="h-7 w-40 mb-4 bg-gray-200 rounded-md" />
+                      <Skeleton className="h-16 w-full bg-gray-200 rounded-lg" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
+                          <Skeleton className="h-8 w-20 bg-gray-200 rounded-md" />
                         </div>
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-16" />
-                          <Skeleton className="h-10 w-28" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
+                          <Skeleton className="h-10 w-28 bg-gray-200 rounded-lg" />
                         </div>
                       </div>
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {Array.from({ length: 4 }).map((_, i) => (
                           <div
                             key={i}
-                            className="p-4 border rounded-lg space-y-2"
+                            className="p-4 border border-gray-200 rounded-lg space-y-2 bg-white"
                           >
-                            <Skeleton className="h-6 w-24" />
-                            <Skeleton className="h-2 w-full" />
-                            <Skeleton className="h-8 w-16" />
-                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-6 w-24 bg-gray-200 rounded-md" />
+                            <Skeleton className="h-2 w-full bg-gray-200 rounded-full" />
+                            <Skeleton className="h-8 w-16 bg-gray-200 rounded-md" />
+                            <Skeleton className="h-12 w-full bg-gray-200 rounded-md" />
                           </div>
                         ))}
                       </div>
@@ -707,7 +707,7 @@ function Dashboard() {
                     <div className="flex-1 flex flex-col gap-4">
                       <div>
                         {isLoading ? (
-                          <Skeleton className="h-7 w-20 mb-2" />
+                          <Skeleton className="h-7 w-20 mb-2 bg-gray-200 rounded-md" />
                         ) : (
                           <h2 className="text-xl font-bold text-foreground">
                             Win Rate
@@ -715,7 +715,7 @@ function Dashboard() {
                         )}
                         {isLoading ? (
                           <div className="space-y-2">
-                            <Skeleton className="h-5 w-16" />
+                            <Skeleton className="h-5 w-16 bg-gray-200 rounded-md" />
                           </div>
                         ) : statistics ? (
                           <p className="text-green-500 font-semibold text-xl flex items-center gap-1">
@@ -737,7 +737,7 @@ function Dashboard() {
                       <Divider />
                       <div>
                         {isLoading ? (
-                          <Skeleton className="h-7 w-28 mb-2" />
+                          <Skeleton className="h-7 w-28 mb-2 bg-gray-200 rounded-md" />
                         ) : (
                           <h2 className="text-xl font-bold text-fo-xltext-xlround">
                             Profit Factor
@@ -745,7 +745,7 @@ function Dashboard() {
                         )}
                         {isLoading ? (
                           <div className="space-y-2">
-                            <Skeleton className="h-5 w-16" />
+                            <Skeleton className="h-5 w-16 bg-gray-200 rounded-md" />
                           </div>
                         ) : statistics ? (
                           <p className="font-semibold text-xl">
@@ -756,11 +756,11 @@ function Dashboard() {
                     </div>
                     <div className="w-40">
                       {isLoading ? (
-                        <div className="flex flex-col gap-4">
-                          <Skeleton className="h-36 w-36 rounded-full" />
-                          <div className="flex justify-between">
-                            <Skeleton className="h-12 w-16 rounded-lg" />
-                            <Skeleton className="h-12 w-16 rounded-lg" />
+                        <div className="flex flex-col gap-4 items-center justify-center">
+                          <Skeleton className="h-36 w-36 rounded-full bg-gray-200" />
+                          <div className="flex justify-center gap-4">
+                            <Skeleton className="h-12 w-16 rounded-lg bg-gray-200" />
+                            <Skeleton className="h-12 w-16 rounded-lg bg-gray-200" />
                           </div>
                         </div>
                       ) : statistics ? (
@@ -793,11 +793,11 @@ function Dashboard() {
                     className={`w-full border-t border-dashed border-default-300 my-4`}
                   />
                   {isLoading ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {Array.from({ length: 4 }).map((_, i) => (
                         <div key={i}>
-                          <Skeleton className="h-6 w-28 mb-2" />
-                          <Skeleton className="h-7 w-24" />
+                          <Skeleton className="h-6 w-28 mb-2 bg-gray-200 rounded-md" />
+                          <Skeleton className="h-7 w-24 bg-gray-200 rounded-md" />
                         </div>
                       ))}
                     </div>
@@ -872,7 +872,7 @@ function Dashboard() {
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-7 w-40 bg-gray-200 rounded-md" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
                       Sector Distribution
@@ -881,32 +881,32 @@ function Dashboard() {
                   <div className="flex flex-col gap-4 mt-4">
                     {isLoading ? (
                       <div className="space-y-4">
-                        <Skeleton className="h-2 w-full rounded-full" />
-                        <div className="border rounded-lg p-4 space-y-3">
+                        <Skeleton className="h-2 w-full rounded-full bg-gray-200" />
+                        <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white">
                           {Array.from({ length: 3 }).map((_, i) => (
                             <div
                               key={i}
                               className="flex items-center justify-between"
                             >
                               <div className="flex items-center gap-3">
-                                <Skeleton className="h-3 w-3 rounded-sm" />
-                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-3 w-3 rounded-sm bg-gray-200 flex-shrink-0" />
+                                <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
                               </div>
-                              <Skeleton className="h-4 w-8" />
+                              <Skeleton className="h-4 w-8 bg-gray-200 rounded-md" />
                             </div>
                           ))}
                         </div>
-                        <div className="border rounded-lg p-4 space-y-3">
+                        <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white">
                           {Array.from({ length: 2 }).map((_, i) => (
                             <div
                               key={i}
                               className="flex items-center justify-between"
                             >
                               <div className="flex items-center gap-3">
-                                <Skeleton className="h-6 w-6" />
-                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-6 w-6 bg-gray-200 rounded-md flex-shrink-0" />
+                                <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
                               </div>
-                              <Skeleton className="h-4 w-8" />
+                              <Skeleton className="h-4 w-8 bg-gray-200 rounded-md" />
                             </div>
                           ))}
                         </div>
@@ -1067,7 +1067,7 @@ function Dashboard() {
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-40" />
+                    <Skeleton className="h-7 w-40 bg-gray-200 rounded-md" />
                   ) : (
                     <h2 className="text-xl font-bold text-foreground mb-4">
                       Trade History
@@ -1086,14 +1086,14 @@ function Dashboard() {
                         Array.from({ length: 3 }).map((_, i) => (
                           <TableRow key={i}>
                             <TableCell className="flex gap-2 items-center">
-                              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0" />
-                              <Skeleton className="h-4 w-3/4 flex-1" />
+                              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0 bg-gray-200" />
+                              <Skeleton className="h-4 w-3/4 flex-1 bg-gray-200 rounded-md" />
                             </TableCell>
                             <TableCell>
-                              <Skeleton className="h-4 w-32" />
+                              <Skeleton className="h-4 w-32 bg-gray-200 rounded-md" />
                             </TableCell>
                             <TableCell>
-                              <Skeleton className="h-4 w-16" />
+                              <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
                             </TableCell>
                           </TableRow>
                         ))

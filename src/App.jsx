@@ -529,7 +529,8 @@ function App() {
               attracting investment, and whether those trends are likely to
               persist.
             </p>
-            <div className="relative mt-12">
+            {/* Desktop: horizontal timeline */}
+            <div className="relative mt-12 hidden md:block">
               <div className="absolute left-0 right-0 top-4 h-px bg-border" />
               <div className="flex justify-between gap-4">
                 {items.map((item, index) => (
@@ -569,6 +570,48 @@ function App() {
                   </motion.div>
                 ))}
               </div>
+            </div>
+
+            {/* Mobile: vertical timeline */}
+            <div className="relative mt-12 flex flex-col gap-0 md:hidden max-w-sm mx-auto w-full">
+              {/* Vertical line */}
+              <div className="absolute left-2 top-0 bottom-0 w-px bg-border" />
+              {items.map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="relative pl-10 pb-8 last:pb-0 text-left"
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.15 }}
+                >
+                  {/* Dot on the vertical line */}
+                  <motion.div
+                    whileHover={{ scale: 1.2 }}
+                    className={`absolute left-0 top-1 h-4 w-4 rounded-full flex items-center justify-center ${
+                      item.status === "done" || item.status === "in-progress"
+                        ? "bg-primary"
+                        : "bg-muted"
+                    }`}
+                  >
+                    <div className="h-1.5 w-1.5 rounded-full bg-background" />
+                  </motion.div>
+
+                  <Badge
+                    variant={
+                      item.status === "done" || item.status === "in-progress"
+                        ? "default"
+                        : "outline"
+                    }
+                    className="mb-1 text-[11px]"
+                  >
+                    {item.quarter}
+                  </Badge>
+                  <h4 className="text-sm font-medium">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {item.description}
+                  </p>
+                </motion.div>
+              ))}
             </div>
             <div className="mx-auto max-w-4xl mt-12 px-6 xl:px-0">
               <div className="relative flex flex-col items-center border border-red-500">
