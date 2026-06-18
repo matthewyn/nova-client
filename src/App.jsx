@@ -352,7 +352,7 @@ function App() {
 
         {/* Pricing cards */}
         <div className="border-y-1 border-gray-200/70 px-8">
-          <div className="grid grid-cols-3 border border-gray-200/70">
+          <div className="grid md:grid-cols-3 border border-gray-200/70">
             {plans.map((plan) => (
               <div
                 key={plan.id}
@@ -918,12 +918,12 @@ function App() {
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Nova AI continuously tracks capital flows across more than 200
+              Nova AI continuously tracks capital flows across more than 400
               Indonesian and U.S. stocks, helping investors identify which
               sectors and investment themes are attracting liquidity in the
               current market environment.
             </p>
-            <div className="mt-12 flex max-w-1/2 mx-auto gap-4">
+            <div className="mt-12 flex md:max-w-1/2 mx-auto gap-4">
               <Card className="flex-1">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-center gap-2">

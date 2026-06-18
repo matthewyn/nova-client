@@ -45,7 +45,63 @@ const stripeBg = {
     "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
 };
 
-function AllocationBar({ label, value, animate, variant = "primary" }) {
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
+
+function AllocationBar({
+  label,
+  value,
+  animate,
+  variant = "primary",
+  horizontal = false,
+}) {
+  if (horizontal) {
+    // Horizontal bar layout for mobile
+    return (
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-gray-600 w-24 shrink-0 text-right leading-tight">
+          {label}
+        </span>
+        <div
+          className="relative flex-1 h-8 rounded-xl bg-gray-100 overflow-hidden border border-gray-200/60"
+          style={stripeBg}
+        >
+          {value > 0 ? (
+            <div
+              className={`h-full rounded-xl flex items-center px-2 ${
+                variant === "primary"
+                  ? "primary"
+                  : variant === "green"
+                    ? "bg-green-500"
+                    : "bg-red-500"
+              }`}
+              style={{
+                width: animate ? `${value}%` : "0%",
+                transition: "width 0.85s cubic-bezier(0.23, 1, 0.32, 1)",
+              }}
+            >
+              <span className="text-xs font-semibold text-white leading-none whitespace-nowrap">
+                {value}%
+              </span>
+            </div>
+          ) : (
+            <div className="w-full h-1.5 rounded-r-xl bg-gray-200/80" />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Vertical bar layout for desktop
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div
@@ -54,7 +110,13 @@ function AllocationBar({ label, value, animate, variant = "primary" }) {
       >
         {value > 0 ? (
           <div
-            className={`w-full rounded-2xl flex items-start p-2 ${variant === "primary" ? "primary" : variant === "green" ? "bg-green-500" : "bg-red-500"}`}
+            className={`w-full rounded-2xl flex items-start p-2 ${
+              variant === "primary"
+                ? "primary"
+                : variant === "green"
+                  ? "bg-green-500"
+                  : "bg-red-500"
+            }`}
             style={{
               height: animate ? `${value}%` : "0%",
               transition: "height 0.85s cubic-bezier(0.23, 1, 0.32, 1)",
@@ -68,19 +130,39 @@ function AllocationBar({ label, value, animate, variant = "primary" }) {
           <div className="w-full h-1.5 rounded-b-2xl bg-gray-200/80" />
         )}
       </div>
-
       <span className="text-xs text-center leading-tight">{label}</span>
     </div>
   );
 }
 
-function SectorBars({ data, animate }) {
+function SectorBars({ data, animate, horizontal = false }) {
   const topSet = new Set(data.top_sectors.map((s) => s.sector));
   const combined = [...data.top_sectors, ...data.avoid_sectors].sort(
     (a, b) => b.score - a.score,
   );
-  console.log("Combined sectors:", combined);
   const cols = combined.length;
+
+  if (horizontal) {
+    return (
+      <div className="flex flex-col gap-2">
+        {combined.map(({ sector, score }) => {
+          const config = SECTOR_CONFIG[sector];
+          if (!config) return null;
+          return (
+            <AllocationBar
+              key={sector}
+              label={config.label}
+              value={Math.round(score * 10) / 10}
+              animate={animate}
+              variant={topSet.has(sector) ? "green" : "red"}
+              horizontal
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div
       className="grid gap-3"
@@ -117,14 +199,12 @@ function Macro() {
   const [sectorScoresUS, setSectorScoresUS] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [animate, setAnimate] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     async function fetchCapitalFlow() {
       setIsLoading(true);
       try {
-        const { data } = await axios.get(urlFetch, {
-          headers: getAuthHeader(),
-        });
         const [
           capitalFlowResponse,
           sectorScoresIndonesiaResponse,
@@ -181,17 +261,19 @@ function Macro() {
         <div className="border-x border-gray-200/70 py-12 px-8">
           <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
             <SparkleIcon size={12} />
-            Macro Analysis
+            Market Intelligence
           </div>
           <h2 className="text-4xl font-bold text-gray-900 mb-1">
-            Macro Analysis
+            Understand where capital is flowing
           </h2>
           <p className="text-sm text-gray-400 max-w-lg mx-auto">
-            Analyze the macroeconomic landscape with our comprehensive
-            dashboard.
+            Monitor macroeconomic conditions, capital flows, and sector rotation
+            across global markets to identify where liquidity is moving and
+            which opportunities are gaining momentum.
           </p>
 
           <div className="mt-12">
+            {/* Capital Flow Card */}
             <Card className="relative">
               <CardContent className="text-left">
                 <div className="p-4">
@@ -215,32 +297,60 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    <div className="grid grid-cols-9 gap-4">
-                      {Array.from({ length: 9 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center gap-3"
-                        >
-                          <Skeleton className="w-full h-44 rounded-2xl" />
-                          <Skeleton className="h-3 w-16 rounded-full" />
-                          <Skeleton className="h-3 w-12 rounded-full" />
-                        </div>
-                      ))}
-                    </div>
+                    isMobile ? (
+                      <div className="flex flex-col gap-3">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
+                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-9 gap-4">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col items-center gap-3"
+                          >
+                            <Skeleton className="w-full h-44 rounded-2xl" />
+                            <Skeleton className="h-3 w-16 rounded-full" />
+                            <Skeleton className="h-3 w-12 rounded-full" />
+                          </div>
+                        ))}
+                      </div>
+                    )
                   ) : sortedEntries.length > 0 ? (
-                    <div className="grid grid-cols-9 gap-3">
-                      {sortedEntries.map(([key, value], i) => {
-                        const config = ALLOCATION_CONFIG[key];
-                        return config ? (
-                          <AllocationBar
-                            key={key}
-                            label={config.label}
-                            value={value}
-                            animate={animate}
-                          />
-                        ) : null;
-                      })}
-                    </div>
+                    isMobile ? (
+                      <div className="flex flex-col gap-2">
+                        {sortedEntries.map(([key, value]) => {
+                          const config = ALLOCATION_CONFIG[key];
+                          return config ? (
+                            <AllocationBar
+                              key={key}
+                              label={config.label}
+                              value={value}
+                              animate={animate}
+                              horizontal
+                            />
+                          ) : null;
+                        })}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-9 gap-3">
+                        {sortedEntries.map(([key, value]) => {
+                          const config = ALLOCATION_CONFIG[key];
+                          return config ? (
+                            <AllocationBar
+                              key={key}
+                              label={config.label}
+                              value={value}
+                              animate={animate}
+                            />
+                          ) : null;
+                        })}
+                      </div>
+                    )
                   ) : (
                     <p className="text-sm text-gray-500">
                       No capital flow data available
@@ -249,6 +359,8 @@ function Macro() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Indonesia Top Sectors Card */}
             <Card className="relative mt-4">
               <CardContent className="text-left">
                 <div className="p-4">
@@ -282,21 +394,33 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    <div className="grid grid-cols-7 gap-4">
-                      {Array.from({ length: 14 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center gap-3"
-                        >
-                          <Skeleton className="w-full h-44 rounded-2xl" />
-                          <Skeleton className="h-3 w-16 rounded-full" />
-                        </div>
-                      ))}
-                    </div>
+                    isMobile ? (
+                      <div className="flex flex-col gap-3">
+                        {Array.from({ length: 14 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
+                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-7 gap-4">
+                        {Array.from({ length: 14 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col items-center gap-3"
+                          >
+                            <Skeleton className="w-full h-44 rounded-2xl" />
+                            <Skeleton className="h-3 w-16 rounded-full" />
+                          </div>
+                        ))}
+                      </div>
+                    )
                   ) : sectorScoresIndonesia ? (
                     <SectorBars
                       data={sectorScoresIndonesia}
                       animate={animate}
+                      horizontal={isMobile}
                     />
                   ) : (
                     <p className="text-sm text-gray-500">
@@ -306,6 +430,8 @@ function Macro() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* US Top Sectors Card */}
             <Card className="relative mt-4">
               <CardContent className="text-left">
                 <div className="p-4">
@@ -339,19 +465,34 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    <div className="grid grid-cols-7 gap-4">
-                      {Array.from({ length: 14 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center gap-3"
-                        >
-                          <Skeleton className="w-full h-44 rounded-2xl" />
-                          <Skeleton className="h-3 w-16 rounded-full" />
-                        </div>
-                      ))}
-                    </div>
+                    isMobile ? (
+                      <div className="flex flex-col gap-3">
+                        {Array.from({ length: 14 }).map((_, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <Skeleton className="h-4 w-24 rounded-full shrink-0" />
+                            <Skeleton className="flex-1 h-8 rounded-xl" />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-7 gap-4">
+                        {Array.from({ length: 14 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex flex-col items-center gap-3"
+                          >
+                            <Skeleton className="w-full h-44 rounded-2xl" />
+                            <Skeleton className="h-3 w-16 rounded-full" />
+                          </div>
+                        ))}
+                      </div>
+                    )
                   ) : sectorScoresUS ? (
-                    <SectorBars data={sectorScoresUS} animate={animate} />
+                    <SectorBars
+                      data={sectorScoresUS}
+                      animate={animate}
+                      horizontal={isMobile}
+                    />
                   ) : (
                     <p className="text-sm text-gray-500">
                       No sector data available

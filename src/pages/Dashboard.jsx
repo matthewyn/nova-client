@@ -290,8 +290,8 @@ function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="grid grid-cols-2 mt-4 items-stretch">
-            <Card className="rounded-r-none relative">
+          <div className="grid md:grid-cols-2 mt-4 items-stretch">
+            <Card className="md:rounded-r-none relative order-2 md:order-1 mt-4 md:mt-0">
               <WatermarkOverlay userId={user?.user_id} email={user?.email} />
               <CardContent className={"text-left"}>
                 <div className="p-4">
@@ -537,7 +537,7 @@ function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="rounded-l-none">
+            <Card className="md:rounded-l-none order-1">
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
@@ -698,7 +698,7 @@ function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-4 items-stretch">
+          <div className="grid md:grid-cols-3 gap-4 mt-4 items-stretch">
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className={"text-left relative z-10"}>
