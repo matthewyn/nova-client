@@ -11,13 +11,14 @@ const stocksSector = {
   TELECOM: "Telecom",
   HEALTHCARE: "Healthcare",
   CPO: "CPO",
-  OIL_GAS: "Oil & Gas",
   ENERGY_SHIPPING: "Energy Shipping",
   UTILITIES: "Utilities",
   FINANCIALS: "Financials",
   INDUSTRIALS: "Industrials",
   MATERIALS: "Materials",
   ENERGY: "Energy",
+  COMMUNICATION_SERVICES: "Communication Services",
+  COPPER: "Copper",
 };
 
 export { stocksSector };
