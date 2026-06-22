@@ -20,7 +20,6 @@ const ALLOCATION_CONFIG = {
 
 const SECTOR_CONFIG = {
   GOLD: { label: "Gold" },
-  OIL_GAS: { label: "Oil & Gas" },
   COAL: { label: "Coal" },
   NICKEL: { label: "Nickel" },
   CPO: { label: "CPO" },
@@ -34,6 +33,8 @@ const SECTOR_CONFIG = {
   CONSUMER_DISCRETIONARY: { label: "Con. Disc." },
   TECHNOLOGY: { label: "Technology" },
   ENERGY: { label: "Energy" },
+  COPPER: { label: "Copper" },
+  COMMUNICATION_SERVICES: { label: "Comm. Services" },
   FINANCIALS: { label: "Financials" },
   INDUSTRIALS: { label: "Industrials" },
   MATERIALS: { label: "Materials" },

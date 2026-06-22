@@ -111,8 +111,9 @@ const indonesiaSectors = [
   "Infrastructure",
   "Telecommunication",
   "CPO",
-  "Oil & Gas",
+  "Energy",
   "Energy Shipping",
+  "Banking",
 ];
 const americanSectors = [
   "Technology",
@@ -124,6 +125,9 @@ const americanSectors = [
   "Consumer Staples",
   "Utilities",
   "Materials",
+  "Copper",
+  "Gold",
+  "Communication Services",
 ];
 
 const comparisonRows = [
