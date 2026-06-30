@@ -186,10 +186,10 @@ function SectorBars({ data, animate, horizontal = false }) {
 
 const urlFetch = generateApiOrigin("/capital-flow/current");
 const urlFetchSectorScoresIndonesia = generateApiOrigin(
-  "/sector-rotation/current?country=Indonesia",
+  "/sector-intelligence/current?country=Indonesia",
 );
 const urlFetchSectorScoresUS = generateApiOrigin(
-  "/sector-rotation/current?country=US",
+  "/sector-intelligence/current?country=US",
 );
 
 function Macro() {

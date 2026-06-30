@@ -58,9 +58,9 @@ export function ChartRadialText({
       >
         <PolarGrid gridType="circle" radialLines={false} stroke="none" />
 
-        <RadialBar dataKey="loss" stackId="a" cornerRadius={0} fill="#ef4444" />
+        <RadialBar dataKey="loss" stackId="a" cornerRadius={0} fill="#22c55e" />
 
-        <RadialBar dataKey="win" stackId="a" cornerRadius={0} fill="#22c55e" />
+        <RadialBar dataKey="win" stackId="a" cornerRadius={0} fill="#ef4444" />
 
         <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
           <Label
