@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { BipolarProgress } from "@/components/ui/bipolar-progress";
 import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import axios from "axios";
 import { generateApiOrigin } from "@/utils/apiOrigin";
@@ -127,17 +128,12 @@ function Dashboard() {
       try {
         const [
           newStocksResponse,
-          runningStocksResponse,
           completedStocksResponse,
           statisticsResponse,
           macroResponse,
           distributionsResponse,
         ] = await Promise.all([
           axios.get(urlFetch, { headers: getAuthHeader() }),
-          axios.get(urlFetchRunning, {
-            headers: getAuthHeader(),
-            params: { page: page, page_size: PAGE_SIZE },
-          }),
           axios.get(urlFetchCompleted, {
             headers: getAuthHeader(),
             params: { page: 1, page_size: PAGE_SIZE },
@@ -148,12 +144,11 @@ function Dashboard() {
         ]);
         if (newStocksResponse.status === 200) {
           const { stocks } = newStocksResponse.data;
-          setStocks(stocks);
-        }
-        if (runningStocksResponse.status === 200) {
-          const { data } = runningStocksResponse;
-          setRunningStocks(data.stocks);
-          setTotalPages(Math.ceil(data.total / PAGE_SIZE));
+          const sortedStocks = stocks.sort(
+            (a, b) =>
+              (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
+          );
+          setStocks(sortedStocks);
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -213,7 +208,10 @@ function Dashboard() {
           params: { page: page, page_size: PAGE_SIZE },
         });
 
-        setRunningStocks(data.stocks);
+        const sortedStocks = data.stocks.sort(
+          (a, b) => (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
+        );
+        setRunningStocks(sortedStocks);
         setTotalPages(Math.ceil(data.total / PAGE_SIZE));
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -296,11 +294,24 @@ function Dashboard() {
               <CardContent className={"text-left"}>
                 <div className="p-4">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-32 mb-4" />
+                    <>
+                      <Skeleton className="h-7 w-32 mb-4" />
+                      <div className="space-y-2 mb-4">
+                        <Skeleton className="h-4 w-full bg-gray-200 rounded-md" />
+                        <Skeleton className="h-4 w-3/4 bg-gray-200 rounded-md" />
+                      </div>
+                    </>
                   ) : (
-                    <h2 className="text-xl font-bold text-foreground mb-4">
-                      Running Trades
-                    </h2>
+                    <>
+                      <h2 className="text-xl font-bold text-foreground mb-4">
+                        Running Trades
+                      </h2>
+                      <p className="text-sm text-foreground/70 mb-4">
+                        This section displays all active investment ideas
+                        currently monitored by Nova AI, ranked by Institutional
+                        Score.
+                      </p>
+                    </>
                   )}
                   <div className="flex flex-col gap-4">
                     {isLoading ? (
@@ -338,6 +349,11 @@ function Dashboard() {
                           <CardContent className={"text-left"}>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-3">
+                                {index < 3 ? (
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300">
+                                    {index + 1}
+                                  </div>
+                                ) : null}
                                 <img
                                   src={stock.logo}
                                   alt={`${stock.name} logo`}

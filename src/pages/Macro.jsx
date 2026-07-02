@@ -5,6 +5,8 @@ import { useEffect, useState, useRef } from "react";
 import { getAuthHeader } from "@/utils/token";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangleIcon } from "lucide-react";
 
 const ALLOCATION_CONFIG = {
   CASH: { label: "Cash" },
@@ -426,6 +428,16 @@ function Macro() {
                       No sector data available
                     </p>
                   )}
+
+                  {!isLoading && sectorScoresIndonesia && (
+                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                      <AlertTriangleIcon />
+                      <AlertTitle>Insight Nova AI</AlertTitle>
+                      <AlertDescription>
+                        {sectorScoresIndonesia.summary}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -496,6 +508,16 @@ function Macro() {
                     <p className="text-sm text-gray-500">
                       No sector data available
                     </p>
+                  )}
+
+                  {!isLoading && sectorScoresUS && (
+                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                      <AlertTriangleIcon />
+                      <AlertTitle>Insight Nova AI</AlertTitle>
+                      <AlertDescription>
+                        {sectorScoresUS.summary}
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </div>
               </CardContent>

@@ -108,8 +108,6 @@ function SignUpCard() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [confirmationResult, setConfirmationResult] = useState(null);
 
-  console.log("Country selected:", selectedCountry);
-
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const sendOtp = async () => {

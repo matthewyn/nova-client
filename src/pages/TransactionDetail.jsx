@@ -69,8 +69,6 @@ function TransactionDetail() {
       })()
     : [];
 
-  console.log("Transaction:", transaction);
-
   async function fetchData() {
     try {
       setIsLoading(true);

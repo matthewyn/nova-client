@@ -94,7 +94,7 @@ const items = [
     quarter: "STEP 04",
     title: "Stock Ranking Agent",
     description:
-      "Ranks every sector and identifies the top 5 stocks within each sector based on momentum, valuation, quality, liquidity, earnings strength, and alignment with the current macro regime.",
+      "Ranks every sector and identifies the top 6 stocks within each sector based on momentum, valuation, quality, liquidity, earnings strength, and alignment with the current macro regime.",
     status: "done",
   },
 ];
