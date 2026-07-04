@@ -411,15 +411,9 @@ function Dashboard() {
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-medium text-red-500">
                                   {stock.name.endsWith(".JK") ? "Rp " : "$"}
-                                  {stock.trailing_stop
-                                    ? stock.trailing_stop.toLocaleString()
-                                    : stock.stop_loss.toLocaleString()}
+                                  {stock.stop_loss.toLocaleString()}
                                 </p>
-                                <p>
-                                  {stock.trailing_stop
-                                    ? "Trailing Stop"
-                                    : "Stop Loss"}
-                                </p>
+                                <p>Stop Loss</p>
                               </div>
                             </div>
                             <Divider className="my-3 mb-5" />

@@ -181,9 +181,7 @@ function Transactions() {
                     </TableCell>
                     <TableCell>
                       {transaction.name.endsWith(".JK") ? "Rp " : "$"}
-                      {transaction.trailing_stop
-                        ? transaction.trailing_stop.toLocaleString()
-                        : transaction.stop_loss.toLocaleString()}
+                      {transaction.stop_loss.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       {capitalizeFirstLetter(transaction.type)}
