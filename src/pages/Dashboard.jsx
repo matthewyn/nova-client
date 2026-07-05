@@ -49,7 +49,8 @@ import {
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangleIcon, Info } from "lucide-react";
 
-const urlFetch = generateApiOrigin("/stocks/new");
+const urlFetchIndonesia = generateApiOrigin("/stocks/new/ID");
+const urlFetchUSA = generateApiOrigin("/stocks/new/US");
 const urlFetchRunning = generateApiOrigin("/stocks/running");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
@@ -107,7 +108,8 @@ function getRiskDescription(score) {
 }
 
 function Dashboard() {
-  const [stocks, setStocks] = useState([]);
+  const [stocksIndonesia, setStocksIndonesia] = useState([]);
+  const [stocksUSA, setStocksUSA] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
   const [completedStocks, setCompletedStocks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,13 +129,15 @@ function Dashboard() {
       setIsLoading(true);
       try {
         const [
-          newStocksResponse,
+          newStocksResponseIndonesia,
+          newStocksResponseUSA,
           completedStocksResponse,
           statisticsResponse,
           macroResponse,
           distributionsResponse,
         ] = await Promise.all([
-          axios.get(urlFetch, { headers: getAuthHeader() }),
+          axios.get(urlFetchIndonesia, { headers: getAuthHeader() }),
+          axios.get(urlFetchUSA, { headers: getAuthHeader() }),
           axios.get(urlFetchCompleted, {
             headers: getAuthHeader(),
             params: { page: 1, page_size: PAGE_SIZE },
@@ -142,13 +146,21 @@ function Dashboard() {
           axios.get(urlFetchMacro, { headers: getAuthHeader() }),
           axios.get(urlFetchDistribution, { headers: getAuthHeader() }),
         ]);
-        if (newStocksResponse.status === 200) {
-          const { stocks } = newStocksResponse.data;
+        if (newStocksResponseIndonesia.status === 200) {
+          const { stocks } = newStocksResponseIndonesia.data;
           const sortedStocks = stocks.sort(
             (a, b) =>
               (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
           );
-          setStocks(sortedStocks);
+          setStocksIndonesia(sortedStocks);
+        }
+        if (newStocksResponseUSA.status === 200) {
+          const { stocks } = newStocksResponseUSA.data;
+          const sortedStocks = stocks.sort(
+            (a, b) =>
+              (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
+          );
+          setStocksUSA(sortedStocks);
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -282,7 +294,49 @@ function Dashboard() {
                       </div>
                     </div>
                   ) : (
-                    <StocksCarousel title="Latest Insights" stocks={stocks} />
+                    <StocksCarousel
+                      title="Latest Insights (Indonesia Stocks)"
+                      stocks={stocksIndonesia}
+                    />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="mt-4">
+            <Card className="relative">
+              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
+              <CardContent className={"text-left"}>
+                <div className="w-full bg-background flex items-center justify-center">
+                  {isLoading ? (
+                    <div className="w-full font-sans p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="bg-card border border-gray-200 rounded-2xl p-4 space-y-3"
+                          >
+                            <div className="flex justify-between items-center">
+                              <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Skeleton className="h-12 w-12 rounded-md bg-gray-200 flex-shrink-0" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-5 w-3/4 bg-gray-200 rounded-md" />
+                                <Skeleton className="h-4 w-1/2 bg-gray-200 rounded-md" />
+                                <Skeleton className="h-3 w-2/3 bg-gray-200 rounded-md" />
+                              </div>
+                            </div>
+                            <Skeleton className="h-10 w-full rounded-md bg-gray-200" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <StocksCarousel
+                      title="Latest Insights (US Stocks)"
+                      stocks={stocksUSA}
+                    />
                   )}
                 </div>
               </CardContent>
