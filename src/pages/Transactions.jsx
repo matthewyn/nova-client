@@ -164,11 +164,11 @@ function Transactions() {
                     </TableCell>
                     <TableCell>{transaction.duration_days} day(s)</TableCell>
                     <TableCell>
-                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
+                      {transaction.country === "Indonesia" ? "Rp " : "$"}
                       {transaction.initial_price.toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
+                      {transaction.country === "Indonesia" ? "Rp " : "$"}
                       {(
                         transaction.initial_price +
                         (transaction.initial_price *
@@ -180,7 +180,7 @@ function Transactions() {
                       })}
                     </TableCell>
                     <TableCell>
-                      {transaction.name.endsWith(".JK") ? "Rp " : "$"}
+                      {transaction.country === "Indonesia" ? "Rp " : "$"}
                       {transaction.stop_loss.toLocaleString()}
                     </TableCell>
                     <TableCell>

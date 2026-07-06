@@ -403,7 +403,7 @@ function Dashboard() {
                           <CardContent className={"text-left"}>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-3">
-                                {index < 3 ? (
+                                {index < 3 && page == 1 ? (
                                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300">
                                     {index + 1}
                                   </div>
@@ -419,7 +419,7 @@ function Dashboard() {
                               </div>
                               <div className="text-right">
                                 <p className="font-semibold text-foreground text-medium">
-                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.country === "Indonesia" ? "Rp " : "$"}
                                   {stock.close.toLocaleString()}
                                 </p>
                                 <span className="flex items-center gap-1">
@@ -442,14 +442,14 @@ function Dashboard() {
                             <div className="grid grid-cols-3 gap-8">
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-foreground text-medium">
-                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.country === "Indonesia" ? "Rp " : "$"}
                                   {stock.initial_price.toLocaleString()}
                                 </p>
                                 <p>Entry Price</p>
                               </div>
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-foreground text-medium">
-                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.country === "Indonesia" ? "Rp " : "$"}
                                   {(
                                     stock.initial_price +
                                     (stock.initial_price *
@@ -464,7 +464,7 @@ function Dashboard() {
                               </div>
                               <div className="text-sm text-foreground">
                                 <p className="font-semibold text-medium text-red-500">
-                                  {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                                  {stock.country === "Indonesia" ? "Rp " : "$"}
                                   {stock.stop_loss.toLocaleString()}
                                 </p>
                                 <p>Stop Loss</p>

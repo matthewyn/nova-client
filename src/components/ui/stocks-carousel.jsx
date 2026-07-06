@@ -171,7 +171,7 @@ export const StocksCarousel = React.forwardRef(
                       </h3>
                       <div className="flex gap-2">
                         <span className="text-sm text-foreground">
-                          {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                          {stock.country === "Indonesia" ? "Rp " : "$"}
                           {stock.initial_price.toLocaleString()}
                         </span>
                         |
@@ -193,7 +193,7 @@ export const StocksCarousel = React.forwardRef(
                       <span className="text-sm text-foreground/70">
                         Stop loss:{" "}
                         <span className="text-red-500">
-                          {stock.name.endsWith(".JK") ? "Rp " : "$"}
+                          {stock.country === "Indonesia" ? "Rp " : "$"}
                           {stock.stop_loss.toLocaleString()}
                         </span>
                       </span>

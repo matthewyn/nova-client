@@ -65,7 +65,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
                           Starting Price
                         </p>
                         <p className="text-lg font-semibold">
-                          {selectedStockForTrend?.name.endsWith(".JK")
+                          {selectedStockForTrend?.country === "Indonesia"
                             ? "Rp "
                             : "$"}
                           {selectedStockForTrend?.initial_price.toLocaleString()}

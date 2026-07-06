@@ -43,6 +43,13 @@ const SECTOR_CONFIG = {
   UTILITIES: { label: "Utilities" },
 };
 
+function formatThemeLabel(theme) {
+  return theme
+    .split("_")
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 const stripeBg = {
   backgroundImage:
     "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
@@ -193,11 +200,17 @@ const urlFetchSectorScoresIndonesia = generateApiOrigin(
 const urlFetchSectorScoresUS = generateApiOrigin(
   "/sector-intelligence/current?country=US",
 );
+const urlFetchThemeScoreUS = generateApiOrigin("/theme/current?country=US");
+const urlFetchThemeScoreIndonesia = generateApiOrigin(
+  "/theme/current?country=Indonesia",
+);
 
 function Macro() {
   const [capitalFlow, setCapitalFlow] = useState(null);
   const [sectorScoresIndonesia, setSectorScoresIndonesia] = useState(null);
   const [sectorScoresUS, setSectorScoresUS] = useState(null);
+  const [themeScoresIndonesia, setThemeScoresIndonesia] = useState(null);
+  const [themeScoresUS, setThemeScoresUS] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [animate, setAnimate] = useState(false);
   const isMobile = useIsMobile();
@@ -210,12 +223,20 @@ function Macro() {
           capitalFlowResponse,
           sectorScoresIndonesiaResponse,
           sectorScoresUSResponse,
+          themeScoresIndonesiaResponse,
+          themeScoresUSResponse,
         ] = await Promise.all([
           axios.get(urlFetch, { headers: getAuthHeader() }),
           axios.get(urlFetchSectorScoresIndonesia, {
             headers: getAuthHeader(),
           }),
           axios.get(urlFetchSectorScoresUS, {
+            headers: getAuthHeader(),
+          }),
+          axios.get(urlFetchThemeScoreIndonesia, {
+            headers: getAuthHeader(),
+          }),
+          axios.get(urlFetchThemeScoreUS, {
             headers: getAuthHeader(),
           }),
         ]);
@@ -234,6 +255,14 @@ function Macro() {
           const { data } = sectorScoresUSResponse;
           setSectorScoresUS(data);
         }
+        if (themeScoresIndonesiaResponse.status == 200) {
+          const { data } = themeScoresIndonesiaResponse;
+          setThemeScoresIndonesia(data);
+        }
+        if (themeScoresUSResponse.status == 200) {
+          const { data } = themeScoresUSResponse;
+          setThemeScoresUS(data);
+        }
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error:", error.response?.data || error.message);
@@ -249,6 +278,12 @@ function Macro() {
 
   const sortedEntries = capitalFlow?.scores
     ? Object.entries(capitalFlow.scores).sort(([, a], [, b]) => b - a)
+    : [];
+  const sortedThemesIndonesia = Array.isArray(themeScoresIndonesia?.themes)
+    ? [...themeScoresIndonesia.themes].sort((a, b) => b.score - a.score)
+    : [];
+  const sortedThemesUS = Array.isArray(themeScoresUS?.themes)
+    ? [...themeScoresUS.themes].sort((a, b) => b.score - a.score)
     : [];
 
   const topAsset =
@@ -357,9 +392,215 @@ function Macro() {
                       No capital flow data available
                     </p>
                   )}
+
+                  {!isLoading && capitalFlow.summary && (
+                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                      <AlertTriangleIcon />
+                      <AlertTitle>Insight Nova AI</AlertTitle>
+                      <AlertDescription>{capitalFlow.summary}</AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               </CardContent>
             </Card>
+
+            <div className="mt-4">
+              {/* Active Indonesia Themes Card */}
+              <Card className="relative">
+                <CardContent className="text-left">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-xl font-bold text-foreground mb-1">
+                          Active Indonesia Themes
+                        </h2>
+                        {!isLoading && sortedThemesIndonesia.length > 0 && (
+                          <p className="text-sm text-foreground/70">
+                            Top theme:{" "}
+                            <span className="font-semibold text-foreground">
+                              {formatThemeLabel(sortedThemesIndonesia[0].theme)}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
+                        Live
+                      </span>
+                    </div>
+
+                    {isLoading ? (
+                      isMobile ? (
+                        <div className="flex flex-col gap-3">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
+                              <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex flex-col items-center gap-3"
+                            >
+                              <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
+                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
+                              <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    ) : sortedThemesIndonesia.length > 0 ? (
+                      isMobile ? (
+                        <div className="flex flex-col gap-2">
+                          {sortedThemesIndonesia.map((themeData) => (
+                            <AllocationBar
+                              key={themeData.theme}
+                              label={formatThemeLabel(themeData.theme)}
+                              value={Math.round(themeData.score * 10) / 10}
+                              animate={animate}
+                              horizontal
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          className="grid gap-3"
+                          style={{
+                            gridTemplateColumns: `repeat(${sortedThemesIndonesia.length}, minmax(0, 1fr))`,
+                          }}
+                        >
+                          {sortedThemesIndonesia.map((themeData) => (
+                            <AllocationBar
+                              key={themeData.theme}
+                              label={formatThemeLabel(themeData.theme)}
+                              value={Math.round(themeData.score * 10) / 10}
+                              animate={animate}
+                            />
+                          ))}
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        No theme data available
+                      </p>
+                    )}
+
+                    {!isLoading &&
+                      themeScoresIndonesia &&
+                      themeScoresIndonesia.summary && (
+                        <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                          <AlertTriangleIcon />
+                          <AlertTitle>Insight Nova AI</AlertTitle>
+                          <AlertDescription>
+                            {themeScoresIndonesia.summary}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Active US Themes Card */}
+            <div className="mt-4">
+              <Card className="relative">
+                <CardContent className="text-left">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-xl font-bold text-foreground mb-1">
+                          Active US Themes
+                        </h2>
+                        {!isLoading && sortedThemesUS.length > 0 && (
+                          <p className="text-sm text-foreground/70">
+                            Top theme:{" "}
+                            <span className="font-semibold text-foreground">
+                              {formatThemeLabel(sortedThemesUS[0].theme)}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
+                        Live
+                      </span>
+                    </div>
+
+                    {isLoading ? (
+                      isMobile ? (
+                        <div className="flex flex-col gap-3">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
+                              <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex flex-col items-center gap-3"
+                            >
+                              <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
+                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
+                              <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    ) : sortedThemesUS.length > 0 ? (
+                      isMobile ? (
+                        <div className="flex flex-col gap-2">
+                          {sortedThemesUS.map((themeData) => (
+                            <AllocationBar
+                              key={themeData.theme}
+                              label={formatThemeLabel(themeData.theme)}
+                              value={Math.round(themeData.score * 10) / 10}
+                              animate={animate}
+                              horizontal
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          className="grid gap-3"
+                          style={{
+                            gridTemplateColumns: `repeat(${sortedThemesUS.length}, minmax(0, 1fr))`,
+                          }}
+                        >
+                          {sortedThemesUS.map((themeData) => (
+                            <AllocationBar
+                              key={themeData.theme}
+                              label={formatThemeLabel(themeData.theme)}
+                              value={Math.round(themeData.score * 10) / 10}
+                              animate={animate}
+                            />
+                          ))}
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        No theme data available
+                      </p>
+                    )}
+
+                    {!isLoading && themeScoresUS && themeScoresUS.summary && (
+                      <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                        <AlertTriangleIcon />
+                        <AlertTitle>Insight Nova AI</AlertTitle>
+                        <AlertDescription>
+                          {themeScoresUS.summary}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Indonesia Top Sectors Card */}
             <Card className="relative mt-4">
@@ -429,15 +670,17 @@ function Macro() {
                     </p>
                   )}
 
-                  {!isLoading && sectorScoresIndonesia && (
-                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                      <AlertTriangleIcon />
-                      <AlertTitle>Insight Nova AI</AlertTitle>
-                      <AlertDescription>
-                        {sectorScoresIndonesia.summary}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                  {!isLoading &&
+                    sectorScoresIndonesia &&
+                    sectorScoresIndonesia.summary && (
+                      <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
+                        <AlertTriangleIcon />
+                        <AlertTitle>Insight Nova AI</AlertTitle>
+                        <AlertDescription>
+                          {sectorScoresIndonesia.summary}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -510,7 +753,7 @@ function Macro() {
                     </p>
                   )}
 
-                  {!isLoading && sectorScoresUS && (
+                  {!isLoading && sectorScoresUS && sectorScoresUS.summary && (
                     <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
                       <AlertTriangleIcon />
                       <AlertTitle>Insight Nova AI</AlertTitle>

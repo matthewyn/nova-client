@@ -14,11 +14,11 @@ import { FeatureCard } from "@/components/blocks/grid-feature-cards";
 
 function get_max_risk_percentage(risk_level) {
   if (risk_level === "low") {
-    return 3;
+    return 2;
   }
 
   if (risk_level === "medium") {
-    return 2;
+    return 1.5;
   }
 
   return 1;
@@ -51,6 +51,7 @@ function RecommendedSizing({
   setStartEquity,
   riskPercentage,
   setRiskPercentage,
+  recommendedRiskPercentage,
   scenarioAnalysis,
   equityType,
 }) {
@@ -131,9 +132,9 @@ function RecommendedSizing({
             <DotGrid />
             <CardContent className="p-4 relative z-10">
               <h3 className="text-xl font-semibold">
-                {riskPercentage.toFixed(1)}%
+                {recommendedRiskPercentage.toFixed(1)}%
               </h3>
-              <p className="text-lg text-white/70">Risk Per Trade</p>
+              <p className="text-lg text-white/70">Recommended Risk / Trade</p>
             </CardContent>
           </Card>
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
@@ -187,7 +188,7 @@ function RecommendedSizing({
           </div>
         </div>
         <div>
-          <h2 className="text-xl font-bold text-foreground">Risk per Trade</h2>
+          <h2 className="text-xl font-bold text-foreground">Risk / Trade</h2>
           <div className="my-3">
             <Slider
               value={[riskPercentage]}

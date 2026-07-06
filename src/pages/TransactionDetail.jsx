@@ -18,6 +18,18 @@ import WatermarkOverlay from "@/components/WatermarkOverlay";
 import DotGrid from "@/components/DotGrid";
 import { TrendingUp } from "lucide-react";
 
+function get_recommended_risk_percentage(risk_level) {
+  if (risk_level === "low") {
+    return 1.5;
+  }
+
+  if (risk_level === "medium") {
+    return 1;
+  }
+
+  return 0.75;
+}
+
 function TransactionDetail() {
   const [transaction, setTransaction] = useState(null);
   const { user, setUser } = useAuth();
@@ -35,7 +47,7 @@ function TransactionDetail() {
   const bullPrice = transaction?.scenario_analysis?.bull_case?.target_price;
   const basePrice = transaction?.scenario_analysis?.base_case?.target_price;
   const bearPrice = transaction?.scenario_analysis?.bear_case?.target_price;
-  const equity = transaction?.name.endsWith(".JK") ? 100000000 : 10000;
+  const equity = transaction?.country === "Indonesia" ? 100000000 : 10000;
   const pctReturn =
     transaction && equities.length > 0
       ? (equities[equities.length - 1].equity - equity) / equity
@@ -68,6 +80,9 @@ function TransactionDetail() {
         return [sorted[0], sorted[2], sorted[1]];
       })()
     : [];
+  const recommendedRiskPercentage = get_recommended_risk_percentage(
+    transaction?.risk_level,
+  );
 
   async function fetchData() {
     try {
@@ -81,7 +96,9 @@ function TransactionDetail() {
 
       setTransaction(data.transaction);
       setEquities(data.equities);
-      setStartEquity(data.transaction.name.endsWith(".JK") ? 100000000 : 10000);
+      setStartEquity(
+        data.transaction.country === "Indonesia" ? 100000000 : 10000,
+      );
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Server error:", error.response?.data);
@@ -120,7 +137,7 @@ function TransactionDetail() {
                     </h2>
                     <div className="flex items-end gap-1">
                       <p className="font-medium text-foreground text-3xl">
-                        {transaction.name.endsWith(".JK") ? "Rp " : "$"}
+                        {transaction.country === "Indonesia" ? "Rp " : "$"}
                         {equities[equities.length - 1].equity.toLocaleString()}
                       </p>
                       <span className="flex items-center gap-1 mb-1">
@@ -146,7 +163,7 @@ function TransactionDetail() {
                     <StockPriceChart
                       chartData={equities}
                       equityType={
-                        transaction.name.endsWith(".JK") ? "IDR" : "USD"
+                        transaction.country === "Indonesia" ? "IDR" : "USD"
                       }
                     />
                   </div>
@@ -171,7 +188,7 @@ function TransactionDetail() {
                         bearPrice={bearPrice}
                         isLoading={isLoading}
                         equityType={
-                          transaction?.name.endsWith(".JK") ? "IDR" : "USD"
+                          transaction?.country === "Indonesia" ? "IDR" : "USD"
                         }
                       />
                     }
@@ -185,7 +202,7 @@ function TransactionDetail() {
                       bearPrice={bearPrice}
                       isLoading={isLoading}
                       equityType={
-                        transaction?.name.endsWith(".JK") ? "IDR" : "USD"
+                        transaction?.country === "Indonesia" ? "IDR" : "USD"
                       }
                     />
                   </PremiumContentGate>
@@ -260,10 +277,11 @@ function TransactionDetail() {
                         setStartEquity={setStartEquity}
                         riskPercentage={riskPercentage}
                         setRiskPercentage={setRiskPercentage}
+                        recommendedRiskPercentage={recommendedRiskPercentage}
                         isLoading={isLoading}
                         scenarioAnalysis={scenarioAnalysis}
                         equityType={
-                          transaction?.name.endsWith(".JK") ? "IDR" : "USD"
+                          transaction?.country === "Indonesia" ? "IDR" : "USD"
                         }
                       />
                     }
@@ -274,10 +292,11 @@ function TransactionDetail() {
                       setStartEquity={setStartEquity}
                       riskPercentage={riskPercentage}
                       setRiskPercentage={setRiskPercentage}
+                      recommendedRiskPercentage={recommendedRiskPercentage}
                       isLoading={isLoading}
                       scenarioAnalysis={scenarioAnalysis}
                       equityType={
-                        transaction?.name.endsWith(".JK") ? "IDR" : "USD"
+                        transaction?.country === "Indonesia" ? "IDR" : "USD"
                       }
                     />
                   </PremiumContentGate>
