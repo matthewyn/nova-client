@@ -12,6 +12,7 @@ import {
   HiLightBulb,
 } from "react-icons/hi2";
 import { motion } from "framer-motion";
+import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
@@ -19,7 +20,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
 import { Sparkles } from "@/components/ui/sparkles";
 import { Separator } from "@/components/ui/separator";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, RotateCw } from "lucide-react";
 import { useTheme } from "next-themes";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
@@ -130,45 +131,82 @@ const americanSectors = [
   "Communication Services",
 ];
 
-const comparisonRows = [
-  {
-    icon: <HiGlobeAsiaAustralia size={16} />,
-    label: "Macro Dashboard",
-    free: "Basic",
-    pro: "Complete",
-    elite: "Complete",
-  },
-  {
-    icon: <HiLightBulb size={16} />,
-    label: "Stock Intelligence",
-    free: "1/day",
-    pro: "Unlimited",
-    elite: "Unlimited",
-  },
-  {
-    icon: <HiMap size={16} />,
-    label: "Scenario Analysis",
-    free: "-",
-    pro: "Yes",
-    elite: "Yes",
-  },
-  {
-    icon: <HiExclamationCircle size={16} />,
-    label: "Risk Modeling",
-    free: "-",
-    pro: "Yes",
-    elite: "Advanced",
-  },
-  {
-    icon: <HiMiniStar size={16} />,
-    label: "Early Access Features",
-    free: "-",
-    pro: "-",
-    elite: "Yes",
-  },
-];
-
 const urlFetch = generateApiOrigin("/midtrans/create-token");
+
+function FlipSectorCard({
+  flagSrc,
+  flagAlt,
+  title,
+  sectors,
+  backTitle,
+  backPoints,
+}) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div className="flex-1 [perspective:1500px]">
+      <motion.div
+        className="relative w-full h-full [transform-style:preserve-3d] cursor-pointer"
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        onClick={() => setIsFlipped((f) => !f)}
+        role="button"
+        tabIndex={0}
+        aria-label={`Flip ${title} card`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsFlipped((f) => !f);
+          }
+        }}
+      >
+        {/* Front */}
+        <Card className="h-full [backface-visibility:hidden]">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <img src={flagSrc} alt={flagAlt} className="h-6 w-6" />
+              <p>{title}</p>
+              <RotateCw className="size-3.5 text-gray-300 ml-1" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Separator className="mb-6" />
+            <ul className="space-y-4">
+              {sectors.map((sector, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <CircleCheck className="size-4" />
+                  <span>{sector}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Back */}
+        <Card className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-center gap-2">
+              <img src={flagSrc} alt={flagAlt} className="h-6 w-6" />
+              <p>{backTitle}</p>
+              <RotateCw className="size-3.5 text-gray-300 ml-1" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Separator className="mb-6" />
+            <ul className="space-y-4 text-left">
+              {backPoints.map((point, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <CircleCheck className="size-4 mt-0.5 shrink-0" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
+}
 
 function App() {
   const { user, setUser } = useAuth();
@@ -200,81 +238,6 @@ function App() {
         "What makes Nova AI different from free indicators on the internet?",
       content:
         "Nova AI doesn't rely on just one or two technical indicators. The system combines macroeconomic analysis, global liquidity, market regime detection, risk modeling, market data, and AI reasoning in one integrated framework. The goal is not just to find stocks that might go up, but to understand market conditions behind every investment decision.",
-    },
-  ];
-
-  const getPlanPrice = (planId) => {
-    if (user?.country === "Indonesia") {
-      return planId === "pro" ? 1000000 : planId === "elite" ? 3000000 : 0;
-    } else {
-      return planId === "pro" ? 99.99 : planId === "elite" ? 199.99 : 0;
-    }
-  };
-
-  const plans = [
-    {
-      id: "trial",
-      badge: "TRIAL ~ Explore Market Intelligence",
-      tagline: "Retail investor",
-      name: "who wants to understand the market better",
-      price: 0,
-      icon: <HiGift size={16} className="text-white" />,
-      iconBg: "bg-gray-800",
-      featured: false,
-      includedLabel: "What's included",
-      features: [
-        "Basic Macro Dashboard",
-        "Sector Rotation Analysis",
-        "1 Stock Intelligence Report per day",
-        "Portfolio summary",
-      ],
-      buttonLabel: "Start Free",
-      isDisabled: user !== null,
-    },
-    {
-      id: "pro",
-      badge: "PRO ~ Macro & Quant Intelligence",
-      tagline: "Active investor",
-      name: "who wants to make data-driven decisions",
-      price: 1000000,
-      icon: <HiFire size={16} className="text-white" />,
-      iconBg: "bg-cyan-400",
-      featured: true,
-      includedLabel: "All Free features, plus",
-      features: [
-        "Unlimited Stock Intelligence",
-        "Complete Macro Dashboard",
-        "Risk Modeling & Position Sizing",
-        "Scenario Analysis",
-        "AI Market Intelligence Report",
-      ],
-      buttonLabel: "Start Pro",
-      isDisabled: user && user.tier == "pro",
-    },
-    {
-      id: "elite",
-      badge: "ELITE ~ Institutional Intelligence",
-      tagline: "Serious investor",
-      name: "who wants professional-level framework",
-      price: 3000000,
-      icon: <HiBolt size={16} className="text-white" />,
-      iconBg: "bg-gray-800",
-      featured: false,
-      includedLabel: "All Pro features, plus",
-      features: [
-        "Advanced Forecast Engine",
-        "Advanced Risk Modeling",
-        "Early access to new features and models",
-      ],
-      buttonLabel: "Start Elite",
-      isDisabled: true,
-    },
-  ];
-
-  const words = [
-    {
-      text: "Understand the market faster.",
-      className: "text-4xl font-semibold text-cyan-400 leading-tight mb-4",
     },
   ];
 
@@ -332,176 +295,36 @@ function App() {
       {/* Hero / Pricing header */}
       <div>
         <div className="px-8">
-          <div className="relative bg-white px-10 py-12 overflow-hidden border-x-1 border-gray-200/70">
-            <DotGrid />
-            <div className="relative z-10 max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-                <SparkleIcon size={12} />
-                Pricing
-              </div>
-              <h1 className="text-4xl font-semibold text-gray-900 leading-tight">
-                AI-powered investing.
-              </h1>
-              <TypewriterEffectSmooth words={words} />
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Nova AI (Neural Optimized Valuation Agent) is a quantitative
-                investment intelligence platform that combines macroeconomic
-                analysis, capital flow, sector rotation, and AI reasoning to
-                help investors understand what's happening in the market before
-                making investment decisions.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing cards */}
-        <div className="border-y-1 border-gray-200/70 px-8">
-          <div className="grid md:grid-cols-3 border border-gray-200/70">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={plan.featured ? "" : "bg-gray-300/20"}
-                style={
-                  plan.featured
-                    ? {
-                        backgroundImage: `url(${GradientMesh})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }
-                    : {}
-                }
-              >
-                {/* Top section */}
-                <div className="m-2 bg-white p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-gray-400 mb-1">{plan.badge}</p>
-                      <p className="text-gray-400 text-xl">{plan.tagline}</p>
-                      <p className="text-xl font-semibold text-gray-900">
-                        {plan.name}
-                      </p>
-                    </div>
-                    <div className={`p-2 rounded-lg ${plan.iconBg}`}>
-                      {plan.icon}
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-900">
-                      {user?.country === "Indonesia" ? "Rp. " : "$"}
-                      {Number(getPlanPrice(plan.id)).toLocaleString()}
-                    </span>
-                    <span className="text-sm text-gray-400 ml-1">/month</span>
-                  </div>
-                  <Button
-                    className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      plan.featured
-                        ? "bg-gray-900 text-white hover:bg-gray-700"
-                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-                    }`}
-                    as={Link}
-                    to={user ? "#" : "/signup"}
-                    isDisabled={plan.isDisabled}
-                    onClick={
-                      plan.id === "pro"
-                        ? user
-                          ? () => proceedToWhatsapp(user)
-                          : undefined
-                        : undefined
-                    }
-                  >
-                    {plan.buttonLabel}
-                  </Button>
-                </div>
-
-                {/* Features section */}
-                <div className={`p-6 flex-1 rounded-b-xl`}>
-                  <p
-                    className={`text-xs mb-4 font-medium ${plan.featured ? "text-blue-200" : "text-gray-400"}`}
-                  >
-                    {plan.includedLabel}
-                  </p>
-                  <ul className="space-y-2.5">
-                    {plan.features.map((feat) => (
-                      <li key={feat} className="flex items-center gap-2.5">
-                        <CheckIcon
-                          className={
-                            plan.featured
-                              ? "text-cyan-300 flex-shrink-0"
-                              : "text-gray-400 flex-shrink-0"
-                          }
-                        />
-                        <span
-                          className={`text-sm ${plan.featured ? "text-white" : "text-gray-500"}`}
-                        >
-                          {feat}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ))}
-          </div>
+          <EtherealBeamsHero user={user} />
         </div>
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        {/* Compare plans section */}
+        {/* What you'll get */}
         <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70">
-            <ContainerScroll>
-              <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-                <SparkleIcon size={12} />
-                Compare plans
-              </div>
+          <div className="border-x-1 border-gray-200/70 py-12 px-8">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
+              <SparkleIcon size={12} />
+              What You'll Get
+            </div>
+            <BlurFade delay={0.15} inView>
               <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Get deeper investment insights
+                Everything you need to
               </h2>
-              <h2 className="text-4xl font-bold text-cyan-400 mb-4">with AI</h2>
-              {/* Comparison table */}
-              <div className="mt-12">
-                {/* Header */}
-                <div className="grid grid-cols-4">
-                  <div className="p-4" />
-                  {[
-                    { label: "FREE", key: "free" },
-                    { label: "PRO", key: "pro" },
-                    { label: "ELITE", key: "elite" },
-                  ].map((col, i) => (
-                    <div
-                      key={col.key}
-                      className={`p-4 text-center text-sm font-semibold text-gray-700}`}
-                    >
-                      {col.label}
-                    </div>
-                  ))}
-                </div>
-
-                {comparisonRows.map((row, idx) => (
-                  <div
-                    key={row.label}
-                    className={`grid grid-cols-4 border-b border-gray-200/70`}
-                  >
-                    <div className="p-4 flex items-center gap-2.5">
-                      <span className="text-base">{row.icon}</span>
-                      <span className="text-sm text-gray-600 font-medium">
-                        {row.label}
-                      </span>
-                    </div>
-                    {[row.free, row.pro, row.elite].map((val, i) => (
-                      <div
-                        key={i}
-                        className={`p-4 text-center text-sm text-gray-500`}
-                      >
-                        {val}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </ContainerScroll>
+            </BlurFade>
+            <BlurFade delay={0.15 * 2} inView>
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="text-cyan-400">invest with confidence</span>
+              </h2>
+            </BlurFade>
+            <p className="text-sm text-gray-400 max-w-lg mx-auto">
+              Nova AI combines macroeconomic intelligence, institutional capital
+              flow, sector rotation, stock ranking, and AI-powered analysis into
+              one platform, helping you understand what to buy, when to buy, and
+              why.
+            </p>
           </div>
         </div>
 
@@ -633,164 +456,6 @@ function App() {
             </div>
           </div>
         </div>
-
-        {/* <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              Performa Nova AI
-            </div>
-            <BlurFade delay={0.15} inView>
-              <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Designed to recognize
-              </h2>
-            </BlurFade>
-            <BlurFade delay={0.15 * 2} inView>
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">
-                  forming trend
-                </span>
-              </h2>
-            </BlurFade>
-            <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Nova AI helps recognize trend changes earlier and maintains
-              focus on positions showing relative strength.
-            </p>
-            <Carousel className="mt-12">
-              <CarouselContent>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Alamtri Minerals Indonesia Tbk. (ADMR)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="green"
-                            text="13,33%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip color="green" text="30,7%" prefix="3Y:" />
-                        </div>
-                      </div>
-                      <Image src={Admr} alt="Admr performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Adaro Energy Tbk. (ADRO)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip color="green" text="32%" prefix="YTD:" />
-                          <CustomChip color="green" text="63,8%" prefix="3Y:" />
-                          <CustomChip color="green" text="427%" prefix="5Y:" />
-                          <CustomChip color="green" text="950%" prefix="10Y:" />
-                        </div>
-                      </div>
-                      <Image src={Adro} alt="Adaro performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Bumi Resources Tbk. (BUMI)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="red"
-                            text="-15,55%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip color="green" text="22,5%" prefix="3Y:" />
-                          <CustomChip color="green" text="204%" prefix="5Y:" />
-                        </div>
-                      </div>
-                      <Image src={Bumi} alt="Bumi performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Indika Energy Tbk. (INDY)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="green"
-                            text="24,8%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip
-                            color="green"
-                            text="36,98%"
-                            prefix="3Y:"
-                          />
-                          <CustomChip color="green" text="96%" prefix="5Y:" />
-                        </div>
-                      </div>
-                      <Image src={Indy} alt="Indy performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Pantai Indah Kapuk Dua Tbk. (PANI)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="red"
-                            text="-16,98%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip color="green" text="396%" prefix="3Y:" />
-                          <CustomChip color="green" text="1121%" prefix="5Y:" />
-                        </div>
-                      </div>
-                      <Image src={Pani} alt="Pani performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-                <CarouselItem>
-                  <Card className="p-4">
-                    <CardContent className={"text-left"}>
-                      <div className="flex items-center gap-4">
-                        <h3 className="font-semibold text-xl">
-                          Bumi Resources Minerals Tbk. (BRMS)
-                        </h3>
-                        <div className="flex gap-2">
-                          <CustomChip
-                            color="red"
-                            text="-29,32%"
-                            prefix="YTD:"
-                          />
-                          <CustomChip color="green" text="161%" prefix="3Y:" />
-                          <CustomChip color="green" text="269%" prefix="5Y:" />
-                        </div>
-                      </div>
-                      <Image src={Brms} alt="Brms performance" />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
-        </div> */}
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
@@ -965,50 +630,44 @@ function App() {
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Nova AI continuously tracks capital flows across more than 400
+              Nova AI continuously tracks capital flows across more than 600
               Indonesian and U.S. stocks, helping investors identify which
               sectors and investment themes are attracting liquidity in the
               current market environment.
             </p>
             <div className="mt-12 flex md:max-w-1/2 mx-auto gap-4">
-              <Card className="flex-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-center gap-2">
-                    <img src={Indonesia} alt="Indonesia" className="h-6 w-6" />
-                    <p>Indonesia</p>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Separator className="mb-6" />
-                  <ul className="space-y-4">
-                    {indonesiaSectors.map((sector, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <CircleCheck className="size-4" />
-                        <span>{sector}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-              <Card className="flex-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-center gap-2">
-                    <img src={USA} alt="USA" className="h-6 w-6" />
-                    <p>United States</p>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Separator className="mb-6" />
-                  <ul className="space-y-4">
-                    {americanSectors.map((sector, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <CircleCheck className="size-4" />
-                        <span>{sector}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <FlipSectorCard
+                flagSrc={Indonesia}
+                flagAlt="Indonesia"
+                title="Indonesia"
+                sectors={indonesiaSectors}
+                backTitle="Themes we track"
+                backPoints={[
+                  "Indonesia Gold",
+                  "Indonesia Coal Export",
+                  "Nickel Export",
+                  "Indonesia Customer",
+                  "Indonesia Digitalization",
+                ]}
+              />
+              <FlipSectorCard
+                flagSrc={USA}
+                flagAlt="USA"
+                title="United States"
+                sectors={americanSectors}
+                backTitle="Themes we track"
+                backPoints={[
+                  "AI Infrastructure",
+                  "Gold Safe Heaven",
+                  "Reinsdustrialization",
+                  "Energy Security",
+                  "Power Grid",
+                  "Defense",
+                  "Data Center",
+                  "Nuclear",
+                  "Copper Supercycle",
+                ]}
+              />
             </div>
             <div className="relative -mt-32 h-96 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
               <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom_center,#8350e8,transparent_70%)] before:opacity-40" />

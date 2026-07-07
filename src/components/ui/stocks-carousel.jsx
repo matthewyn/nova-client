@@ -190,13 +190,9 @@ export const StocksCarousel = React.forwardRef(
                           {Math.abs(stock.predicted_pct_change)}%
                         </span>
                       </div>
-                      <span className="text-sm text-foreground/70">
-                        Stop loss:{" "}
-                        <span className="text-red-500">
-                          {stock.country === "Indonesia" ? "Rp " : "$"}
-                          {stock.stop_loss.toLocaleString()}
-                        </span>
-                      </span>
+                      <p className="text-sm text-foreground">
+                        Position Size: <span>{stock.position_size}%</span>
+                      </p>
                     </div>
                   </div>
                 </motion.div>
