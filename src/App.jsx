@@ -798,7 +798,9 @@ function App() {
               <Table className="mb-6 text-left">
                 <TableHeader className="bg-gray-100">
                   <TableRow>
-                    <TableHead className="min-w-24">Stock</TableHead>
+                    <TableHead className="min-w-28 md:min-w-24">
+                      Stock
+                    </TableHead>
                     <TableHead>Entry</TableHead>
                     <TableHead>TP</TableHead>
                     <TableHead>SL</TableHead>

@@ -449,7 +449,7 @@ export default function EtherealBeamsHero({ user, statistics, isLoading }) {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex min-h-[calc(100vh-4rem)] items-center">
+      <div className="relative z-10 flex min-h-[calc(100vh-4rem)] items-center py-8 md:py-0">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             {/* Badge */}
