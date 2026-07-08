@@ -67,6 +67,74 @@ function useIsMobile() {
   return isMobile;
 }
 
+function SummaryCardSkeleton({
+  rows = 5,
+  isMobile = false,
+  variant = "default",
+}) {
+  const gridClass =
+    variant === "compact"
+      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+      : "grid-cols-1 md:grid-cols-3 lg:grid-cols-4";
+
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
+          <Skeleton className="h-7 w-16 rounded-full bg-gray-200" />
+        </div>
+        {Array.from({ length: rows }).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-2xl border border-gray-200/70 bg-gray-50 px-3 py-3"
+          >
+            <Skeleton className="h-4 w-20 rounded-full shrink-0 bg-gray-200" />
+            <Skeleton className="h-3 flex-1 rounded-full bg-gray-200" />
+            <Skeleton className="h-4 w-10 rounded-full bg-gray-200" />
+          </div>
+        ))}
+        <div className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4">
+          <Skeleton className="mb-2 h-3 w-3/4 rounded-full bg-gray-200" />
+          <Skeleton className="mb-2 h-3 w-full rounded-full bg-gray-200" />
+          <Skeleton className="h-3 w-2/3 rounded-full bg-gray-200" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28 rounded-full bg-gray-200" />
+          <Skeleton className="h-3 w-44 rounded-full bg-gray-200" />
+        </div>
+        <Skeleton className="h-7 w-16 rounded-full bg-gray-200" />
+      </div>
+
+      <div className={`grid gap-3 ${gridClass}`}>
+        {Array.from({ length: rows }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4"
+          >
+            <Skeleton className="mb-3 h-4 w-16 rounded-full bg-gray-200" />
+            <Skeleton className="mb-3 h-24 rounded-xl bg-gray-200" />
+            <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4">
+        <Skeleton className="mb-2 h-3 w-3/4 rounded-full bg-gray-200" />
+        <Skeleton className="mb-2 h-3 w-full rounded-full bg-gray-200" />
+        <Skeleton className="h-3 w-2/3 rounded-full bg-gray-200" />
+      </div>
+    </div>
+  );
+}
+
 function AllocationBar({
   label,
   value,
@@ -333,29 +401,7 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    isMobile ? (
-                      <div className="flex flex-col gap-3">
-                        {Array.from({ length: 9 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
-                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-4">
-                        {Array.from({ length: 9 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="flex flex-col items-center gap-3"
-                          >
-                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
-                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                            <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    )
+                    <SummaryCardSkeleton rows={9} isMobile={isMobile} />
                   ) : sortedEntries.length > 0 ? (
                     isMobile ? (
                       <div className="flex flex-col gap-2">
@@ -429,29 +475,11 @@ function Macro() {
                     </div>
 
                     {isLoading ? (
-                      isMobile ? (
-                        <div className="flex flex-col gap-3">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
-                              <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex flex-col items-center gap-3"
-                            >
-                              <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
-                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                              <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
-                            </div>
-                          ))}
-                        </div>
-                      )
+                      <SummaryCardSkeleton
+                        rows={5}
+                        isMobile={isMobile}
+                        variant="compact"
+                      />
                     ) : sortedThemesIndonesia.length > 0 ? (
                       isMobile ? (
                         <div className="flex flex-col gap-2">
@@ -529,29 +557,11 @@ function Macro() {
                     </div>
 
                     {isLoading ? (
-                      isMobile ? (
-                        <div className="flex flex-col gap-3">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                              <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
-                              <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex flex-col items-center gap-3"
-                            >
-                              <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
-                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                              <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
-                            </div>
-                          ))}
-                        </div>
-                      )
+                      <SummaryCardSkeleton
+                        rows={5}
+                        isMobile={isMobile}
+                        variant="compact"
+                      />
                     ) : sortedThemesUS.length > 0 ? (
                       isMobile ? (
                         <div className="flex flex-col gap-2">
@@ -636,28 +646,11 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    isMobile ? (
-                      <div className="flex flex-col gap-3">
-                        {Array.from({ length: 14 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
-                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                        {Array.from({ length: 14 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="flex flex-col items-center gap-3"
-                          >
-                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
-                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    )
+                    <SummaryCardSkeleton
+                      rows={14}
+                      isMobile={isMobile}
+                      variant="compact"
+                    />
                   ) : sectorScoresIndonesia ? (
                     <SectorBars
                       data={sectorScoresIndonesia}
@@ -719,28 +712,11 @@ function Macro() {
                   </div>
 
                   {isLoading ? (
-                    isMobile ? (
-                      <div className="flex flex-col gap-3">
-                        {Array.from({ length: 14 }).map((_, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <Skeleton className="h-4 w-24 rounded-full shrink-0 bg-gray-200" />
-                            <Skeleton className="flex-1 h-8 rounded-xl bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                        {Array.from({ length: 14 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="flex flex-col items-center gap-3"
-                          >
-                            <Skeleton className="w-full h-44 rounded-2xl bg-gray-200" />
-                            <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    )
+                    <SummaryCardSkeleton
+                      rows={14}
+                      isMobile={isMobile}
+                      variant="compact"
+                    />
                   ) : sectorScoresUS ? (
                     <SectorBars
                       data={sectorScoresUS}

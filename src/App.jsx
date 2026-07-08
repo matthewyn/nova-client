@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import GradientMesh from "@/assets/gradient-mesh.jpg";
 import Gradient from "@/assets/gradient.jpg";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 import {
   HiFire,
   HiBolt,
@@ -11,7 +12,18 @@ import {
   HiMap,
   HiLightBulb,
 } from "react-icons/hi2";
+import axios from "axios";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
@@ -46,10 +58,65 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import CustomChip from "@/components/CustomChip";
 import { generateApiOrigin } from "@/utils/apiOrigin";
-import axios from "axios";
 import { getAuthHeader } from "@/utils/token";
 import DotGrid from "@/components/DotGrid";
 import { Badge } from "@/components/ui/badge";
+import { Gallery6 } from "@/components/blocks/gallery6";
+import Macro from "@/assets/macro.png";
+import CapitalFlow from "@/assets/capital-flow.png";
+import Sectors from "@/assets/sectors.png";
+import Risk from "@/assets/risk.png";
+import PositionSizing from "@/assets/position-sizing.png";
+import ScenarioAnalysis from "@/assets/scenario-analysis.png";
+
+const demoData = {
+  heading: "Featured Projects",
+  demoUrl: "https://www.shadcnblocks.com",
+  items: [
+    {
+      id: "item-1",
+      title: "Macro Intelligence",
+      summary:
+        "Understand the current market environment through macroeconomic trends, inflation, interest rates, liquidity, and market regime analysis before making investment decisions.",
+      image: Macro,
+    },
+    {
+      id: "item-2",
+      title: "Capital Flow Analysis",
+      summary:
+        "Track where institutional capital is moving across sectors, asset classes, and investment themes to uncover emerging opportunities ahead of the broader market.",
+      image: CapitalFlow,
+    },
+    {
+      id: "item-3",
+      title: "Sector & Theme Rotation",
+      summary:
+        "Discover sectors and long-term investment themes gaining institutional attention, helping you focus on where capital is flowing—not where it has already gone.",
+      image: Sectors,
+    },
+    {
+      id: "item-4",
+      title: "Institutional & Risk Analysis",
+      summary:
+        "Evaluate every investment using institutional conviction and a multi-dimensional risk framework covering liquidity, volatility, trend strength, and momentum.",
+      image: Risk,
+    },
+    {
+      id: "item-5",
+      title: "Smart Position Sizing",
+      summary:
+        "Determine the appropriate position size based on your risk profile, portfolio allocation, and the current market environment to improve risk-adjusted returns.",
+      image: PositionSizing,
+    },
+    {
+      id: "item-6",
+      title: "Scenario Analysis",
+      summary:
+        "Prepare for multiple market outcomes with AI-generated Bull, Base, and Bear scenarios, allowing you to understand potential opportunities and risks before entering a position.",
+      image: ScenarioAnalysis,
+    },
+  ],
+};
 
 const CheckIcon = ({ className = "" }) => (
   <svg
@@ -208,10 +275,16 @@ function FlipSectorCard({
   );
 }
 
+const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
+const urlFetchCompleted = generateApiOrigin("/stocks/completed");
+
 function App() {
   const { user, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [statistics, setStatistics] = useState(null);
+  const [completedStocks, setCompletedStocks] = useState([]);
   const { theme } = useTheme();
+  const PAGE_SIZE = 10;
   const faqItems = [
     {
       title: "Does the founder use this AI directly?",
@@ -241,61 +314,70 @@ function App() {
     },
   ];
 
-  // const handleSubmit = async (e) => {
-  //   try {
-  //     e.preventDefault();
-  //     setIsLoading(true);
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [completedStocksResponse, statisticsResponse] = await Promise.all(
+          [
+            axios.get(urlFetchCompleted, {
+              headers: getAuthHeader(),
+              params: { page: 1, page_size: PAGE_SIZE },
+            }),
+            axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
+          ],
+        );
+        if (completedStocksResponse.status === 200) {
+          const { stocks } = completedStocksResponse.data;
+          setCompletedStocks(stocks);
+        }
+        if (statisticsResponse.status === 200) {
+          const {
+            winrate,
+            total_trades,
+            winning_trades,
+            losing_trades,
+            profit_factor,
+            total_return,
+            avg_return_per_trade,
+            best_trade,
+            worst_trade,
+          } = statisticsResponse.data;
+          setStatistics({
+            winRate: winrate,
+            totalTrades: total_trades,
+            winningTrades: winning_trades,
+            losingTrades: losing_trades,
+            profitFactor: profit_factor,
+            totalReturn: total_return,
+            averageReturnPerTrade: avg_return_per_trade,
+            bestTrade: best_trade,
+            worstTrade: worst_trade,
+          });
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error("Server error:", error.response?.data);
+          console.error("Status code:", error.response?.status);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-  //     const response = await axios.post(
-  //       urlFetch,
-  //       {
-  //         price: 1000000,
-  //       },
-  //       {
-  //         headers: getAuthHeader(),
-  //       },
-  //     );
-
-  //     if (response.status === 201) {
-  //       window.snap.pay(response.data.token);
-  //     }
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       if (error.response?.status === 500) {
-  //         toast("Terjadi kesalahan pada server. Silakan coba lagi nanti.", {
-  //           type: "error",
-  //           position: "top-center",
-  //         });
-  //       }
-
-  //       console.error("Server error:", error.response?.data);
-  //       console.error("Status code:", error.response?.status);
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
-  //   const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
-  //   const script = document.createElement("script");
-  //   script.src = snapScript;
-  //   script.setAttribute("data-client-key", clientKey);
-  //   document.body.appendChild(script);
-  //   script.async = true;
-
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   };
-  // }, []);
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero / Pricing header */}
       <div>
         <div className="px-8">
-          <EtherealBeamsHero user={user} />
+          <EtherealBeamsHero
+            user={user}
+            statistics={statistics}
+            isLoading={isLoading}
+          />
         </div>
 
         <div className="px-8">
@@ -320,11 +402,13 @@ function App() {
               </h2>
             </BlurFade>
             <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Nova AI combines macroeconomic intelligence, institutional capital
-              flow, sector rotation, stock ranking, and AI-powered analysis into
-              one platform, helping you understand what to buy, when to buy, and
-              why.
+              Nova AI combines institutional research, macroeconomic analysis,
+              capital flow intelligence, and AI-powered market insights into a
+              single platform—helping you understand market conditions, identify
+              high-quality opportunities, and manage risk with greater
+              confidence.
             </p>
+            <Gallery6 {...demoData} />
           </div>
         </div>
 
@@ -677,6 +761,217 @@ function App() {
                 className="absolute inset-x-0 bottom-0 h-full w-full [mask-image:radial-gradient(50%_50%,white,transparent_85%)]"
                 color={theme === "dark" ? "#ffffff" : "#000000"}
               />
+            </div>
+          </div>
+        </div>
+
+        <div className="px-8">
+          <div className="border-x-1 border-gray-200/70">&nbsp;</div>
+        </div>
+
+        {/* Real trade performance */}
+        <div className="text-center border-y-1 border-gray-200/70 px-8">
+          <div className="border-x-1 border-gray-200/70 pt-12 px-8">
+            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
+              <SparkleIcon size={12} />
+              Real Trade Performance
+            </div>
+            <BlurFade delay={0.15} inView>
+              <h2 className="text-4xl font-bold text-gray-900 mb-1">
+                Every completed trade,
+              </h2>
+            </BlurFade>
+            <BlurFade delay={0.15 * 2} inView>
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="text-cyan-400">
+                  measured with transparency
+                </span>
+              </h2>
+            </BlurFade>
+            <p className="text-sm text-gray-400 max-w-lg mx-auto">
+              Every completed position is recorded and tracked using its actual
+              market outcome. Below are the latest closed trades generated by
+              Nova AI, along with key performance metrics that update
+              automatically as new positions are completed.
+            </p>
+            <div className="mt-12 max-w-2/3 mx-auto">
+              <Table className="mb-6 text-left">
+                <TableHeader className="bg-gray-100">
+                  <TableRow>
+                    <TableHead className="min-w-24">Stock</TableHead>
+                    <TableHead>Entry</TableHead>
+                    <TableHead>TP</TableHead>
+                    <TableHead>SL</TableHead>
+                    <TableHead>Profit</TableHead>
+                    <TableHead>Result</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <TableRow key={i} className="h-16">
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="h-10 w-10 rounded-xl bg-gray-200" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
+                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20 rounded-full bg-gray-200" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20 rounded-full bg-gray-200" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-16 rounded-full bg-gray-200" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-8 w-20 rounded-full bg-gray-200" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : completedStocks && completedStocks.length > 0 ? (
+                    completedStocks.map((stock) => (
+                      <TableRow key={stock.id}>
+                        <TableCell className="flex gap-2 items-center">
+                          <img
+                            src={stock.logo}
+                            alt={`${stock.name} logo`}
+                            className="h-8 w-8 rounded-md"
+                          />
+                          <div className="flex-1">
+                            <p className="font-semibold text-foreground">
+                              {stock.name.replace(".JK", "")}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {stock.country === "Indonesia" ? "Rp " : "$"}
+                          {stock.initial_price.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          {stock.country === "Indonesia" ? "Rp " : "$"}
+                          {(
+                            stock.initial_price +
+                            (stock.initial_price * stock.predicted_pct_change) /
+                              100
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          {stock.country === "Indonesia" ? "Rp " : "$"}
+                          {stock.stop_loss.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          {stock.pct_gain > 0 ? (
+                            <span className="text-green-500 font-semibold">
+                              {stock.pct_gain.toFixed(2)}%
+                            </span>
+                          ) : stock.pct_gain < 0 ? (
+                            <span className="text-red-500 font-semibold">
+                              {stock.pct_gain.toFixed(2)}%
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 font-semibold">
+                              {stock.pct_gain.toFixed(2)}%
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {stock.pct_gain > 0 ? (
+                            <Chip
+                              size="sm"
+                              className="font-bold bg-green-500/10 border border-green-500"
+                            >
+                              <span className="font-bold text-green-700">
+                                Win
+                              </span>
+                            </Chip>
+                          ) : stock.pct_gain < 0 ? (
+                            <Chip
+                              size="sm"
+                              className="font-bold bg-red-500/10 border border-red-500"
+                            >
+                              <span className="font-bold text-red-700">
+                                Loss
+                              </span>
+                            </Chip>
+                          ) : (
+                            <Chip
+                              size="sm"
+                              className="font-bold bg-gray-500/10 border border-gray-500"
+                            >
+                              <span className="font-bold text-gray-700">
+                                Break-even
+                              </span>
+                            </Chip>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4">
+                        No completed trades at this time.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              {isLoading ? (
+                <div className="space-y-5 rounded-3xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm">
+                  <div className="space-y-3">
+                    <Skeleton className="mx-auto h-4 w-32 rounded-full bg-gray-200" />
+                    <Skeleton className="mx-auto h-8 w-48 rounded-xl bg-gray-200" />
+                    <Skeleton className="mx-auto h-4 w-40 rounded-full bg-gray-200" />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
+                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
+                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
+                  </div>
+                </div>
+              ) : (
+                <CardSpotlight>
+                  <h3 className="text-xl font-bold text-white">Total Trades</h3>
+                  <p className="text-lg font-bold leading-8 mt-2 text-white/80 sm:text-xl lg:text-3xl">
+                    {statistics?.winningTrades ?? 0} Winning /{" "}
+                    {statistics?.totalTrades ?? 0} Total
+                  </p>
+                  <p className="text-xl font-bold text-green-500/80 mt-2">
+                    ={" "}
+                    {statistics?.winRate != null
+                      ? `${statistics.winRate.toFixed(1)}%`
+                      : "0.0%"}{" "}
+                    Win Rate
+                  </p>
+                  <h3 className="text-xl font-bold text-white mt-3">
+                    Average Return / Trade
+                  </h3>
+                  <p className="text-xl font-bold text-green-500/80 mt-2">
+                    {statistics?.averageReturnPerTrade != null
+                      ? `${statistics.averageReturnPerTrade.toFixed(2)}%`
+                      : "0.00%"}{" "}
+                    Average Return
+                  </p>
+                  <h3 className="text-xl font-bold text-white mt-3">
+                    Profit Factor
+                  </h3>
+                  <p className="text-xl font-bold text-green-500/80 mt-2">
+                    {statistics?.profitFactor != null
+                      ? statistics.profitFactor.toFixed(2)
+                      : "0.00"}
+                  </p>
+                </CardSpotlight>
+              )}
             </div>
           </div>
         </div>

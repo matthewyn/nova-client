@@ -184,10 +184,10 @@ function Dashboard() {
             winningTrades: winning_trades,
             losingTrades: losing_trades,
             profitFactor: profit_factor,
-            total_return: total_return,
-            avg_return_per_trade: avg_return_per_trade,
-            best_trade: best_trade,
-            worst_trade: worst_trade,
+            totalReturn: total_return,
+            averageReturnPerTrade: avg_return_per_trade,
+            bestTrade: best_trade,
+            worstTrade: worst_trade,
           });
         }
         if (macroResponse.status === 200) {
@@ -872,15 +872,15 @@ function Dashboard() {
                           Total Return
                         </h2>
                         <p
-                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.total_return >= 0 ? "text-green-500" : "text-red-500"}`}
+                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.totalReturn >= 0 ? "text-green-500" : "text-red-500"}`}
                         >
-                          {statistics.total_return.toFixed(2)}%{" "}
-                          {statistics.total_return >= 0 ? (
+                          {statistics.totalReturn.toFixed(2)}%{" "}
+                          {statistics.totalReturn >= 0 ? (
                             <HiArrowUpRight
                               className="text-green-500"
                               size={12}
                             />
-                          ) : statistics.total_return < 0 ? (
+                          ) : statistics.totalReturn < 0 ? (
                             <HiArrowDownRight
                               className="text-red-500"
                               size={12}
@@ -893,15 +893,15 @@ function Dashboard() {
                           Avg Return/Trade
                         </h2>
                         <p
-                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.avg_return_per_trade >= 0 ? "text-green-500" : "text-red-500"}`}
+                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.averageReturnPerTrade >= 0 ? "text-green-500" : "text-red-500"}`}
                         >
-                          {statistics.avg_return_per_trade.toFixed(2)}%{" "}
-                          {statistics.avg_return_per_trade >= 0 ? (
+                          {statistics.averageReturnPerTrade.toFixed(2)}%{" "}
+                          {statistics.averageReturnPerTrade >= 0 ? (
                             <HiArrowUpRight
                               className="text-green-500"
                               size={12}
                             />
-                          ) : statistics.avg_return_per_trade < 0 ? (
+                          ) : statistics.averageReturnPerTrade < 0 ? (
                             <HiArrowDownRight
                               className="text-red-500"
                               size={12}
@@ -914,7 +914,7 @@ function Dashboard() {
                           Best Trade
                         </h2>
                         <p className="text-green-500 font-semibold text-medium flex items-center gap-1">
-                          {statistics.best_trade}
+                          {statistics.bestTrade}
                         </p>
                       </div>
                       <div>
@@ -922,8 +922,8 @@ function Dashboard() {
                           Worst Trade
                         </h2>
                         <p className="text-red-500 font-semibold text-medium flex items-center gap-1">
-                          {statistics.worst_trade
-                            ? statistics.worst_trade
+                          {statistics.worstTrade
+                            ? statistics.worstTrade
                             : "N/A"}
                         </p>
                       </div>

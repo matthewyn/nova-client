@@ -10,6 +10,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import { degToRad } from "three/src/math/MathUtils.js";
 import { ArrowRight, Star } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 
 // ============================================================================
@@ -430,7 +431,7 @@ const Button = ({
  * - Fully responsive design
  * - Black & white aesthetic
  */
-export default function EtherealBeamsHero({ user }) {
+export default function EtherealBeamsHero({ user, statistics, isLoading }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Beams Background */}
@@ -496,17 +497,37 @@ export default function EtherealBeamsHero({ user }) {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">80%</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16 rounded-full mx-auto bg-gray-200" />
+                  ) : statistics?.winRate != null ? (
+                    `${statistics.winRate.toFixed(2)}%`
+                  ) : (
+                    "0.00%"
+                  )}
+                </div>
                 <div className="text-white/60 text-sm">Win Rate</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">600+</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-20 rounded-full mx-auto bg-gray-200" />
+                  ) : (
+                    "600+"
+                  )}
+                </div>
                 <div className="text-white/60 text-sm">
                   Indonesian & US Stocks
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">20+</div>
+                <div className="text-3xl font-bold text-white mb-2">
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16 rounded-full mx-auto bg-gray-200" />
+                  ) : (
+                    "20+"
+                  )}
+                </div>
                 <div className="text-white/60 text-sm">Sectors Covered</div>
               </div>
             </div>
