@@ -646,7 +646,7 @@ function Dashboard() {
                       </p>
                       <div className="flex gap-2 mb-6">
                         <div className="flex-1">
-                          <p className="mb-2">Risk On Percentage</p>
+                          <p className="mb-2">Regime Confidence</p>
                           <p>
                             <span className="font-semibold text-foreground text-3xl">
                               {macroRegime.confidence.toFixed(0)}
