@@ -753,6 +753,31 @@ function Dashboard() {
                             </p>
                           </CardContent>
                         </Card>
+                        <Card className="relative overflow-hidden">
+                          <DotGrid />
+                          <CardContent className="relative z-10">
+                            <h3 className="text-lg font-semibold mb-2">
+                              Indonesia External Risk
+                            </h3>
+                            <BipolarProgress
+                              value={macroRegime.scores.indonesia_external_risk}
+                              className="h-2 mb-2"
+                            />
+                            <p className="text-small text-foreground mb-2">
+                              <span className="font-semibold text-foreground text-3xl">
+                                {macroRegime.scores.indonesia_external_risk.toFixed(
+                                  0,
+                                )}
+                              </span>
+                              /100
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {getRiskDescription(
+                                macroRegime.scores.indonesia_external_risk,
+                              )}
+                            </p>
+                          </CardContent>
+                        </Card>
                       </div>
                     </>
                   ) : (
