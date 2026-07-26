@@ -771,7 +771,7 @@ function App() {
 
         {/* Real trade performance */}
         <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 pt-12 px-8">
+          <div className="border-x-1 border-gray-200/70 py-12 px-8">
             <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
               <SparkleIcon size={12} />
               Real Trade Performance
