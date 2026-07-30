@@ -157,7 +157,8 @@ function Dashboard() {
         if (newStocksResponseUSA.status === 200) {
           const { stocks } = newStocksResponseUSA.data;
           const sortedStocks = stocks.sort(
-            (a, b) => (a.gex ?? 0) - (b.gex ?? 0),
+            (a, b) =>
+              (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
           );
           setStocksUSA(sortedStocks);
         }
@@ -220,9 +221,8 @@ function Dashboard() {
         });
 
         const sortedStocks = data.stocks.sort(
-          (a, b) => (a.gex ?? 0) - (b.gex ?? 0),
+          (a, b) => (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
         );
-
         setRunningStocks(sortedStocks);
         setTotalPages(Math.ceil(data.total / PAGE_SIZE));
       } catch (error) {
@@ -362,8 +362,8 @@ function Dashboard() {
                       </h2>
                       <p className="text-sm text-foreground/70 mb-4">
                         This section displays all active investment ideas
-                        currently monitored by Nova AI, ranked by Gamma
-                        Exposure.
+                        currently monitored by Nova AI, ranked by Institutional
+                        Score.
                       </p>
                     </>
                   )}
