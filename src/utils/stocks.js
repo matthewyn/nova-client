@@ -15,6 +15,7 @@ const stocksSector = {
   UTILITIES: "Utilities",
   FINANCIALS: "Financials",
   INDUSTRIALS: "Industrials",
+  TRANSPORTATION: "Transportation",
   MATERIALS: "Materials",
   ENERGY: "Energy",
   COMMUNICATION_SERVICES: "Communication Services",

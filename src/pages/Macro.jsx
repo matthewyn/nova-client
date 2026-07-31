@@ -39,6 +39,7 @@ const SECTOR_CONFIG = {
   COMMUNICATION_SERVICES: { label: "Comm. Services" },
   FINANCIALS: { label: "Financials" },
   INDUSTRIALS: { label: "Industrials" },
+  TRANSPORTATION: { label: "Transportation" },
   MATERIALS: { label: "Materials" },
   UTILITIES: { label: "Utilities" },
 };

@@ -7,15 +7,45 @@ import {
 } from "@heroui/react";
 import WatermarkOverlay from "@/components/WatermarkOverlay";
 import { useAuth } from "@/contexts/AuthContext";
-import { HiArrowUpCircle, HiArrowDownCircle } from "react-icons/hi2";
-import { AlertTriangleIcon } from "lucide-react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+const parseSummary = (summaryText) => {
+  if (!summaryText) return {};
+
+  const sections = {};
+  let currentKey = null;
+  let currentValue = [];
+
+  const saveCurrentSection = () => {
+    if (!currentKey) return;
+    sections[currentKey] = currentValue.join("\n").trim();
+  };
+
+  String(summaryText)
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .forEach((line) => {
+      const headerMatch = line.match(/^\s*([A-Z][A-Z0-9_]{2,}):\s*(.*)$/);
+
+      if (headerMatch) {
+        saveCurrentSection();
+        currentKey = headerMatch[1];
+        currentValue = headerMatch[2] ? [headerMatch[2].trim()] : [];
+        return;
+      }
+
+      if (currentKey) {
+        currentValue.push(line.trim());
+      }
+    });
+
+  saveCurrentSection();
+
+  return sections;
+};
+
 function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
 
   return (
     <>
@@ -27,22 +57,8 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
       >
         <ModalContent className="relative">
           {(onClose) => {
-            const parseSummary = (summaryText) => {
-              if (!summaryText) return {};
-              const sections = {};
-              const lines = summaryText
-                .split("\n")
-                .filter((line) => line.trim());
-              lines.forEach((line) => {
-                const match = line.match(/^\s*([A-Z_]+):\s*(.+)/);
-                if (match) {
-                  sections[match[1]] = match[2].trim();
-                }
-              });
-              return sections;
-            };
-
             const summaryData = parseSummary(selectedStockForTrend?.summary);
+            const summaryEntries = Object.entries(summaryData);
 
             return (
               <>
@@ -74,7 +90,7 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
                     </div>
 
                     {/* Summary Sections */}
-                    {Object.entries(summaryData).map(([key, value]) => (
+                    {summaryEntries.map(([key, value]) => (
                       <div
                         key={key}
                         className="p-3 rounded-lg bg-muted space-y-2"
@@ -82,11 +98,22 @@ function StockModal({ selectedStockForTrend, setSelectedStockForTrend }) {
                         <p className="text-sm font-semibold text-foreground">
                           {key.replace(/_/g, " ")}
                         </p>
-                        <p className="text-sm text-foreground/70 leading-relaxed">
+                        <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
                           {value}
                         </p>
                       </div>
                     ))}
+
+                    {!summaryEntries.length && selectedStockForTrend?.summary && (
+                      <div className="p-3 rounded-lg bg-muted space-y-2">
+                        <p className="text-sm font-semibold text-foreground">
+                          Summary
+                        </p>
+                        <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
+                          {selectedStockForTrend.summary}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </ModalBody>
                 <ModalFooter>

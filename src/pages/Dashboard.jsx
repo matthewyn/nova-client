@@ -148,19 +148,11 @@ function Dashboard() {
         ]);
         if (newStocksResponseIndonesia.status === 200) {
           const { stocks } = newStocksResponseIndonesia.data;
-          const sortedStocks = stocks.sort(
-            (a, b) =>
-              (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
-          );
-          setStocksIndonesia(sortedStocks);
+          setStocksIndonesia(stocks);
         }
         if (newStocksResponseUSA.status === 200) {
           const { stocks } = newStocksResponseUSA.data;
-          const sortedStocks = stocks.sort(
-            (a, b) =>
-              (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
-          );
-          setStocksUSA(sortedStocks);
+          setStocksUSA(stocks);
         }
         if (completedStocksResponse.status === 200) {
           const { stocks } = completedStocksResponse.data;
@@ -220,10 +212,7 @@ function Dashboard() {
           params: { page: page, page_size: PAGE_SIZE },
         });
 
-        const sortedStocks = data.stocks.sort(
-          (a, b) => (b.institutional_score ?? 0) - (a.institutional_score ?? 0),
-        );
-        setRunningStocks(sortedStocks);
+        setRunningStocks(data.stocks);
         setTotalPages(Math.ceil(data.total / PAGE_SIZE));
       } catch (error) {
         if (axios.isAxiosError(error)) {

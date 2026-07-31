@@ -189,6 +189,7 @@ const americanSectors = [
   "Financials",
   "Consumer Discretionary",
   "Industrials",
+  "Transportation",
   "Energy",
   "Consumer Staples",
   "Utilities",
