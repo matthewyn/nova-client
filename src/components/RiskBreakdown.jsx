@@ -39,7 +39,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.institutional_score || 0}%
+                  At {transaction.institutional_score.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   A proprietary score derived from macro conditions, sector
@@ -58,7 +58,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.risk_breakdown?.overall || 0}%
+                  At {transaction.risk_breakdown?.overall.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   A comprehensive overview of risk levels based on a combination
@@ -75,7 +75,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.risk_breakdown?.volatility || 0}%
+                  At {transaction.risk_breakdown?.volatility.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   Measures how large a price can potentially move up or down in
@@ -93,7 +93,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.risk_breakdown?.momentum || 0}%
+                  At {transaction.risk_breakdown?.momentum.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   Measures the strength of current price movement. Risk
@@ -111,7 +111,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.risk_breakdown?.trend || 0}%
+                  At {transaction.risk_breakdown?.trend.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   Measures the strength of the stock's main trend. Risk
@@ -129,7 +129,7 @@ function RiskBreakdown({ isLoading, transaction }) {
                   className="h-2 mb-2"
                 />
                 <p className="text-small text-foreground mb-2">
-                  At {transaction.risk_breakdown?.liquidity || 0}%
+                  At {transaction.risk_breakdown?.liquidity.toFixed(2) || 0}%
                 </p>
                 <p className="text-xs text-gray-500">
                   Measures the ease of entering and exiting positions based on
