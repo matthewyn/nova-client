@@ -728,11 +728,12 @@ function App() {
                 sectors={indonesiaSectors}
                 backTitle="Themes we track"
                 backPoints={[
-                  "Indonesia Gold",
-                  "Indonesia Coal Export",
-                  "Nickel Export",
-                  "Indonesia Customer",
                   "Indonesia Digitalization",
+                  "Indonesia Hilirization",
+                  "Indonesia Gold",
+                  "Infrastructure Logistics",
+                  "Indonesia Consumer",
+                  "Indonesia Healthcare",
                 ]}
               />
               <FlipSectorCard
@@ -743,14 +744,15 @@ function App() {
                 backTitle="Themes we track"
                 backPoints={[
                   "AI Infrastructure",
-                  "Gold Safe Heaven",
-                  "Reinsdustrialization",
+                  "Grid Modernization",
+                  "Industrial Automation",
+                  "Reindustrialization",
+                  "Supply Chain Resilience",
                   "Energy Security",
-                  "Power Grid",
-                  "Defense",
-                  "Data Center",
-                  "Nuclear",
+                  "Defense Modernization",
+                  "Healthcare Innovation",
                   "Copper Supercycle",
+                  "Gold Safe Haven",
                 ]}
               />
             </div>
