@@ -24,8 +24,8 @@ import {
 } from "lucide-react";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
-import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { Image } from "@heroui/react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
@@ -1748,6 +1748,344 @@ function FAQSection({ items }) {
   );
 }
 
+const decisionPerspectives = [
+  {
+    role: "Research analysts",
+    title: "Begin with a defensible opportunity set",
+    description:
+      "Replace a fragmented first pass with structured macro context, capital-flow evidence, sector strength, and ranked candidates ready for deeper review.",
+    image: MacroIntelligenceArt,
+    imageAlt: "Structured macro signals supporting an analyst research workflow",
+  },
+  {
+    role: "Portfolio managers",
+    title: "Connect conviction to portfolio risk",
+    description:
+      "Evaluate each candidate within the current regime, expected return, liquidity, and downside conditions before it competes for portfolio capital.",
+    image: RiskAnalysisArt,
+    imageAlt: "Risk intelligence connecting market conviction to portfolio decisions",
+  },
+  {
+    role: "Investment committees",
+    title: "Review the reasoning, not just the output",
+    description:
+      "Bring a consistent evidence trail from market conditions through sector selection and security prioritization into the decision conversation.",
+    image: ScenarioAnalysisArt,
+    imageAlt: "Scenario pathways prepared for an investment committee review",
+  },
+];
+
+const decisionShifts = [
+  {
+    title: "See context",
+    description:
+      "Understand the economic regime and the direction of liquidity before evaluating individual securities.",
+    image: MacroIntelligenceArt,
+  },
+  {
+    title: "Focus research",
+    description:
+      "Narrow broad markets into sectors, themes, and candidates with improving relative conditions.",
+    image: SectorRotationArt,
+  },
+  {
+    title: "Decide with evidence",
+    description:
+      "Carry institutional scoring, forecasting, and risk filters into a traceable investment decision.",
+    image: RiskAnalysisArt,
+  },
+];
+
+const finalNarrative =
+  "Nova brings market structure, capital movement, opportunity ranking, and risk into one connected research workflow—so every stock-level decision begins with a clearer understanding of the environment around it.";
+
+function FinalMarketCTASection({ user }) {
+  const [activePerspective, setActivePerspective] = useState(0);
+  const sectionRef = useRef(null);
+  const narrativeRef = useRef(null);
+  const perspectiveRef = useRef(null);
+  const stackCardRefs = useRef([]);
+  const perspective = decisionPerspectives[activePerspective];
+
+  const selectPerspective = (index) => {
+    setActivePerspective(
+      (index + decisionPerspectives.length) % decisionPerspectives.length,
+    );
+  };
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        const words = gsap.utils.toArray(".final-reveal-word");
+
+        gsap.fromTo(
+          words,
+          { opacity: 0.12 },
+          {
+            opacity: 1,
+            stagger: 0.04,
+            ease: "none",
+            scrollTrigger: {
+              trigger: narrativeRef.current,
+              start: "top 84%",
+              end: "bottom 48%",
+              scrub: 0.8,
+            },
+          },
+        );
+
+        stackCardRefs.current.forEach((card, index) => {
+          if (!card) return;
+
+          gsap.fromTo(
+            card,
+            { autoAlpha: 0.4, y: 100, scale: 0.94 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 92%",
+                end: "top 50%",
+                scrub: 0.8,
+              },
+            },
+          );
+
+          if (index < stackCardRefs.current.length - 1) {
+            gsap.to(card, {
+              autoAlpha: 0.32,
+              scale: 0.97,
+              ease: "none",
+              scrollTrigger: {
+                trigger: stackCardRefs.current[index + 1],
+                start: "top 75%",
+                end: "top 42%",
+                scrub: 0.8,
+              },
+            });
+          }
+        });
+      });
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        perspectiveRef.current?.children || [],
+        { autoAlpha: 0, y: 24 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: "power3.out",
+        },
+      );
+    },
+    { scope: perspectiveRef, dependencies: [activePerspective] },
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-[#050809] px-5 py-28 text-white sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(34,211,238,0.12),transparent_32%),radial-gradient(circle_at_86%_78%,rgba(99,102,241,0.11),transparent_30%)]" />
+
+      <div className="relative mx-auto max-w-[96rem] space-y-20 lg:space-y-32">
+        <article
+          ref={(node) => {
+            stackCardRefs.current[0] = node;
+          }}
+          className="final-stack-card group relative min-h-[50rem] overflow-hidden rounded-[2.25rem] border border-white/10 bg-gray-950 shadow-[0_50px_160px_-55px_rgba(0,0,0,0.95)] will-change-transform lg:sticky lg:top-20"
+        >
+          <img
+            src={CapitalFlowArt}
+            alt="Capital flows converging into a structured investment intelligence system"
+            className="absolute inset-0 h-full w-full object-cover opacity-45 contrast-125 transition-transform duration-1000 ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(5,8,9,0.2),rgba(5,8,9,0.92)_72%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-950/35 via-transparent to-gray-950" />
+
+          <div className="relative flex min-h-[50rem] flex-col items-center justify-center px-6 py-24 text-center sm:px-10 lg:px-16">
+            <h2 className="max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.5rem,9.3vw,7.9rem)] font-semibold leading-[0.84] tracking-[-0.075em]">
+              Stop picking in isolation. Start seeing
+              <span
+                aria-hidden="true"
+                className="mx-2 inline-block h-[0.54em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-white/20 sm:mx-4"
+                style={{ backgroundImage: `url(${SectorRotationArt})` }}
+              />
+              the whole market.
+            </h2>
+
+            <p
+              ref={narrativeRef}
+              className="mt-10 max-w-4xl text-lg leading-8 text-white sm:text-xl sm:leading-9"
+            >
+              {finalNarrative.split(" ").map((word, index) => (
+                <span
+                  key={`${word}-${index}`}
+                  className="final-reveal-word mr-[0.28em] inline-block opacity-[0.12]"
+                >
+                  {word}
+                </span>
+              ))}
+            </p>
+
+            <div className="mt-12 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link
+                to={user ? "/dashboard" : "/signup"}
+                className="group/button inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-white px-7 text-sm font-semibold text-gray-950 transition duration-500 hover:-translate-y-1 hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+              >
+                {user ? "Open Nova workspace" : "Start with Nova"}
+                <ArrowUpRight className="ml-2 size-4 transition-transform duration-500 group-hover/button:-translate-y-0.5 group-hover/button:translate-x-0.5" />
+              </Link>
+              <Link
+                to={user ? "/dashboard/macro" : "/login"}
+                className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full border border-white/25 bg-gray-950/35 px-7 text-sm font-semibold text-white backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+              >
+                {user ? "Review macro intelligence" : "Sign in"}
+              </Link>
+            </div>
+          </div>
+        </article>
+
+        <article
+          ref={(node) => {
+            stackCardRefs.current[1] = node;
+          }}
+          className="final-stack-card overflow-hidden rounded-[2.25rem] border border-gray-200 bg-[#eef2ef] p-3 text-gray-950 shadow-[0_50px_160px_-55px_rgba(0,0,0,0.9)] will-change-transform sm:p-4 lg:sticky lg:top-28"
+        >
+          <div className="overflow-hidden rounded-[1.5rem] bg-white">
+            <div className="grid grid-flow-dense grid-cols-1 lg:grid-cols-12">
+              <div className="border-b border-gray-200 p-7 sm:p-10 lg:col-span-5 lg:border-b-0 lg:border-r lg:p-12">
+                <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
+                  Built around the decision
+                </p>
+                <h3 className="mt-5 max-w-md font-['Outfit_Variable',sans-serif] text-4xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-5xl">
+                  One platform, viewed from every investment role.
+                </h3>
+
+                <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6">
+                  <div className="flex -space-x-3">
+                    {decisionPerspectives.map((item, index) => (
+                      <button
+                        key={item.role}
+                        type="button"
+                        onClick={() => selectPerspective(index)}
+                        aria-label={`Show ${item.role} perspective`}
+                        aria-pressed={activePerspective === index}
+                        className={`relative flex size-12 cursor-pointer overflow-hidden rounded-full border-2 border-white bg-gray-950 transition duration-300 hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                          activePerspective === index
+                            ? "z-10 -translate-y-1 ring-2 ring-gray-950 ring-offset-2"
+                            : "opacity-55 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={item.image}
+                          alt=""
+                          className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => selectPerspective(activePerspective - 1)}
+                      aria-label="Previous perspective"
+                      className="flex size-11 cursor-pointer items-center justify-center rounded-full border border-gray-300 transition duration-300 hover:-translate-x-0.5 hover:bg-gray-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                    >
+                      <ArrowLeft className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selectPerspective(activePerspective + 1)}
+                      aria-label="Next perspective"
+                      className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-950 text-white transition duration-300 hover:translate-x-0.5 hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                    >
+                      <ArrowRight className="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                ref={perspectiveRef}
+                className="group flex min-h-[34rem] flex-col justify-end overflow-hidden bg-gray-950 p-3 text-white lg:col-span-7"
+              >
+                <div className="relative flex-1 overflow-hidden rounded-[1.2rem]">
+                  <img
+                    key={perspective.image}
+                    src={perspective.image}
+                    alt={perspective.imageAlt}
+                    className="absolute inset-0 h-full w-full object-cover opacity-75 contrast-125 transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-7 sm:p-10">
+                    <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-300">
+                      {perspective.role}
+                    </p>
+                    <h4 className="mt-4 max-w-xl font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">
+                      {perspective.title}
+                    </h4>
+                    <p className="mt-5 max-w-xl text-sm leading-6 text-white/60 sm:text-base sm:leading-7">
+                      {perspective.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex min-h-[28rem] flex-col gap-px border-t border-gray-200 bg-gray-200 md:flex-row">
+              {decisionShifts.map((shift, index) => (
+                <div
+                  key={shift.title}
+                  className={`group relative flex min-h-72 flex-1 flex-col justify-between overflow-hidden p-7 transition-[flex] duration-700 ease-out hover:flex-[1.6] sm:p-9 ${
+                    index === 1
+                      ? "bg-[#d8faf4]"
+                      : index === 2
+                        ? "bg-gray-950 text-white"
+                        : "bg-white"
+                  }`}
+                >
+                  <img
+                    src={shift.image}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-700 ease-out group-hover:scale-105 group-hover:opacity-15"
+                  />
+                  <div className="relative flex items-start justify-between gap-5">
+                    <h4 className="max-w-[10rem] font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em]">
+                      {shift.title}
+                    </h4>
+                    <ArrowUpRight className="size-5 shrink-0 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                  </div>
+                  <p
+                    className={`relative mt-14 max-w-xs text-sm leading-6 ${
+                      index === 2 ? "text-white/55" : "text-gray-600"
+                    }`}
+                  >
+                    {shift.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 
@@ -2047,14 +2385,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        <div className="border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70">
-            <HeroGeometric
-              title="From picking stocks to understanding the market"
-              paragraph="It's like having a personal investment intelligence assistant that shows you where capital is flowing, which sectors are attracting liquidity, and where the next opportunities may emerge."
-            />
-          </div>
-        </div>
+        <FinalMarketCTASection user={user} />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
