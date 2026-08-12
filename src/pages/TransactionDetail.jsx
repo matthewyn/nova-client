@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { Button } from "@/components/ui/button";
 import { getAuthHeader } from "@/utils/token";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -101,8 +101,10 @@ function TransactionDetail() {
       );
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
+        console.error(
+          "Transaction detail request failed with status:",
+          error.response?.status,
+        );
       }
     } finally {
       setIsLoading(false);

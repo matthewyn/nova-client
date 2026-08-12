@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { generateApiOrigin } from "@/utils/apiOrigin";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { getAuthHeader } from "@/utils/token";
 import capitalizeFirstLetter from "@/utils/string";
@@ -50,8 +50,10 @@ function Transactions() {
         setTotalPages(Math.ceil(data.total / PAGE_SIZE));
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error("Server error:", error.response?.data);
-          console.error("Status code:", error.response?.status);
+          console.error(
+            "Transactions request failed with status:",
+            error.response?.status,
+          );
         }
       } finally {
         setIsLoading(false);
@@ -75,8 +77,10 @@ function Transactions() {
       );
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
+        console.error(
+          "Close transaction request failed with status:",
+          error.response?.status,
+        );
       }
     }
   };

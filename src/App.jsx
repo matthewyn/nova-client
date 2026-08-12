@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "@fontsource-variable/outfit";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -2178,8 +2178,10 @@ function App() {
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error("Server error:", error.response?.data);
-          console.error("Status code:", error.response?.status);
+          console.error(
+            "Homepage data request failed with status:",
+            error.response?.status,
+          );
         }
       } finally {
         setIsLoading(false);

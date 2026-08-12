@@ -1,11 +1,11 @@
 import { Card, CardBody, Button, Input } from "@heroui/react";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { useState } from "react";
 import { HiMiniEnvelope, HiLockClosed } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { useAuth } from "@/contexts/AuthContext";
-import { saveToken } from "@/utils/token";
+import { createSession, saveSession } from "@/utils/token";
 import { toast } from "sonner";
 
 export const EyeSlashFilledIcon = (props) => {
@@ -91,7 +91,7 @@ function LoginCard() {
       });
 
       if (response.status === 200) {
-        saveToken(response.data.token);
+        saveSession(createSession(response.data));
         await fetchUser();
         navigate("/");
         toast("Login successful! Welcome back.", {
@@ -110,10 +110,9 @@ function LoginCard() {
           return;
         }
 
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
+        console.error("Login request failed with status:", error.response?.status);
       } else {
-        console.error("Unexpected error:", error);
+        console.error("An unexpected login error occurred");
       }
     } finally {
       setIsLoading(false);

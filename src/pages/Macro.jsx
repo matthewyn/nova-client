@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { useEffect, useState, useRef } from "react";
 import { getAuthHeader } from "@/utils/token";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangleIcon } from "lucide-react";
@@ -334,8 +334,10 @@ function Macro() {
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error("Axios error:", error.response?.data || error.message);
-          console.error("Status code:", error.response?.status);
+          console.error(
+            "Macro intelligence request failed with status:",
+            error.response?.status,
+          );
         }
       } finally {
         setIsLoading(false);

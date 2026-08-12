@@ -12,7 +12,7 @@ import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
-import axios from "axios";
+import axios from "@/utils/apiClient";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { Skeleton } from "@/components/ui/skeleton";
 import Indonesia from "@/assets/indonesia.png";
@@ -192,8 +192,10 @@ function Dashboard() {
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error("Server error:", error.response?.data);
-          console.error("Status code:", error.response?.status);
+          console.error(
+            "Dashboard request failed with status:",
+            error.response?.status,
+          );
         }
       } finally {
         setIsLoading(false);
@@ -216,8 +218,10 @@ function Dashboard() {
         setTotalPages(Math.ceil(data.total / PAGE_SIZE));
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error("Server error:", error.response?.data);
-          console.error("Status code:", error.response?.status);
+          console.error(
+            "Running stocks request failed with status:",
+            error.response?.status,
+          );
         }
       } finally {
         setIsLoading(false);

@@ -7,10 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
 import { ChartNoAxesCombined } from "lucide-react";
-import { generateApiOrigin } from "@/utils/apiOrigin";
-import { getAuthHeader } from "@/utils/token";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Empty,

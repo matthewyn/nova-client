@@ -13,12 +13,8 @@ import {
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, LogOut, Sheet, Globe } from "lucide-react";
 import { HiMiniRectangleStack } from "react-icons/hi2";
-import axios from "axios";
+import { logoutSession } from "@/utils/apiClient";
 import { useAuth } from "@/contexts/AuthContext";
-import { removeToken } from "@/utils/token";
-import { generateApiOrigin } from "@/utils/apiOrigin";
-
-const urlFetch = generateApiOrigin("/auth/logout");
 
 export function AppSidebar() {
   const location = useLocation();
@@ -34,18 +30,10 @@ export function AppSidebar() {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post(urlFetch, null);
-      if (response.status === 200) {
-        removeToken();
-        setUser(null);
-        navigate("/login");
-        return;
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
-      }
+      await logoutSession();
+    } finally {
+      setUser(null);
+      navigate("/login");
     }
   };
 

@@ -24,11 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import axios from "axios";
-import { removeToken } from "@/utils/token";
-import { generateApiOrigin } from "@/utils/apiOrigin";
-
-const urlFetch = generateApiOrigin("/auth/logout");
+import { logoutSession } from "@/utils/apiClient";
 
 function CustomNavbar() {
   const { user, setUser } = useAuth();
@@ -38,18 +34,10 @@ function CustomNavbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post(urlFetch, null);
-      if (response.status === 200) {
-        removeToken();
-        setUser(null);
-        navigate("/login");
-        return;
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Server error:", error.response?.data);
-        console.error("Status code:", error.response?.status);
-      }
+      await logoutSession();
+    } finally {
+      setUser(null);
+      navigate("/login");
     }
   };
 
