@@ -15,17 +15,17 @@ import {
 } from "@/components/ui/table";
 import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Minus,
+  Plus,
+} from "lucide-react";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
-import { BlurFade } from "@/components/ui/blur-fade";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
-import {
-  Accordion,
-  AccordionItem,
-  Image,
-} from "@heroui/react";
-import SparkleIcon from "@/components/SparkleIcon";
+import { Image } from "@heroui/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
@@ -1412,6 +1412,342 @@ function RealTradePerformanceSection({
   );
 }
 
+const faqVisuals = [
+  MacroIntelligenceArt,
+  RiskAnalysisArt,
+  PositionSizingArt,
+  CapitalFlowArt,
+  ScenarioAnalysisArt,
+];
+
+const faqSignals = [
+  "Built for direct use",
+  "Probability over certainty",
+  "Research without surveillance",
+  "Selectivity over activity",
+  "One connected framework",
+];
+
+function FAQSection({ items }) {
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [openQuestion, setOpenQuestion] = useState(0);
+  const sectionRef = useRef(null);
+  const visualRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const questionRefs = useRef([]);
+
+  const focusQuestion = (index) => {
+    const nextIndex = (index + items.length) % items.length;
+    setActiveQuestion(nextIndex);
+    setOpenQuestion(nextIndex);
+    questionRefs.current[nextIndex]?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [openQuestion]);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.to(marqueeRef.current, {
+          xPercent: -50,
+          duration: 26,
+          ease: "none",
+          repeat: -1,
+        });
+
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: visualRef.current,
+              start: "top 90%",
+              end: "bottom 12%",
+              scrub: 0.8,
+            },
+          })
+          .fromTo(
+            visualRef.current,
+            { autoAlpha: 0.35, scale: 0.82 },
+            { autoAlpha: 1, scale: 1, duration: 0.55, ease: "none" },
+          )
+          .to(visualRef.current, {
+            autoAlpha: 0.22,
+            scale: 0.96,
+            duration: 0.45,
+            ease: "none",
+          });
+
+        questionRefs.current.forEach((card, index) => {
+          if (!card) return;
+
+          gsap.fromTo(
+            card,
+            { autoAlpha: 0.35, y: 88, scale: 0.95 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 90%",
+                end: "top 52%",
+                scrub: 0.8,
+                onEnter: () => setActiveQuestion(index),
+                onEnterBack: () => setActiveQuestion(index),
+              },
+            },
+          );
+
+          if (index < questionRefs.current.length - 1) {
+            gsap.to(card, {
+              autoAlpha: 0.4,
+              scale: 0.97,
+              ease: "none",
+              scrollTrigger: {
+                trigger: questionRefs.current[index + 1],
+                start: "top 76%",
+                end: "top 45%",
+                scrub: 0.8,
+              },
+            });
+          }
+        });
+      });
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden border-y border-gray-200/80 bg-[#f2f0ea] px-5 py-28 text-gray-950 sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute -left-56 top-40 size-[38rem] rounded-full bg-cyan-300/20 blur-[150px]" />
+      <div className="pointer-events-none absolute -right-52 bottom-28 size-[36rem] rounded-full bg-amber-200/25 blur-[140px]" />
+
+      <div className="relative mx-auto max-w-[96rem]">
+        <header className="grid grid-flow-dense grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-7">
+            <p className="max-w-md text-sm leading-6 text-gray-600">
+              Clear expectations matter in investment research. These are the
+              questions teams ask before deciding whether Nova belongs in
+              their workflow.
+            </p>
+            <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.6rem,11vw,7.2rem)] font-semibold leading-[0.87] tracking-[-0.075em]">
+              Clarity before
+              <span
+                aria-hidden="true"
+                className="mx-2 inline-block h-[0.55em] w-[1.38em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-gray-950/10 sm:mx-3"
+                style={{ backgroundImage: `url(${ScenarioAnalysisArt})` }}
+              />
+              commitment.
+            </h2>
+          </div>
+
+          <div className="group relative lg:col-span-5 lg:translate-y-12">
+            <div
+              ref={visualRef}
+              className="relative aspect-[5/4] overflow-hidden rounded-[2rem] bg-gray-950 shadow-[0_35px_100px_-50px_rgba(15,23,42,0.55)] will-change-transform"
+            >
+              <img
+                src={ScenarioAnalysisArt}
+                alt="Multiple market scenarios organized for clearer investment decisions"
+                className="h-full w-full object-cover opacity-75 contrast-125 transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-cyan-300/5" />
+              <p className="absolute inset-x-0 bottom-0 max-w-sm p-7 font-['Outfit_Variable',sans-serif] text-2xl font-semibold leading-tight tracking-[-0.035em] text-white sm:p-9 sm:text-3xl">
+                Understand what Nova does, where it helps, and what it never
+                promises.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <div className="mt-24 overflow-hidden border-y border-gray-950/15 py-4 md:mt-36">
+          <div
+            ref={marqueeRef}
+            aria-hidden="true"
+            className="flex w-max will-change-transform"
+          >
+            {[...faqSignals, ...faqSignals].map((signal, index) => (
+              <span
+                key={`${signal}-${index}`}
+                className="flex items-center whitespace-nowrap pr-10 text-xs font-semibold uppercase tracking-[0.17em] text-gray-500"
+              >
+                <span className="mr-10 size-1.5 rounded-full bg-cyan-600" />
+                {signal}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-20 grid grid-flow-dense grid-cols-1 gap-14 lg:mt-28 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+          <aside className="self-start lg:sticky lg:top-28 lg:col-span-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
+              Currently in focus
+            </p>
+            <p className="mt-5 max-w-sm font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em]">
+              {items[activeQuestion].title}
+            </p>
+
+            <div className="mt-9 flex items-center justify-between border-t border-gray-950/15 pt-6">
+              <div className="flex -space-x-3">
+                {items.map((item, index) => (
+                  <button
+                    key={item.title}
+                    type="button"
+                    onClick={() => focusQuestion(index)}
+                    aria-label={`Show: ${item.title}`}
+                    aria-pressed={activeQuestion === index}
+                    className={`relative flex size-11 cursor-pointer overflow-hidden rounded-full border-2 border-[#f2f0ea] bg-gray-950 transition duration-400 hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                      activeQuestion === index
+                        ? "z-10 -translate-y-1 ring-2 ring-gray-950 ring-offset-2 ring-offset-[#f2f0ea]"
+                        : "opacity-55 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={faqVisuals[index]}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => focusQuestion(activeQuestion - 1)}
+                  aria-label="Previous question"
+                  className="flex size-11 cursor-pointer items-center justify-center rounded-full border border-gray-950/15 transition duration-300 hover:-translate-x-0.5 hover:bg-gray-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                >
+                  <ArrowLeft className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => focusQuestion(activeQuestion + 1)}
+                  aria-label="Next question"
+                  className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-950 text-white transition duration-300 hover:translate-x-0.5 hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 focus-visible:ring-offset-2"
+                >
+                  <ArrowRight className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            <p className="mt-7 max-w-sm text-sm leading-6 text-gray-500">
+              Browse every answer or use the controls to move directly to the
+              concern most relevant to your evaluation.
+            </p>
+          </aside>
+
+          <div className="space-y-8 lg:col-span-8 lg:space-y-14">
+            {items.map((item, index) => {
+              const isOpen = openQuestion === index;
+              const isDark = index === 1 || index === 4;
+
+              return (
+                <article
+                  key={item.title}
+                  ref={(node) => {
+                    questionRefs.current[index] = node;
+                  }}
+                  className={`group sticky overflow-hidden rounded-[1.75rem] border p-3 shadow-[0_35px_100px_-55px_rgba(15,23,42,0.48)] backdrop-blur-xl will-change-transform ${
+                    isDark
+                      ? "border-white/10 bg-gray-950 text-white"
+                      : index === 2
+                        ? "border-cyan-900/10 bg-[#d9f5f1] text-gray-950"
+                        : "border-gray-200 bg-white text-gray-950"
+                  }`}
+                  style={{
+                    top: `${6 + index * 0.75}rem`,
+                    zIndex: index + 1,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveQuestion(index);
+                      setOpenQuestion(isOpen ? -1 : index);
+                    }}
+                    aria-expanded={isOpen}
+                    className="flex w-full cursor-pointer items-start gap-5 rounded-[1.1rem] p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-500 sm:gap-7 sm:p-7"
+                  >
+                    <div className="mt-0.5 size-14 shrink-0 overflow-hidden rounded-2xl bg-gray-100 sm:size-16">
+                      <img
+                        src={faqVisuals[index]}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`text-xs font-semibold uppercase tracking-[0.16em] ${
+                          isDark ? "text-cyan-300" : "text-cyan-700"
+                        }`}
+                      >
+                        {item.category}
+                      </p>
+                      <h3 className="mt-3 max-w-2xl font-['Outfit_Variable',sans-serif] text-2xl font-semibold leading-tight tracking-[-0.035em] sm:text-3xl">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <span
+                      className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition duration-500 ${
+                        isDark
+                          ? "border-white/15 text-white"
+                          : "border-gray-950/15 text-gray-950"
+                      } ${isOpen ? "rotate-180" : ""}`}
+                    >
+                      {isOpen ? (
+                        <Minus className="size-4" />
+                      ) : (
+                        <Plus className="size-4" />
+                      )}
+                    </span>
+                  </button>
+
+                  <div
+                    className={`grid transition-[grid-template-rows] duration-500 ease-out ${
+                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-4 pb-5 sm:pl-[7.75rem] sm:pr-20 sm:pb-8">
+                        <div
+                          className={`border-t pt-6 ${
+                            isDark ? "border-white/10" : "border-gray-950/10"
+                          }`}
+                        >
+                          <p
+                            className={`max-w-2xl text-base leading-7 ${
+                              isDark ? "text-white/60" : "text-gray-600"
+                            }`}
+                          >
+                            {item.content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 
@@ -1423,26 +1759,31 @@ function App() {
   const PAGE_SIZE = 10;
   const faqItems = [
     {
+      category: "Product use",
       title: "Does the founder use this AI directly?",
       content:
         "Yes. Nova AI is also used directly by the founder in investment transactions. The platform is designed to help retail investors get access to the same technology used by professionals, so they can make more informed and structured investment decisions.",
     },
     {
+      category: "Risk and accuracy",
       title: "Is this AI signal 100% accurate?",
       content:
         "No. Markets remain risky and no system is always right. Nova AI doesn't aim to predict the market perfectly, but rather helps users make more structured decisions based on data, probability, and risk management.",
     },
     {
+      category: "Research workflow",
       title: "Do I have to stare at the screen all day?",
       content:
         "No. Nova AI helps filter the market and provides important insights so users only need to look at pre-analyzed stock options, not monitor all market movements manually.",
     },
     {
+      category: "Opportunity frequency",
       title: "Does Nova AI always find opportunities every day?",
       content:
         "Not always. Nova AI is not designed to force searching for opportunities every day. The system first evaluates macroeconomic conditions, liquidity, market sentiment, and market regime before providing insights. In less favorable conditions, Nova AI may recommend being more cautious or even not investing at the moment.",
     },
     {
+      category: "Platform difference",
       title:
         "What makes Nova AI different from free indicators on the internet?",
       content:
@@ -1700,45 +2041,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        <div className="border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-                <SparkleIcon size={12} />
-                FAQ
-              </div>
-              <BlurFade delay={0.15} inView>
-                <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                  Everything you might
-                </h2>
-              </BlurFade>
-              <BlurFade delay={0.15 * 2} inView>
-                <h2 className="text-4xl font-bold mb-4 text-cyan-400">
-                  want to know
-                </h2>
-              </BlurFade>
-              <p className="text-sm text-gray-400 max-w-lg mx-auto">
-                We believe informed investors make better decisions. Here are
-                answers to the most frequently asked questions we hear.
-              </p>
-            </div>
-            <div className="max-w-4/5 mx-auto mt-8">
-              <Accordion>
-                {" "}
-                {faqItems.map((faq, idx) => (
-                  <AccordionItem
-                    key={idx}
-                    aria-label={faq.title}
-                    title={faq.title}
-                  >
-                    {" "}
-                    {faq.content}{" "}
-                  </AccordionItem>
-                ))}{" "}
-              </Accordion>
-            </div>
-          </div>
-        </div>
+        <FAQSection items={faqItems} />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
