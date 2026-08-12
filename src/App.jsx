@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import "@fontsource-variable/outfit";
-import { CardSpotlight } from "@/components/ui/card-spotlight";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import gsap from "gsap";
@@ -24,7 +23,6 @@ import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import {
   Accordion,
   AccordionItem,
-  Chip,
   Image,
 } from "@heroui/react";
 import SparkleIcon from "@/components/SparkleIcon";
@@ -903,6 +901,517 @@ function SectorCoverageSection() {
   );
 }
 
+function formatPerformanceValue(value, suffix = "", digits = 1) {
+  if (value == null || Number.isNaN(Number(value))) return "—";
+  return `${Number(value).toFixed(digits)}${suffix}`;
+}
+
+function formatTradePrice(stock, value) {
+  if (value == null || Number.isNaN(Number(value))) return "—";
+
+  const prefix = stock.country === "Indonesia" ? "Rp " : "$";
+  return `${prefix}${Number(value).toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function TradeOutcome({ value }) {
+  const isWin = value > 0;
+  const isLoss = value < 0;
+
+  return (
+    <span
+      className={`inline-flex min-w-20 items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold ${
+        isWin
+          ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+          : isLoss
+            ? "border-rose-300 bg-rose-50 text-rose-800"
+            : "border-gray-300 bg-gray-100 text-gray-700"
+      }`}
+    >
+      {isWin ? "Win" : isLoss ? "Loss" : "Break-even"}
+    </span>
+  );
+}
+
+function RealTradePerformanceSection({
+  completedStocks,
+  isLoading,
+  statistics,
+}) {
+  const [activeTrade, setActiveTrade] = useState(0);
+  const sectionRef = useRef(null);
+  const visualRef = useRef(null);
+  const stackCardRefs = useRef([]);
+  const currentTrade = completedStocks?.[activeTrade] ?? null;
+
+  const selectTrade = (index) => {
+    if (!completedStocks?.length) return;
+    setActiveTrade(
+      (index + completedStocks.length) % completedStocks.length,
+    );
+  };
+
+  const performanceMetrics = [
+    {
+      label: "Average return / trade",
+      value: formatPerformanceValue(
+        statistics?.averageReturnPerTrade,
+        "%",
+        2,
+      ),
+      context: "Mean realized return across completed positions.",
+    },
+    {
+      label: "Profit factor",
+      value: formatPerformanceValue(statistics?.profitFactor, "", 2),
+      context: "Gross gains relative to gross losses.",
+    },
+    {
+      label: "Total return",
+      value: formatPerformanceValue(statistics?.totalReturn, "%", 2),
+      context: "Cumulative outcome from recorded closed trades.",
+    },
+  ];
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: visualRef.current,
+              start: "top 88%",
+              end: "bottom 16%",
+              scrub: 0.8,
+            },
+          })
+          .fromTo(
+            visualRef.current,
+            { autoAlpha: 0.35, scale: 0.82 },
+            { autoAlpha: 1, scale: 1, duration: 0.55, ease: "none" },
+          )
+          .to(visualRef.current, {
+            autoAlpha: 0.25,
+            scale: 0.96,
+            duration: 0.45,
+            ease: "none",
+          });
+
+        stackCardRefs.current.forEach((card, index) => {
+          if (!card) return;
+
+          gsap.fromTo(
+            card,
+            { autoAlpha: 0.45, y: 88, scale: 0.95 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 90%",
+                end: "top 50%",
+                scrub: 0.8,
+              },
+            },
+          );
+
+          if (index < stackCardRefs.current.length - 1) {
+            gsap.to(card, {
+              scale: 0.975,
+              autoAlpha: 0.45,
+              ease: "none",
+              scrollTrigger: {
+                trigger: stackCardRefs.current[index + 1],
+                start: "top 76%",
+                end: "top 44%",
+                scrub: 0.8,
+              },
+            });
+          }
+        });
+      });
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden border-y border-white/10 bg-[#080b0c] px-5 py-28 text-white sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(34,211,238,0.12),transparent_30%),radial-gradient(circle_at_8%_76%,rgba(16,185,129,0.08),transparent_28%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(255,255,255,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.8)_1px,transparent_1px)] [background-size:72px_72px]" />
+
+      <div className="relative mx-auto max-w-[96rem]">
+        <header className="mx-auto max-w-6xl text-center">
+          <p className="mx-auto max-w-2xl text-sm leading-6 text-cyan-100/55">
+            Completed positions are recorded against their realized market
+            outcomes, creating an evidence trail that can be reviewed trade by
+            trade.
+          </p>
+          <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.35rem,10vw,6.6rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
+            Performance you can
+            <span
+              aria-hidden="true"
+              className="mx-2 inline-block h-[0.55em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] opacity-90 ring-1 ring-white/15 sm:mx-3"
+              style={{ backgroundImage: `url(${RiskAnalysisArt})` }}
+            />
+            inspect, not just a claim.
+          </h2>
+          <p className="mx-auto mt-8 max-w-2xl text-base leading-7 text-white/50">
+            Summary metrics update as positions close. The ledger below keeps
+            the entry, target, risk level, and final outcome visible together.
+          </p>
+        </header>
+
+        <div className="mt-20 space-y-20 md:mt-28 lg:space-y-32">
+          <article
+            ref={(node) => {
+              stackCardRefs.current[0] = node;
+            }}
+            className="performance-stack-card overflow-hidden rounded-[2rem] border border-white/10 bg-[#101516]/95 p-3 shadow-[0_45px_140px_-55px_rgba(0,0,0,0.95)] backdrop-blur-xl will-change-transform sm:p-4 lg:sticky lg:top-24"
+          >
+            <div className="grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-[1.35rem] bg-white/10 lg:grid-cols-12">
+              <div className="flex min-h-[27rem] flex-col justify-between bg-[#d8faf4] p-7 text-gray-950 sm:p-10 lg:col-span-7 lg:min-h-[31rem]">
+                <div className="flex items-start justify-between gap-6">
+                  <p className="max-w-xs text-xs font-semibold uppercase tracking-[0.17em] text-emerald-800">
+                    Realized win rate
+                  </p>
+                  <p className="text-right text-sm text-gray-600">
+                    {statistics?.winningTrades ?? 0} wins<br />
+                    {statistics?.losingTrades ?? 0} losses
+                  </p>
+                </div>
+
+                {isLoading ? (
+                  <Skeleton className="h-28 w-64 rounded-3xl bg-emerald-900/10" />
+                ) : (
+                  <p className="font-['Outfit_Variable',sans-serif] text-[clamp(5.5rem,15vw,10rem)] font-semibold leading-[0.72] tracking-[-0.08em]">
+                    {formatPerformanceValue(statistics?.winRate, "%", 1)}
+                  </p>
+                )}
+
+                <div className="flex flex-col gap-3 border-t border-gray-950/15 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="font-['Outfit_Variable',sans-serif] text-xl font-semibold tracking-[-0.025em]">
+                    {statistics?.totalTrades ?? 0} completed trades
+                  </p>
+                  <p className="text-sm text-gray-600">Updated automatically</p>
+                </div>
+              </div>
+
+              <div className="group relative min-h-[27rem] overflow-hidden bg-gray-950 lg:col-span-5 lg:min-h-[31rem]">
+                <div
+                  ref={visualRef}
+                  className="absolute inset-0 overflow-hidden will-change-transform"
+                >
+                  <img
+                    src={RiskAnalysisArt}
+                    alt="Layered risk analysis supporting recorded trade outcomes"
+                    className="h-full w-full object-cover opacity-65 contrast-125 transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/25 to-cyan-300/5" />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9">
+                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-300">
+                    Evidence, not projection
+                  </p>
+                  <p className="mt-4 max-w-sm font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em]">
+                    Closed trades stay visible after the recommendation.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex min-h-72 flex-col bg-white lg:col-span-12 lg:flex-row">
+                {performanceMetrics.map((metric, index) => (
+                  <div
+                    key={metric.label}
+                    className="group flex flex-1 flex-col justify-between border-gray-200 p-7 text-gray-950 transition-[flex,background-color] duration-700 ease-out hover:flex-[1.45] hover:bg-cyan-50 sm:p-9 lg:border-r lg:last:border-r-0"
+                  >
+                    <div className="flex items-start justify-between gap-5">
+                      <p className="max-w-[10rem] text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+                        {metric.label}
+                      </p>
+                      <span className="font-['Outfit_Variable',sans-serif] text-sm text-gray-400">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    {isLoading ? (
+                      <Skeleton className="mt-12 h-14 w-36 rounded-2xl bg-gray-200" />
+                    ) : (
+                      <p className="mt-12 font-['Outfit_Variable',sans-serif] text-5xl font-semibold tracking-[-0.055em] sm:text-6xl">
+                        {metric.value}
+                      </p>
+                    )}
+                    <p className="mt-6 max-w-xs text-sm leading-6 text-gray-500">
+                      {metric.context}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <article
+            ref={(node) => {
+              stackCardRefs.current[1] = node;
+            }}
+            className="performance-stack-card overflow-hidden rounded-[2rem] border border-gray-200 bg-[#f5f7f6] p-3 text-gray-950 shadow-[0_45px_140px_-55px_rgba(0,0,0,0.9)] will-change-transform sm:p-4 lg:sticky lg:top-28"
+          >
+            <div className="rounded-[1.35rem] bg-white px-5 py-7 sm:px-8 sm:py-9">
+              <div className="flex flex-col gap-5 border-b border-gray-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
+                <div className="text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
+                    Completed positions
+                  </p>
+                  <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
+                    The trade ledger
+                  </h3>
+                </div>
+                <p className="max-w-md text-left text-sm leading-6 text-gray-500 sm:text-right">
+                  Historical results describe recorded outcomes and do not
+                  guarantee future performance.
+                </p>
+              </div>
+
+              <div className="py-7 lg:hidden">
+                {isLoading ? (
+                  <div className="space-y-5 rounded-[1.5rem] bg-gray-100 p-6">
+                    <Skeleton className="h-12 w-44 rounded-xl bg-gray-200" />
+                    <Skeleton className="h-28 w-full rounded-2xl bg-gray-200" />
+                  </div>
+                ) : currentTrade ? (
+                  <div className="rounded-[1.5rem] bg-gray-950 p-6 text-white">
+                    <div className="flex items-start justify-between gap-5">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={currentTrade.logo}
+                          alt={`${currentTrade.name} logo`}
+                          className="size-11 rounded-xl bg-white object-cover"
+                        />
+                        <div>
+                          <p className="font-['Outfit_Variable',sans-serif] text-xl font-semibold">
+                            {currentTrade.name.replace(".JK", "")}
+                          </p>
+                          <p className="text-xs text-white/45">
+                            {currentTrade.country}
+                          </p>
+                        </div>
+                      </div>
+                      <TradeOutcome value={currentTrade.pct_gain} />
+                    </div>
+                    <p
+                      className={`mt-8 font-['Outfit_Variable',sans-serif] text-5xl font-semibold tracking-[-0.055em] ${
+                        currentTrade.pct_gain > 0
+                          ? "text-emerald-300"
+                          : currentTrade.pct_gain < 0
+                            ? "text-rose-300"
+                            : "text-white"
+                      }`}
+                    >
+                      {currentTrade.pct_gain.toFixed(2)}%
+                    </p>
+                    <div className="mt-8 grid grid-cols-3 gap-2 border-t border-white/10 pt-5 text-xs">
+                      <div>
+                        <p className="text-white/40">Entry</p>
+                        <p className="mt-2 font-medium">
+                          {formatTradePrice(
+                            currentTrade,
+                            currentTrade.initial_price,
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-white/40">Target</p>
+                        <p className="mt-2 font-medium">
+                          {formatTradePrice(
+                            currentTrade,
+                            currentTrade.initial_price +
+                              (currentTrade.initial_price *
+                                currentTrade.predicted_pct_change) /
+                                100,
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-white/40">Risk floor</p>
+                        <p className="mt-2 font-medium">
+                          {formatTradePrice(
+                            currentTrade,
+                            currentTrade.stop_loss,
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="rounded-[1.5rem] bg-gray-100 p-8 text-center text-sm text-gray-500">
+                    No completed trades at this time.
+                  </p>
+                )}
+
+                {completedStocks?.length > 1 && !isLoading && (
+                  <div className="mt-5 flex items-center justify-between">
+                    <div className="flex -space-x-2">
+                      {completedStocks.slice(0, 5).map((stock, index) => (
+                        <button
+                          key={stock.id}
+                          type="button"
+                          onClick={() => selectTrade(index)}
+                          aria-label={`Show ${stock.name.replace(".JK", "")}`}
+                          className={`relative flex size-10 cursor-pointer overflow-hidden rounded-full border-2 border-white bg-white transition duration-300 hover:z-10 hover:-translate-y-1 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                            activeTrade === index ? "z-10 -translate-y-1" : ""
+                          }`}
+                        >
+                          <img
+                            src={stock.logo}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => selectTrade(activeTrade - 1)}
+                        aria-label="Previous completed trade"
+                        className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-gray-300 transition hover:bg-gray-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        <ArrowLeft className="size-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => selectTrade(activeTrade + 1)}
+                        aria-label="Next completed trade"
+                        className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-gray-950 text-white transition hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        <ArrowRight className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden overflow-x-auto lg:block">
+                <Table className="text-left">
+                  <TableHeader>
+                    <TableRow className="border-gray-200 hover:bg-transparent">
+                      <TableHead className="h-14 min-w-52 text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Stock
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Entry
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Target
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Risk floor
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Realized
+                      </TableHead>
+                      <TableHead className="text-right text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                        Outcome
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      Array.from({ length: 6 }).map((_, index) => (
+                        <TableRow key={index} className="h-20 border-gray-100">
+                          {Array.from({ length: 6 }).map((__, cellIndex) => (
+                            <TableCell key={cellIndex}>
+                              <Skeleton className="h-5 w-24 rounded-full bg-gray-200" />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : completedStocks?.length ? (
+                      completedStocks.map((stock) => {
+                        const targetPrice =
+                          stock.initial_price +
+                          (stock.initial_price * stock.predicted_pct_change) /
+                            100;
+
+                        return (
+                          <TableRow
+                            key={stock.id}
+                            className="group h-20 border-gray-100 transition-colors hover:bg-cyan-50/60"
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <div className="overflow-hidden rounded-xl bg-gray-100">
+                                  <img
+                                    src={stock.logo}
+                                    alt={`${stock.name} logo`}
+                                    className="size-10 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                  />
+                                </div>
+                                <div>
+                                  <p className="font-['Outfit_Variable',sans-serif] font-semibold text-gray-950">
+                                    {stock.name.replace(".JK", "")}
+                                  </p>
+                                  <p className="mt-0.5 text-xs text-gray-400">
+                                    {stock.country}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium text-gray-700">
+                              {formatTradePrice(stock, stock.initial_price)}
+                            </TableCell>
+                            <TableCell className="font-medium text-gray-700">
+                              {formatTradePrice(stock, targetPrice)}
+                            </TableCell>
+                            <TableCell className="font-medium text-gray-700">
+                              {formatTradePrice(stock, stock.stop_loss)}
+                            </TableCell>
+                            <TableCell
+                              className={`font-['Outfit_Variable',sans-serif] text-lg font-semibold ${
+                                stock.pct_gain > 0
+                                  ? "text-emerald-700"
+                                  : stock.pct_gain < 0
+                                    ? "text-rose-700"
+                                    : "text-gray-600"
+                              }`}
+                            >
+                              {stock.pct_gain.toFixed(2)}%
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <TradeOutcome value={stock.pct_gain} />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={6}
+                          className="py-16 text-center text-sm text-gray-500"
+                        >
+                          No completed trades at this time.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 
@@ -1181,214 +1690,11 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        {/* Real trade performance */}
-        <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              Real Trade Performance
-            </div>
-            <BlurFade delay={0.15} inView>
-              <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Every completed trade,
-              </h2>
-            </BlurFade>
-            <BlurFade delay={0.15 * 2} inView>
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">
-                  measured with transparency
-                </span>
-              </h2>
-            </BlurFade>
-            <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Every completed position is recorded and tracked using its actual
-              market outcome. Below are the latest closed trades generated by
-              Nova AI, along with key performance metrics that update
-              automatically as new positions are completed.
-            </p>
-            <div className="mt-12 max-w-2/3 mx-auto">
-              <Table className="mb-6 text-left">
-                <TableHeader className="bg-gray-100">
-                  <TableRow>
-                    <TableHead className="min-w-28 md:min-w-24">
-                      Stock
-                    </TableHead>
-                    <TableHead>Entry</TableHead>
-                    <TableHead>TP</TableHead>
-                    <TableHead>SL</TableHead>
-                    <TableHead>Profit</TableHead>
-                    <TableHead>Result</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: 6 }).map((_, i) => (
-                      <TableRow key={i} className="h-16">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="h-10 w-10 rounded-xl bg-gray-200" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
-                              <Skeleton className="h-3 w-16 rounded-full bg-gray-200" />
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-20 rounded-full bg-gray-200" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-20 rounded-full bg-gray-200" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-16 rounded-full bg-gray-200" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-8 w-20 rounded-full bg-gray-200" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : completedStocks && completedStocks.length > 0 ? (
-                    completedStocks.map((stock) => (
-                      <TableRow key={stock.id}>
-                        <TableCell className="flex gap-2 items-center">
-                          <img
-                            src={stock.logo}
-                            alt={`${stock.name} logo`}
-                            className="h-8 w-8 rounded-md"
-                          />
-                          <div className="flex-1">
-                            <p className="font-semibold text-foreground">
-                              {stock.name.replace(".JK", "")}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {stock.country === "Indonesia" ? "Rp " : "$"}
-                          {stock.initial_price.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {stock.country === "Indonesia" ? "Rp " : "$"}
-                          {(
-                            stock.initial_price +
-                            (stock.initial_price * stock.predicted_pct_change) /
-                              100
-                          ).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          {stock.country === "Indonesia" ? "Rp " : "$"}
-                          {stock.stop_loss.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {stock.pct_gain > 0 ? (
-                            <span className="text-green-500 font-semibold">
-                              {stock.pct_gain.toFixed(2)}%
-                            </span>
-                          ) : stock.pct_gain < 0 ? (
-                            <span className="text-red-500 font-semibold">
-                              {stock.pct_gain.toFixed(2)}%
-                            </span>
-                          ) : (
-                            <span className="text-gray-500 font-semibold">
-                              {stock.pct_gain.toFixed(2)}%
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {stock.pct_gain > 0 ? (
-                            <Chip
-                              size="sm"
-                              className="font-bold bg-green-500/10 border border-green-500"
-                            >
-                              <span className="font-bold text-green-700">
-                                Win
-                              </span>
-                            </Chip>
-                          ) : stock.pct_gain < 0 ? (
-                            <Chip
-                              size="sm"
-                              className="font-bold bg-red-500/10 border border-red-500"
-                            >
-                              <span className="font-bold text-red-700">
-                                Loss
-                              </span>
-                            </Chip>
-                          ) : (
-                            <Chip
-                              size="sm"
-                              className="font-bold bg-gray-500/10 border border-gray-500"
-                            >
-                              <span className="font-bold text-gray-700">
-                                Break-even
-                              </span>
-                            </Chip>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-4">
-                        No completed trades at this time.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              {isLoading ? (
-                <div className="space-y-5 rounded-3xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm">
-                  <div className="space-y-3">
-                    <Skeleton className="mx-auto h-4 w-32 rounded-full bg-gray-200" />
-                    <Skeleton className="mx-auto h-8 w-48 rounded-xl bg-gray-200" />
-                    <Skeleton className="mx-auto h-4 w-40 rounded-full bg-gray-200" />
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
-                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
-                    <Skeleton className="h-20 rounded-2xl bg-gray-200" />
-                  </div>
-                </div>
-              ) : (
-                <CardSpotlight>
-                  <h3 className="text-xl font-bold text-white">Total Trades</h3>
-                  <p className="text-lg font-bold leading-8 mt-2 text-white/80 sm:text-xl lg:text-3xl">
-                    {statistics?.winningTrades ?? 0} Winning /{" "}
-                    {statistics?.totalTrades ?? 0} Total
-                  </p>
-                  <p className="text-xl font-bold text-green-500/80 mt-2">
-                    ={" "}
-                    {statistics?.winRate != null
-                      ? `${statistics.winRate.toFixed(1)}%`
-                      : "0.0%"}{" "}
-                    Win Rate
-                  </p>
-                  <h3 className="text-xl font-bold text-white mt-3">
-                    Average Return / Trade
-                  </h3>
-                  <p className="text-xl font-bold text-green-500/80 mt-2">
-                    {statistics?.averageReturnPerTrade != null
-                      ? `${statistics.averageReturnPerTrade.toFixed(2)}%`
-                      : "0.00%"}{" "}
-                    Average Return
-                  </p>
-                  <h3 className="text-xl font-bold text-white mt-3">
-                    Profit Factor
-                  </h3>
-                  <p className="text-xl font-bold text-green-500/80 mt-2">
-                    {statistics?.profitFactor != null
-                      ? statistics.profitFactor.toFixed(2)
-                      : "0.00"}
-                  </p>
-                </CardSpotlight>
-              )}
-            </div>
-          </div>
-        </div>
+        <RealTradePerformanceSection
+          completedStocks={completedStocks}
+          isLoading={isLoading}
+          statistics={statistics}
+        />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
