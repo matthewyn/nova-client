@@ -1,24 +1,14 @@
-import { useEffect, useState } from "react";
-import GradientMesh from "@/assets/gradient-mesh.jpg";
-import Gradient from "@/assets/gradient.jpg";
+import { useEffect, useRef, useState } from "react";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
-import {
-  HiFire,
-  HiBolt,
-  HiGift,
-  HiExclamationCircle,
-  HiMiniStar,
-  HiGlobeAsiaAustralia,
-  HiMap,
-  HiLightBulb,
-} from "react-icons/hi2";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -26,42 +16,26 @@ import {
 } from "@/components/ui/table";
 import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
-import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { proceedToWhatsapp } from "@/utils/proceedToWhatsapp";
 import { Sparkles } from "@/components/ui/sparkles";
 import { Separator } from "@/components/ui/separator";
-import { CircleCheck, RotateCw } from "lucide-react";
+import { ArrowUpRight, CircleCheck, RotateCw } from "lucide-react";
 import { useTheme } from "next-themes";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import {
   Accordion,
   AccordionItem,
-  Button,
   Chip,
   Image,
-  User,
 } from "@heroui/react";
 import SparkleIcon from "@/components/SparkleIcon";
-import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import CustomChip from "@/components/CustomChip";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
-import DotGrid from "@/components/DotGrid";
 import { Badge } from "@/components/ui/badge";
-import { Gallery6 } from "@/components/blocks/gallery6";
 import Macro from "@/assets/macro.png";
 import CapitalFlow from "@/assets/capital-flow.png";
 import Sectors from "@/assets/sectors.png";
@@ -69,13 +43,13 @@ import Risk from "@/assets/risk.png";
 import PositionSizing from "@/assets/position-sizing.png";
 import ScenarioAnalysis from "@/assets/scenario-analysis.png";
 
-const demoData = {
-  heading: "Featured Projects",
-  demoUrl: "https://www.shadcnblocks.com",
-  items: [
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const intelligenceFeatures = [
     {
       id: "item-1",
       title: "Macro Intelligence",
+      signal: "Read the regime",
       summary:
         "Understand the current market environment through macroeconomic trends, inflation, interest rates, liquidity, and market regime analysis before making investment decisions.",
       image: Macro,
@@ -83,6 +57,7 @@ const demoData = {
     {
       id: "item-2",
       title: "Capital Flow Analysis",
+      signal: "Follow smart money",
       summary:
         "Track where institutional capital is moving across sectors, asset classes, and investment themes to uncover emerging opportunities ahead of the broader market.",
       image: CapitalFlow,
@@ -90,6 +65,7 @@ const demoData = {
     {
       id: "item-3",
       title: "Sector & Theme Rotation",
+      signal: "Find emerging strength",
       summary:
         "Discover sectors and long-term investment themes gaining institutional attention, helping you focus on where capital is flowing—not where it has already gone.",
       image: Sectors,
@@ -97,6 +73,7 @@ const demoData = {
     {
       id: "item-4",
       title: "Institutional & Risk Analysis",
+      signal: "Measure conviction",
       summary:
         "Evaluate every investment using institutional conviction and a multi-dimensional risk framework covering liquidity, volatility, trend strength, and momentum.",
       image: Risk,
@@ -104,6 +81,7 @@ const demoData = {
     {
       id: "item-5",
       title: "Smart Position Sizing",
+      signal: "Control every entry",
       summary:
         "Determine the appropriate position size based on your risk profile, portfolio allocation, and the current market environment to improve risk-adjusted returns.",
       image: PositionSizing,
@@ -111,30 +89,188 @@ const demoData = {
     {
       id: "item-6",
       title: "Scenario Analysis",
+      signal: "Prepare for outcomes",
       summary:
         "Prepare for multiple market outcomes with AI-generated Bull, Base, and Bear scenarios, allowing you to understand potential opportunities and risks before entering a position.",
       image: ScenarioAnalysis,
     },
-  ],
-};
+];
 
-const CheckIcon = ({ className = "" }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    className={className}
-  >
-    <path
-      d="M5 13L9 17L19 7"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+const intelligenceSignals = [
+  "Macro regime",
+  "Liquidity shifts",
+  "Sector rotation",
+  "Institutional conviction",
+  "Position sizing",
+  "Bull · Base · Bear",
+];
+
+function WhatYouGetSection() {
+  const sectionRef = useRef(null);
+  const introRef = useRef(null);
+  const marqueeRef = useRef(null);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.to(marqueeRef.current, {
+          xPercent: -50,
+          duration: 24,
+          ease: "none",
+          repeat: -1,
+        });
+
+        gsap.utils.toArray(".intelligence-visual").forEach((visual) => {
+          gsap
+            .timeline({
+              scrollTrigger: {
+                trigger: visual,
+                start: "top 88%",
+                end: "bottom 12%",
+                scrub: 0.8,
+              },
+            })
+            .fromTo(
+              visual,
+              { autoAlpha: 0.35, scale: 0.82 },
+              { autoAlpha: 1, scale: 1, duration: 0.55, ease: "none" },
+            )
+            .to(visual, {
+              autoAlpha: 0.2,
+              scale: 0.96,
+              duration: 0.45,
+              ease: "none",
+            });
+        });
+      });
+
+      media.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          ScrollTrigger.create({
+            trigger: sectionRef.current,
+            start: "top top+=96",
+            end: "bottom bottom-=96",
+            pin: introRef.current,
+            pinSpacing: false,
+          });
+        },
+      );
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden border-y border-gray-200/70 bg-[#f4f6f7] px-5 py-28 sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute -left-48 top-1/4 size-[34rem] rounded-full bg-cyan-300/20 blur-[120px]" />
+      <div className="pointer-events-none absolute -right-56 bottom-20 size-[40rem] rounded-full bg-violet-300/15 blur-[140px]" />
+
+      <div className="relative mx-auto grid max-w-[96rem] gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
+        <div ref={introRef} className="self-start lg:col-span-4">
+          <p className="mb-7 max-w-sm text-sm font-medium leading-relaxed text-gray-500">
+            One connected intelligence system, designed to turn noisy market
+            data into decisions you can act on.
+          </p>
+          <h2 className="max-w-5xl font-heading text-[clamp(3.15rem,12vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-gray-950 lg:text-[clamp(3.5rem,4vw,5rem)]">
+            See the market
+            <span
+              aria-hidden="true"
+              className="mx-2 inline-block h-[0.58em] w-[1.45em] rounded-full bg-cover bg-center align-[0.05em] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] sm:mx-3"
+              style={{ backgroundImage: `url(${Macro})` }}
+            />
+            before the move.
+          </h2>
+          <p className="mt-8 max-w-md text-base leading-7 text-gray-600">
+            Nova AI connects macro context, capital flows, institutional
+            signals, and risk into one clear investment workflow.
+          </p>
+
+          <div className="mt-10 overflow-hidden border-y border-gray-300/80 py-4">
+            <div
+              ref={marqueeRef}
+              aria-hidden="true"
+              className="flex w-max will-change-transform"
+            >
+              {[...intelligenceSignals, ...intelligenceSignals].map(
+                (signal, index) => (
+                  <span
+                    key={`${signal}-${index}`}
+                    className="flex items-center whitespace-nowrap pr-8 text-xs font-semibold uppercase tracking-[0.16em] text-gray-500"
+                  >
+                    <span className="mr-8 size-1.5 rounded-full bg-cyan-500" />
+                    {signal}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-[1.75rem] border border-gray-200 bg-gray-200 shadow-[0_32px_100px_-48px_rgba(15,23,42,0.35)] sm:grid-cols-2 lg:col-span-8 xl:grid-cols-12">
+          {intelligenceFeatures.map((item, index) => {
+            const isDark = index === 0 || index === 4;
+
+            return (
+              <article
+                key={item.id}
+                className={`group relative flex min-h-[29rem] flex-col overflow-hidden p-4 sm:min-h-[31rem] xl:col-span-4 ${
+                  isDark ? "bg-gray-950 text-white" : "bg-white text-gray-950"
+                }`}
+              >
+                <div className="intelligence-visual relative aspect-[4/3] overflow-hidden rounded-[1.1rem] bg-gray-100 will-change-transform">
+                  <img
+                    src={item.image}
+                    alt={`${item.title} interface preview`}
+                    className="h-full w-full object-cover object-left-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950/30 via-transparent to-white/5" />
+                </div>
+
+                <div className="flex flex-1 flex-col px-2 pb-2 pt-7">
+                  <div className="flex items-start justify-between gap-4">
+                    <p
+                      className={`text-xs font-semibold uppercase tracking-[0.14em] ${
+                        isDark ? "text-cyan-300" : "text-cyan-600"
+                      }`}
+                    >
+                      {item.signal}
+                    </p>
+                    <ArrowUpRight
+                      className={`size-5 shrink-0 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1 ${
+                        isDark ? "text-white" : "text-gray-950"
+                      }`}
+                    />
+                  </div>
+                  <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-[-0.035em]">
+                    {item.title}
+                  </h3>
+                  <div className="grid flex-1 grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">
+                    <div className="overflow-hidden">
+                      <p
+                        className={`pt-4 text-sm leading-6 ${
+                          isDark ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {item.summary}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const items = [
   {
@@ -198,8 +334,6 @@ const americanSectors = [
   "Gold",
   "Communication Services",
 ];
-
-const urlFetch = generateApiOrigin("/midtrans/create-token");
 
 function FlipSectorCard({
   flagSrc,
@@ -280,7 +414,7 @@ const urlFetchStatistics = generateApiOrigin("/transaction/statistics");
 const urlFetchCompleted = generateApiOrigin("/stocks/completed");
 
 function App() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [completedStocks, setCompletedStocks] = useState([]);
@@ -370,7 +504,7 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-gray-50">
       {/* Hero / Pricing header */}
       <div>
         <div className="px-8">
@@ -385,33 +519,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        {/* What you'll get */}
-        <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              What You'll Get
-            </div>
-            <BlurFade delay={0.15} inView>
-              <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Everything you need to
-              </h2>
-            </BlurFade>
-            <BlurFade delay={0.15 * 2} inView>
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">invest with confidence</span>
-              </h2>
-            </BlurFade>
-            <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Nova AI combines institutional research, macroeconomic analysis,
-              capital flow intelligence, and AI-powered market insights into a
-              single platform—helping you understand market conditions, identify
-              high-quality opportunities, and manage risk with greater
-              confidence.
-            </p>
-            <Gallery6 {...demoData} />
-          </div>
-        </div>
+        <WhatYouGetSection />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
@@ -1042,7 +1150,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
