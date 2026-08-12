@@ -35,7 +35,6 @@ import SparkleIcon from "@/components/SparkleIcon";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
-import { Badge } from "@/components/ui/badge";
 import MacroIntelligenceArt from "@/assets/what-you-get/macro-intelligence.webp";
 import CapitalFlowArt from "@/assets/what-you-get/capital-flow.webp";
 import SectorRotationArt from "@/assets/what-you-get/sector-rotation.webp";
@@ -278,36 +277,271 @@ function WhatYouGetSection() {
   );
 }
 
-const items = [
+const workflowStages = [
   {
-    quarter: "STEP 01",
-    title: "Macro Data Agent",
+    signal: "Market context",
+    title: "Read the economic regime",
     description:
-      "Collects and processes the latest macroeconomic data, including money supply, inflation, interest rates, and other key economic indicators.",
-    status: "done",
+      "Nova continuously organizes inflation, rates, growth, currencies, and liquidity into a coherent view of the environment shaping risk assets.",
+    outcome: "A structured macro view, before security selection begins.",
+    image: MacroIntelligenceArt,
+    imageAlt: "Macro intelligence signals arranged around a market regime model",
   },
   {
-    quarter: "STEP 02",
-    title: "Liquidity Analysis Agent",
+    signal: "Capital movement",
+    title: "Trace where liquidity is moving",
     description:
-      "Analyzes global liquidity conditions using money supply trends, yield curves, currency strength, commodity prices, and other market signals to identify the current macro regime.",
-    status: "done",
+      "Capital flows, asset allocation, and persistent investment themes reveal where institutional attention is building across markets.",
+    outcome: "Emerging demand becomes visible before it becomes consensus.",
+    image: CapitalFlowArt,
+    imageAlt: "Capital streams flowing between global asset classes",
   },
   {
-    quarter: "STEP 03",
-    title: "Sector Rotation Agent",
+    signal: "Opportunity map",
+    title: "Rank sectors with improving conditions",
     description:
-      "Identifies capital rotation across asset classes and sectors, including bonds, equities, commodities, precious metals, and other investment opportunities.",
-    status: "done",
+      "Nova combines macro fit, liquidity, sector characteristics, and theme exposure to identify the areas with the strongest relative setup.",
+    outcome: "A broad market is reduced to a focused opportunity set.",
+    image: SectorRotationArt,
+    imageAlt: "Sector structures rotating toward areas of relative strength",
   },
   {
-    quarter: "STEP 04",
-    title: "Stock Ranking Agent",
+    signal: "Decision focus",
+    title: "Prioritize the candidates worth reviewing",
     description:
-      "Ranks every sector and identifies the top 6 stocks within each sector based on momentum, valuation, quality, liquidity, earnings strength, and alignment with the current macro regime.",
-    status: "done",
+      "Institutional Score, fundamentals, technical strength, forecasting, and risk filters narrow the field to a small set of high-conviction candidates.",
+    outcome: "Analysts spend time evaluating decisions, not screening noise.",
+    image: RiskAnalysisArt,
+    imageAlt: "Investment candidates passing through institutional risk filters",
   },
 ];
+
+const workflowSignals = [
+  "Macro regime",
+  "Liquidity",
+  "Themes",
+  "Sector strength",
+  "Institutional Score",
+  "Risk filters",
+];
+
+function HowNovaWorksSection() {
+  const sectionRef = useRef(null);
+  const introRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const cardRefs = useRef([]);
+
+  const focusStage = (index) => {
+    cardRefs.current[index]?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.to(marqueeRef.current, {
+          xPercent: -50,
+          duration: 22,
+          ease: "none",
+          repeat: -1,
+        });
+
+        cardRefs.current.forEach((card, index) => {
+          if (!card) return;
+
+          gsap.fromTo(
+            card,
+            { autoAlpha: 0.45, y: 96, scale: 0.94 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 88%",
+                end: "top 48%",
+                scrub: 0.8,
+              },
+            },
+          );
+
+          if (index < cardRefs.current.length - 1) {
+            gsap.to(card, {
+              scale: 0.965,
+              autoAlpha: 0.35,
+              ease: "none",
+              scrollTrigger: {
+                trigger: cardRefs.current[index + 1],
+                start: "top 72%",
+                end: "top 38%",
+                scrub: 0.8,
+              },
+            });
+          }
+        });
+      });
+
+      media.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          ScrollTrigger.create({
+            trigger: introRef.current,
+            endTrigger: sectionRef.current,
+            start: "top top+=88",
+            end: "bottom bottom",
+            pin: introRef.current,
+            pinSpacing: false,
+            invalidateOnRefresh: true,
+          });
+        },
+      );
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden border-y border-white/10 bg-[#071012] px-5 py-28 text-white sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(34,211,238,0.14),transparent_28%),radial-gradient(circle_at_88%_72%,rgba(99,102,241,0.12),transparent_30%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,.75)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.75)_1px,transparent_1px)] [background-size:64px_64px]" />
+
+      <div className="relative mx-auto max-w-[96rem]">
+        <div className="mb-16 overflow-hidden border-y border-white/10 py-4 md:mb-24">
+          <div
+            ref={marqueeRef}
+            aria-hidden="true"
+            className="flex w-max will-change-transform"
+          >
+            {[...workflowSignals, ...workflowSignals].map((signal, index) => (
+              <span
+                key={`${signal}-${index}`}
+                className="flex items-center whitespace-nowrap pr-10 text-xs font-medium uppercase tracking-[0.18em] text-white/45"
+              >
+                <span className="mr-10 h-px w-8 bg-cyan-300/70" />
+                {signal}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-flow-dense grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
+          <div
+            ref={introRef}
+            className="self-start lg:col-span-4 lg:flex lg:min-h-[calc(100vh-5.5rem)] lg:flex-col lg:justify-center"
+          >
+            <p className="max-w-sm text-sm leading-6 text-cyan-200/70">
+              Nova begins above the stock level, where market context and
+              capital movement explain why an opportunity deserves attention.
+            </p>
+            <h2 className="mt-7 max-w-5xl font-heading text-[clamp(3.4rem,12vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(3.75rem,5vw,5.75rem)]">
+              From market
+              <span
+                aria-hidden="true"
+                className="mx-2 inline-block h-[0.56em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-white/20 sm:mx-3"
+                style={{ backgroundImage: `url(${CapitalFlowArt})` }}
+              />
+              noise to investment conviction.
+            </h2>
+            <p className="mt-8 max-w-md text-base leading-7 text-white/55">
+              Each layer narrows the universe, preserving the evidence that
+              matters and removing the work that does not.
+            </p>
+
+            <div
+              className="mt-10 hidden h-20 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 lg:flex"
+              aria-label="Jump to a workflow stage"
+            >
+              {workflowStages.map((stage, index) => (
+                <button
+                  key={stage.signal}
+                  type="button"
+                  onClick={() => focusStage(index)}
+                  className="group flex min-w-0 flex-1 cursor-pointer items-end overflow-hidden bg-[#0b1619] p-3 text-left transition-[flex,background-color] duration-500 ease-out hover:flex-[2.2] hover:bg-[#102328] focus-visible:flex-[2.2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-300"
+                >
+                  <span className="truncate text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-white/45 transition-colors group-hover:text-cyan-200 group-focus-visible:text-cyan-200">
+                    {stage.signal}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-8 lg:col-span-8 lg:space-y-24">
+            {workflowStages.map((stage, index) => (
+              <article
+                key={stage.title}
+                ref={(node) => {
+                  cardRefs.current[index] = node;
+                }}
+                className="group sticky top-24 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0d181b]/95 p-3 shadow-[0_40px_100px_-45px_rgba(0,0,0,0.9)] backdrop-blur-xl will-change-transform sm:p-4"
+                style={{ top: `${6 + index * 1.5}rem` }}
+              >
+                <div className="grid min-h-[32rem] overflow-hidden rounded-[1.2rem] bg-[#101d20] md:grid-cols-2">
+                  <div className="relative min-h-72 overflow-hidden md:min-h-full">
+                    <img
+                      src={stage.image}
+                      alt={stage.imageAlt}
+                      className="h-full w-full object-cover opacity-80 contrast-125 grayscale-[0.25] transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#071012] via-transparent to-cyan-300/5 md:bg-gradient-to-r md:from-transparent md:to-[#101d20]" />
+                    <span className="absolute left-5 top-5 font-heading text-6xl font-semibold tracking-[-0.06em] text-white/20">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col justify-between p-7 text-left sm:p-9 md:p-10">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-300">
+                        {stage.signal}
+                      </p>
+                      <h3 className="mt-5 font-heading text-3xl font-semibold leading-[1.02] tracking-[-0.045em] sm:text-4xl">
+                        {stage.title}
+                      </h3>
+                      <p className="mt-6 text-sm leading-7 text-white/55 sm:text-base">
+                        {stage.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-12 border-t border-white/10 pt-6">
+                      <p className="text-sm font-medium leading-6 text-white/85">
+                        {stage.outcome}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white p-2 shadow-[0_40px_120px_-45px_rgba(34,211,238,0.32)] sm:p-3">
+              <div className="overflow-hidden rounded-[1.15rem] bg-gray-100">
+                <Image
+                  src={Dashboard}
+                  alt="Nova AI dashboard showing prioritized investment intelligence"
+                  className="w-full transition-transform duration-700 ease-out hover:scale-[1.015]"
+                />
+              </div>
+              <div className="flex flex-col gap-3 px-4 py-5 text-left sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <p className="font-heading text-lg font-semibold tracking-[-0.02em] text-gray-950">
+                  One workspace. A traceable path from signal to decision.
+                </p>
+                <p className="text-sm text-gray-500">Built for focused review</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const indonesiaSectors = [
   "Property",
@@ -531,130 +765,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
 
-        <div className="text-center border-y-1 border-gray-200/70 px-8 overflow-hidden">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              How Nova AI Works
-            </div>
-            <BlurFade delay={0.15} inView>
-              <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Nova AI doesn't start from stocks
-              </h2>
-            </BlurFade>
-            <BlurFade delay={0.15 * 2} inView>
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">
-                  but from market understanding
-                </span>
-              </h2>
-            </BlurFade>
-            <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Instead of focusing on which stocks are performing well today,
-              Nova AI analyzes where capital is flowing, which sectors are
-              attracting investment, and whether those trends are likely to
-              persist.
-            </p>
-            {/* Desktop: horizontal timeline */}
-            <div className="relative mt-12 hidden md:block">
-              <div className="absolute left-0 right-0 top-4 h-px bg-border" />
-              <div className="flex justify-between gap-4">
-                {items.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className="relative pt-8 text-center w-1/4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.15 }}
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.2 }}
-                      className={`absolute left-1/2 top-2 -translate-x-1/2 h-4 w-4 rounded-full flex items-center justify-center ${
-                        item.status === "done" || item.status === "in-progress"
-                          ? "bg-primary"
-                          : "bg-muted"
-                      }`}
-                    >
-                      <div className="h-1.5 w-1.5 rounded-full bg-background" />
-                    </motion.div>
-
-                    <Badge
-                      variant={
-                        item.status === "done" || item.status === "in-progress"
-                          ? "default"
-                          : "outline"
-                      }
-                      className="mb-1 text-[11px]"
-                    >
-                      {item.quarter}
-                    </Badge>
-
-                    <h4 className="text-sm font-medium">{item.title}</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {item.description}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Mobile: vertical timeline */}
-            <div className="relative mt-12 flex flex-col gap-0 md:hidden max-w-sm mx-auto w-full">
-              {/* Vertical line */}
-              <div className="absolute left-2 top-0 bottom-0 w-px bg-border" />
-              {items.map((item, index) => (
-                <motion.div
-                  key={index}
-                  className="relative pl-10 pb-8 last:pb-0 text-left"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.15 }}
-                >
-                  {/* Dot on the vertical line */}
-                  <motion.div
-                    whileHover={{ scale: 1.2 }}
-                    className={`absolute left-0 top-1 h-4 w-4 rounded-full flex items-center justify-center ${
-                      item.status === "done" || item.status === "in-progress"
-                        ? "bg-primary"
-                        : "bg-muted"
-                    }`}
-                  >
-                    <div className="h-1.5 w-1.5 rounded-full bg-background" />
-                  </motion.div>
-
-                  <Badge
-                    variant={
-                      item.status === "done" || item.status === "in-progress"
-                        ? "default"
-                        : "outline"
-                    }
-                    className="mb-1 text-[11px]"
-                  >
-                    {item.quarter}
-                  </Badge>
-                  <h4 className="text-sm font-medium">{item.title}</h4>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {item.description}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-            <div className="mx-auto max-w-4xl mt-12 px-6 xl:px-0">
-              <div className="relative flex flex-col items-center border border-red-500">
-                <div className="absolute -left-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
-                <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 bg-red-500 text-white" />
-                <div className="absolute -right-1.5 -top-1.5 h-3 w-3 bg-red-500 text-white" />
-                <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 bg-red-500 text-white" />
-
-                <Image
-                  src={Dashboard}
-                  alt="Dashboard preview"
-                  className="w-full rounded-lg border border-gray-200"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <HowNovaWorksSection />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
