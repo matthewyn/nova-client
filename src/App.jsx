@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import "@fontsource-variable/outfit";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -16,11 +16,7 @@ import {
 } from "@/components/ui/table";
 import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Sparkles } from "@/components/ui/sparkles";
-import { Separator } from "@/components/ui/separator";
-import { ArrowUpRight, CircleCheck, RotateCw } from "lucide-react";
-import { useTheme } from "next-themes";
+import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
 import { BlurFade } from "@/components/ui/blur-fade";
@@ -575,78 +571,335 @@ const americanSectors = [
   "Communication Services",
 ];
 
-function FlipSectorCard({
-  flagSrc,
-  flagAlt,
-  title,
-  sectors,
-  backTitle,
-  backPoints,
-}) {
-  const [isFlipped, setIsFlipped] = useState(false);
+const marketCoverage = [
+  {
+    name: "Indonesia",
+    code: "IDX",
+    flag: Indonesia,
+    flagAlt: "Indonesian flag",
+    description:
+      "Local sector structure, domestic consumption, resource value chains, and infrastructure-led themes in one connected view.",
+    sectors: indonesiaSectors,
+    image: SectorRotationArt,
+    imageAlt: "Sector intelligence map for the Indonesian equity market",
+    themeGroups: [
+      {
+        title: "Digital economy",
+        themes: ["Indonesia Digitalization", "Indonesia Consumer"],
+      },
+      {
+        title: "Industrial value",
+        themes: ["Indonesia Hilirization", "Infrastructure Logistics"],
+      },
+      {
+        title: "Domestic resilience",
+        themes: ["Indonesia Gold", "Indonesia Healthcare"],
+      },
+    ],
+  },
+  {
+    name: "United States",
+    code: "NYSE · NASDAQ",
+    flag: USA,
+    flagAlt: "United States flag",
+    description:
+      "Global technology leadership, industrial investment, critical infrastructure, and defensive demand across the U.S. market.",
+    sectors: americanSectors,
+    image: CapitalFlowArt,
+    imageAlt: "Capital-flow intelligence across the United States equity market",
+    themeGroups: [
+      {
+        title: "Productivity",
+        themes: [
+          "AI Infrastructure",
+          "Industrial Automation",
+          "Reindustrialization",
+        ],
+      },
+      {
+        title: "Critical systems",
+        themes: [
+          "Grid Modernization",
+          "Supply Chain Resilience",
+          "Energy Security",
+          "Defense Modernization",
+        ],
+      },
+      {
+        title: "Secular demand",
+        themes: [
+          "Healthcare Innovation",
+          "Copper Supercycle",
+          "Gold Safe Haven",
+        ],
+      },
+    ],
+  },
+];
+
+function SectorCoverageSection() {
+  const [activeMarket, setActiveMarket] = useState(0);
+  const sectionRef = useRef(null);
+  const introRef = useRef(null);
+  const panelRef = useRef(null);
+  const visualRef = useRef(null);
+  const market = marketCoverage[activeMarket];
+
+  const selectMarket = (index) => {
+    setActiveMarket((index + marketCoverage.length) % marketCoverage.length);
+  };
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          visualRef.current,
+          { autoAlpha: 0.35, scale: 0.82 },
+          {
+            autoAlpha: 1,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: visualRef.current,
+              start: "top 88%",
+              end: "center 52%",
+              scrub: 0.8,
+            },
+          },
+        );
+
+        gsap.to(visualRef.current, {
+          autoAlpha: 0.25,
+          scale: 0.96,
+          ease: "none",
+          scrollTrigger: {
+            trigger: visualRef.current,
+            start: "bottom 45%",
+            end: "bottom 12%",
+            scrub: 0.8,
+          },
+        });
+      });
+
+      media.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          ScrollTrigger.create({
+            trigger: introRef.current,
+            endTrigger: sectionRef.current,
+            start: "top top+=88",
+            end: "bottom bottom",
+            pin: introRef.current,
+            pinSpacing: false,
+            invalidateOnRefresh: true,
+          });
+        },
+      );
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        panelRef.current?.children || [],
+        { autoAlpha: 0, y: 24 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.07,
+          ease: "power3.out",
+        },
+      );
+    },
+    { scope: panelRef, dependencies: [activeMarket] },
+  );
 
   return (
-    <div className="flex-1 [perspective:1500px]">
-      <motion.div
-        className="relative w-full h-full [transform-style:preserve-3d] cursor-pointer"
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
-        onClick={() => setIsFlipped((f) => !f)}
-        role="button"
-        tabIndex={0}
-        aria-label={`Flip ${title} card`}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setIsFlipped((f) => !f);
-          }
-        }}
-      >
-        {/* Front */}
-        <Card className="h-full [backface-visibility:hidden]">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-center gap-2">
-              <img src={flagSrc} alt={flagAlt} className="h-6 w-6" />
-              <p>{title}</p>
-              <RotateCw className="size-3.5 text-gray-300 ml-1" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Separator className="mb-6" />
-            <ul className="space-y-4">
-              {sectors.map((sector, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <CircleCheck className="size-4" />
-                  <span>{sector}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden border-y border-gray-200/80 bg-[#eef3f1] px-5 py-28 text-gray-950 sm:px-8 md:py-40"
+    >
+      <div className="pointer-events-none absolute -left-52 top-24 size-[36rem] rounded-full bg-cyan-300/25 blur-[140px]" />
+      <div className="pointer-events-none absolute -right-56 bottom-20 size-[40rem] rounded-full bg-indigo-300/20 blur-[150px]" />
 
-        {/* Back */}
-        <Card className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-center gap-2">
-              <img src={flagSrc} alt={flagAlt} className="h-6 w-6" />
-              <p>{backTitle}</p>
-              <RotateCw className="size-3.5 text-gray-300 ml-1" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Separator className="mb-6" />
-            <ul className="space-y-4 text-left">
-              {backPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <CircleCheck className="size-4 mt-0.5 shrink-0" />
-                  <span>{point}</span>
-                </li>
+      <div className="relative mx-auto grid max-w-[96rem] grid-flow-dense grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+        <div
+          ref={introRef}
+          className="self-start lg:col-span-5 lg:flex lg:min-h-[calc(100vh-5.5rem)] lg:flex-col lg:justify-center"
+        >
+          <p className="max-w-md text-sm leading-6 text-gray-600">
+            Nova monitors different market structures through one consistent
+            research framework, so regional context never gets lost in the
+            comparison.
+          </p>
+          <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.45rem,12vw,6rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(4rem,5.25vw,6rem)]">
+            Two markets. One
+            <span
+              aria-hidden="true"
+              className="mx-2 inline-block h-[0.55em] w-[1.4em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-gray-950/10 sm:mx-3"
+              style={{ backgroundImage: `url(${SectorRotationArt})` }}
+            />
+            connected opportunity map.
+          </h2>
+          <p className="mt-8 max-w-lg text-base leading-7 text-gray-600">
+            Move from national market structure to sectors and durable themes
+            without changing tools or rebuilding the research process.
+          </p>
+
+          <div className="mt-10 flex items-center justify-between border-t border-gray-950/15 pt-6">
+            <div className="flex items-center">
+              {marketCoverage.map((item, index) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => selectMarket(index)}
+                  aria-label={`Show ${item.name} coverage`}
+                  aria-pressed={activeMarket === index}
+                  className={`relative -ml-2 flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 transition duration-500 first:ml-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 focus-visible:ring-offset-2 ${
+                    activeMarket === index
+                      ? "z-10 scale-110 border-gray-950 bg-white shadow-lg"
+                      : "border-[#eef3f1] bg-white opacity-55 hover:z-10 hover:scale-105 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={item.flag}
+                    alt=""
+                    className="size-7 rounded-full object-cover"
+                  />
+                </button>
               ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
+              <p className="ml-5 font-['Outfit_Variable',sans-serif] text-sm font-semibold">
+                {market.name}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => selectMarket(activeMarket - 1)}
+                aria-label="Previous market"
+                className="flex size-11 cursor-pointer items-center justify-center rounded-full border border-gray-950/15 text-gray-950 transition duration-300 hover:-translate-x-0.5 hover:bg-gray-950 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+              >
+                <ArrowLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => selectMarket(activeMarket + 1)}
+                aria-label="Next market"
+                className="flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-950 text-white transition duration-300 hover:translate-x-0.5 hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 focus-visible:ring-offset-2"
+              >
+                <ArrowRight className="size-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div ref={panelRef} className="space-y-5 lg:col-span-7">
+          <article className="group overflow-hidden rounded-[2rem] bg-gray-950 p-3 text-white shadow-[0_35px_100px_-50px_rgba(15,23,42,0.7)] sm:p-4">
+            <div
+              ref={visualRef}
+              className="relative min-h-[25rem] overflow-hidden rounded-[1.35rem] will-change-transform sm:min-h-[31rem]"
+            >
+              <img
+                key={market.image}
+                src={market.image}
+                alt={market.imageAlt}
+                className="absolute inset-0 h-full w-full object-cover opacity-75 contrast-125 transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-7 text-left sm:p-10">
+                <div className="flex items-end justify-between gap-6">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                      {market.code}
+                    </p>
+                    <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+                      {market.name}
+                    </h3>
+                  </div>
+                  <img
+                    src={market.flag}
+                    alt={market.flagAlt}
+                    className="size-12 rounded-full border border-white/30 object-cover shadow-xl sm:size-14"
+                  />
+                </div>
+                <p className="mt-5 max-w-xl text-sm leading-6 text-white/65 sm:text-base sm:leading-7">
+                  {market.description}
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-[2rem] border border-gray-950/10 bg-white/80 p-7 text-left backdrop-blur-xl sm:p-9">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
+                  Research universe
+                </p>
+                <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em]">
+                  Sector coverage
+                </h3>
+              </div>
+              <p className="text-sm text-gray-500">
+                {market.sectors.length} sector groups monitored
+              </p>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {market.sectors.map((sector) => (
+                <span
+                  key={sector}
+                  className="rounded-full border border-gray-950/10 bg-[#f3f6f5] px-4 py-2 text-sm font-medium text-gray-700 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-600/35 hover:bg-cyan-50 hover:text-cyan-800"
+                >
+                  {sector}
+                </span>
+              ))}
+            </div>
+          </article>
+
+          <div className="flex min-h-[28rem] flex-col gap-px overflow-hidden rounded-[2rem] border border-gray-950/10 bg-gray-950/10 md:flex-row">
+            {market.themeGroups.map((group, index) => (
+              <article
+                key={group.title}
+                className={`group flex min-h-64 flex-1 flex-col justify-between overflow-hidden p-7 text-left transition-[flex,background-color] duration-700 ease-out hover:flex-[1.75] sm:p-8 ${
+                  index === 1
+                    ? "bg-[#d9f5f2]"
+                    : index === 2
+                      ? "bg-gray-950 text-white"
+                      : "bg-white"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="max-w-[10rem] font-['Outfit_Variable',sans-serif] text-2xl font-semibold leading-tight tracking-[-0.035em]">
+                    {group.title}
+                  </h3>
+                  <ArrowUpRight className="size-5 shrink-0 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                </div>
+                <ul className="mt-14 space-y-3">
+                  {group.themes.map((themeName) => (
+                    <li
+                      key={themeName}
+                      className={`border-t pt-3 text-sm leading-5 ${
+                        index === 2
+                          ? "border-white/15 text-white/65"
+                          : "border-gray-950/10 text-gray-600"
+                      }`}
+                    >
+                      {themeName}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -658,7 +911,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [statistics, setStatistics] = useState(null);
   const [completedStocks, setCompletedStocks] = useState([]);
-  const { theme } = useTheme();
   const PAGE_SIZE = 10;
   const faqItems = [
     {
@@ -923,75 +1175,7 @@ function App() {
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div> */}
 
-        <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 pt-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              Sector Coverage
-            </div>
-            <BlurFade delay={0.15} inView>
-              <h2 className="text-4xl font-bold text-gray-900 mb-1">
-                Covers various sectors
-              </h2>
-            </BlurFade>
-            <BlurFade delay={0.15 * 2} inView>
-              <h2 className="text-4xl font-bold mb-4">
-                <span className="text-cyan-400">and investment themes</span>
-              </h2>
-            </BlurFade>
-            <p className="text-sm text-gray-400 max-w-lg mx-auto">
-              Nova AI continuously tracks capital flows across more than 600
-              Indonesian and U.S. stocks, helping investors identify which
-              sectors and investment themes are attracting liquidity in the
-              current market environment.
-            </p>
-            <div className="mt-12 flex md:max-w-1/2 mx-auto gap-4">
-              <FlipSectorCard
-                flagSrc={Indonesia}
-                flagAlt="Indonesia"
-                title="Indonesia"
-                sectors={indonesiaSectors}
-                backTitle="Themes we track"
-                backPoints={[
-                  "Indonesia Digitalization",
-                  "Indonesia Hilirization",
-                  "Indonesia Gold",
-                  "Infrastructure Logistics",
-                  "Indonesia Consumer",
-                  "Indonesia Healthcare",
-                ]}
-              />
-              <FlipSectorCard
-                flagSrc={USA}
-                flagAlt="USA"
-                title="United States"
-                sectors={americanSectors}
-                backTitle="Themes we track"
-                backPoints={[
-                  "AI Infrastructure",
-                  "Grid Modernization",
-                  "Industrial Automation",
-                  "Reindustrialization",
-                  "Supply Chain Resilience",
-                  "Energy Security",
-                  "Defense Modernization",
-                  "Healthcare Innovation",
-                  "Copper Supercycle",
-                  "Gold Safe Haven",
-                ]}
-              />
-            </div>
-            <div className="relative -mt-32 h-96 w-full overflow-hidden [mask-image:radial-gradient(50%_50%,white,transparent)]">
-              <div className="absolute inset-0 before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_bottom_center,#8350e8,transparent_70%)] before:opacity-40" />
-              <div className="absolute -left-1/2 top-1/2 aspect-[1/0.7] z-10 w-[200%] rounded-[100%] border-t border-zinc-900/20 dark:border-white/20 bg-white dark:bg-zinc-900" />
-              <Sparkles
-                density={1200}
-                className="absolute inset-x-0 bottom-0 h-full w-full [mask-image:radial-gradient(50%_50%,white,transparent_85%)]"
-                color={theme === "dark" ? "#ffffff" : "#000000"}
-              />
-            </div>
-          </div>
-        </div>
+        <SectorCoverageSection />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
