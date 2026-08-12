@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import LoginCard from "@/components/LoginCard";
-import Logo from "@/assets/logo.png";
 import macroIntelligence from "@/assets/what-you-get/macro-intelligence.webp";
 import capitalFlow from "@/assets/what-you-get/capital-flow.webp";
 
@@ -150,16 +149,41 @@ function Login() {
         <nav className="login-hero-element relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8 lg:px-12">
           <Link
             to="/"
-            className="group flex items-center gap-3 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            aria-label="Nova AI home"
+            className="group flex items-center gap-3.5 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
-            <span className="grid size-10 place-items-center overflow-hidden rounded-full border border-white/15 bg-white/10">
-              <img
-                src={Logo}
-                alt=""
-                className="size-9 object-contain transition-transform duration-700 ease-out group-hover:scale-105"
-              />
+            <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-[0.85rem] border border-white/15 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] transition-colors duration-500 group-hover:border-violet-300/45 group-hover:bg-white/[0.11]">
+              <span className="absolute -right-3 -top-3 size-7 rounded-full bg-violet-400/45 blur-lg transition-transform duration-700 group-hover:scale-150" />
+              <svg
+                viewBox="0 0 44 44"
+                aria-hidden="true"
+                className="relative size-full transition-transform duration-700 ease-out group-hover:scale-105"
+              >
+                <defs>
+                  <linearGradient id="nova-mark-gradient" x1="9" y1="34" x2="35" y2="10">
+                    <stop stopColor="#ffffff" />
+                    <stop offset="1" stopColor="#a78bfa" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M11 31.5V12.5L33 31.5V12.5"
+                  fill="none"
+                  stroke="url(#nova-mark-gradient)"
+                  strokeWidth="3.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <circle cx="33" cy="12.5" r="2.25" fill="#c4b5fd" />
+              </svg>
             </span>
-            <span className="text-lg font-semibold tracking-[-0.03em]">Nova AI</span>
+            <span className="flex flex-col text-left">
+              <span className="font-['Cabinet_Grotesk','Geist_Variable',sans-serif] text-[1.08rem] font-semibold leading-none tracking-[-0.035em] text-white">
+                NOVA
+              </span>
+              <span className="mt-1.5 hidden text-[0.56rem] font-medium uppercase leading-none tracking-[0.2em] text-white/38 sm:block">
+                Investment intelligence
+              </span>
+            </span>
           </Link>
           <Link
             to="/signup"

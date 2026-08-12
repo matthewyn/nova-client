@@ -22,6 +22,30 @@
   font-family: "Geist Variable", sans-serif;
 }
 
+.login-auth-input input {
+  color: rgba(255, 255, 255, 0.94) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
+  caret-color: #c4b5fd;
+}
+
+.login-auth-input input::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 1;
+}
+
+.login-auth-input label {
+  color: rgba(255, 255, 255, 0.58) !important;
+}
+
+.login-auth-input input:-webkit-autofill,
+.login-auth-input input:-webkit-autofill:hover,
+.login-auth-input input:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 0 0 1000px #15171c inset !important;
+  caret-color: #c4b5fd;
+}
+
 .primary {
   @apply bg-primary text-primary-foreground;
 }

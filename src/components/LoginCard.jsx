@@ -71,6 +71,7 @@ function LoginCard() {
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <Input
             isRequired
+            className="login-auth-input"
             label="Work email"
             type="email"
             placeholder="you@company.com"
@@ -87,6 +88,7 @@ function LoginCard() {
           />
           <Input
             isRequired
+            className="login-auth-input"
             label="Password"
             placeholder="Enter your password"
             type={isVisible ? "text" : "password"}
