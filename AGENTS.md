@@ -2,7 +2,11 @@
 
 ## Project Structure & Module Organization
 
-This is a React 19 SPA built with Vite. Code lives in `src/`: route screens are in `src/pages/`, components in `src/components/`, layouts in `src/layouts/`, auth state in `src/contexts/`, and utilities in `src/utils/` or `src/lib/`. Put imported media in `src/assets/`; files that must retain their public URL belong in `public/`. Routing is configured in `src/main.jsx`, while the landing page is assembled in `src/App.jsx`. Production output goes to `dist/` and should not be edited manually.
+This is a React 19 SPA built with Vite. Code lives in `src/`: route screens are in `src/pages/`, components in `src/components/`, layouts in `src/layouts/`, auth state in `src/contexts/`, and utilities in `src/utils/` or `src/lib/`. Put imported media in [`src/assets/`](./src/assets/); files that must retain their public URL belong in `public/`. Routing is configured in `src/main.jsx`, while the landing page is assembled in `src/App.jsx`. Production output goes to `dist/` and should not be edited manually.
+
+### Homepage Asset Workflow
+
+Store generated homepage illustrations in [`src/assets/what-you-get/`](./src/assets/what-you-get/) with descriptive kebab-case filenames such as `macro-intelligence.webp`. Prefer optimized WebP for decorative artwork and import it through the `@/assets/...` alias. Keep illustrations free of embedded copy so responsive layouts remain accessible and localizable. Preserve original product screenshots unless a task explicitly requires replacing the source files.
 
 ## Build, Test, and Development Commands
 

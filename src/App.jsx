@@ -36,64 +36,70 @@ import { useAuth } from "@/contexts/AuthContext";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { getAuthHeader } from "@/utils/token";
 import { Badge } from "@/components/ui/badge";
-import Macro from "@/assets/macro.png";
-import CapitalFlow from "@/assets/capital-flow.png";
-import Sectors from "@/assets/sectors.png";
-import Risk from "@/assets/risk.png";
-import PositionSizing from "@/assets/position-sizing.png";
-import ScenarioAnalysis from "@/assets/scenario-analysis.png";
+import MacroIntelligenceArt from "@/assets/what-you-get/macro-intelligence.webp";
+import CapitalFlowArt from "@/assets/what-you-get/capital-flow.webp";
+import SectorRotationArt from "@/assets/what-you-get/sector-rotation.webp";
+import RiskAnalysisArt from "@/assets/what-you-get/risk-analysis.webp";
+import PositionSizingArt from "@/assets/what-you-get/position-sizing.webp";
+import ScenarioAnalysisArt from "@/assets/what-you-get/scenario-analysis.webp";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const intelligenceFeatures = [
-    {
-      id: "item-1",
-      title: "Macro Intelligence",
-      signal: "Read the regime",
-      summary:
-        "Understand the current market environment through macroeconomic trends, inflation, interest rates, liquidity, and market regime analysis before making investment decisions.",
-      image: Macro,
-    },
-    {
-      id: "item-2",
-      title: "Capital Flow Analysis",
-      signal: "Follow smart money",
-      summary:
-        "Track where institutional capital is moving across sectors, asset classes, and investment themes to uncover emerging opportunities ahead of the broader market.",
-      image: CapitalFlow,
-    },
-    {
-      id: "item-3",
-      title: "Sector & Theme Rotation",
-      signal: "Find emerging strength",
-      summary:
-        "Discover sectors and long-term investment themes gaining institutional attention, helping you focus on where capital is flowing—not where it has already gone.",
-      image: Sectors,
-    },
-    {
-      id: "item-4",
-      title: "Institutional & Risk Analysis",
-      signal: "Measure conviction",
-      summary:
-        "Evaluate every investment using institutional conviction and a multi-dimensional risk framework covering liquidity, volatility, trend strength, and momentum.",
-      image: Risk,
-    },
-    {
-      id: "item-5",
-      title: "Smart Position Sizing",
-      signal: "Control every entry",
-      summary:
-        "Determine the appropriate position size based on your risk profile, portfolio allocation, and the current market environment to improve risk-adjusted returns.",
-      image: PositionSizing,
-    },
-    {
-      id: "item-6",
-      title: "Scenario Analysis",
-      signal: "Prepare for outcomes",
-      summary:
-        "Prepare for multiple market outcomes with AI-generated Bull, Base, and Bear scenarios, allowing you to understand potential opportunities and risks before entering a position.",
-      image: ScenarioAnalysis,
-    },
+  {
+    id: "item-1",
+    title: "Macro Intelligence",
+    signal: "Read the regime",
+    summary:
+      "Understand the current market environment through macroeconomic trends, inflation, interest rates, liquidity, and market regime analysis before making investment decisions.",
+    image: MacroIntelligenceArt,
+    alt: "Connected market signals orbiting a central macro regime model",
+  },
+  {
+    id: "item-2",
+    title: "Capital Flow Analysis",
+    signal: "Follow smart money",
+    summary:
+      "Track where institutional capital is moving across sectors, asset classes, and investment themes to uncover emerging opportunities ahead of the broader market.",
+    image: CapitalFlowArt,
+    alt: "Luminous capital streams flowing between asset-class structures",
+  },
+  {
+    id: "item-3",
+    title: "Sector & Theme Rotation",
+    signal: "Find emerging strength",
+    summary:
+      "Discover sectors and long-term investment themes gaining institutional attention, helping you focus on where capital is flowing—not where it has already gone.",
+    image: SectorRotationArt,
+    alt: "Rotating sector towers with emerging market leaders illuminated",
+  },
+  {
+    id: "item-4",
+    title: "Institutional & Risk Analysis",
+    signal: "Measure conviction",
+    summary:
+      "Evaluate every investment using institutional conviction and a multi-dimensional risk framework covering liquidity, volatility, trend strength, and momentum.",
+    image: RiskAnalysisArt,
+    alt: "Institutional conviction balanced against layered market risk",
+  },
+  {
+    id: "item-5",
+    title: "Smart Position Sizing",
+    signal: "Control every entry",
+    summary:
+      "Determine the appropriate position size based on your risk profile, portfolio allocation, and the current market environment to improve risk-adjusted returns.",
+    image: PositionSizingArt,
+    alt: "Capital blocks measured and allocated into a balanced portfolio",
+  },
+  {
+    id: "item-6",
+    title: "Scenario Analysis",
+    signal: "Prepare for outcomes",
+    summary:
+      "Prepare for multiple market outcomes with AI-generated Bull, Base, and Bear scenarios, allowing you to understand potential opportunities and risks before entering a position.",
+    image: ScenarioAnalysisArt,
+    alt: "One market signal branching into upside, base, and downside paths",
+  },
 ];
 
 const intelligenceSignals = [
@@ -183,7 +189,7 @@ function WhatYouGetSection() {
             <span
               aria-hidden="true"
               className="mx-2 inline-block h-[0.58em] w-[1.45em] rounded-full bg-cover bg-center align-[0.05em] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] sm:mx-3"
-              style={{ backgroundImage: `url(${Macro})` }}
+              style={{ backgroundImage: `url(${MacroIntelligenceArt})` }}
             />
             before the move.
           </h2>
@@ -227,8 +233,8 @@ function WhatYouGetSection() {
                 <div className="intelligence-visual relative aspect-[4/3] overflow-hidden rounded-[1.1rem] bg-gray-100 will-change-transform">
                   <img
                     src={item.image}
-                    alt={`${item.title} interface preview`}
-                    className="h-full w-full object-cover object-left-top transition-transform duration-700 ease-out group-hover:scale-105"
+                    alt={item.alt}
+                    className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-950/30 via-transparent to-white/5" />
                 </div>
