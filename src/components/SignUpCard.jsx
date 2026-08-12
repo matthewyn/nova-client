@@ -387,9 +387,12 @@ function SignUpCard() {
                     length={6}
                     placeholder="0"
                     classNames={{
-                      segmentWrapper: "gap-2",
+                      base: "w-full items-center",
+                      wrapper: "w-full justify-center",
+                      input: "!text-transparent !caret-transparent",
+                      segmentWrapper: "w-full justify-center gap-2",
                       segment:
-                        "h-12 w-11 border border-white/12 bg-white/[0.055] text-white data-[focus=true]:border-cyan-200/60 sm:h-14 sm:w-12",
+                        "h-12 w-11 shrink-0 border border-white/12 bg-white/[0.055] text-white data-[active=true]:scale-100 data-[active=true]:border-cyan-200/60 sm:h-14 sm:w-12",
                     }}
                   />
                 </div>

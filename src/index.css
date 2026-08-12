@@ -52,16 +52,14 @@
 }
 
 .signup-auth-input input,
-.signup-auth-phone input,
-.signup-otp-form input {
+.signup-auth-phone input {
   color: rgba(255, 255, 255, 0.94) !important;
   -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
   caret-color: #a5f3fc;
 }
 
 .signup-auth-input input::placeholder,
-.signup-auth-phone input::placeholder,
-.signup-otp-form input::placeholder {
+.signup-auth-phone input::placeholder {
   color: rgba(255, 255, 255, 0.3) !important;
   -webkit-text-fill-color: rgba(255, 255, 255, 0.3) !important;
   opacity: 1;
@@ -81,6 +79,21 @@
   -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
   box-shadow: 0 0 0 1000px #111b1e inset !important;
   caret-color: #a5f3fc;
+}
+
+.signup-otp-form [data-slot="base"],
+.signup-otp-form [data-slot="segment-wrapper"] {
+  width: 100%;
+}
+
+.signup-otp-form [data-slot="segment-wrapper"] {
+  justify-content: center;
+}
+
+.signup-otp-form input {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  caret-color: transparent !important;
 }
 
 .primary {
