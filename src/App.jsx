@@ -430,13 +430,13 @@ function HowNovaWorksSection() {
         <div className="grid grid-flow-dense grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
           <div
             ref={introRef}
-            className="self-start lg:col-span-4 lg:flex lg:min-h-[calc(100vh-5.5rem)] lg:flex-col lg:justify-center"
+            className="self-start lg:col-span-4 lg:flex lg:min-h-[calc(100svh-5.5rem)] lg:flex-col lg:justify-center lg:pb-12 xl:pb-16"
           >
             <p className="max-w-sm text-sm leading-6 text-cyan-200/70">
               Nova begins with the market environment, then progressively
               narrows evidence into opportunities worthy of analyst attention.
             </p>
-            <h2 className="mt-7 max-w-5xl font-heading text-[clamp(3.4rem,12vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(3.75rem,5vw,5.75rem)]">
+            <h2 className="mt-7 max-w-5xl font-heading text-[clamp(3.4rem,12vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(3.45rem,4.25vw,4.9rem)] xl:max-w-[31rem]">
               From fragmented
               <span
                 aria-hidden="true"
