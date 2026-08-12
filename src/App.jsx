@@ -42,54 +42,54 @@ const intelligenceFeatures = [
   {
     id: "item-1",
     title: "Macro Intelligence",
-    signal: "Read the regime",
+    signal: "Frame the environment",
     summary:
-      "Understand the current market environment through macroeconomic trends, inflation, interest rates, liquidity, and market regime analysis before making investment decisions.",
+      "Organize growth, inflation, interest rates, currencies, and liquidity into a consistent view of the market environment before security-level research begins.",
     image: MacroIntelligenceArt,
     alt: "Connected market signals orbiting a central macro regime model",
   },
   {
     id: "item-2",
-    title: "Capital Flow Analysis",
-    signal: "Follow smart money",
+    title: "Liquidity & Capital Flow",
+    signal: "Track capital allocation",
     summary:
-      "Track where institutional capital is moving across sectors, asset classes, and investment themes to uncover emerging opportunities ahead of the broader market.",
+      "Evaluate how capital is being allocated across assets, markets, sectors, and themes to identify where investment conditions may be strengthening or weakening.",
     image: CapitalFlowArt,
     alt: "Luminous capital streams flowing between asset-class structures",
   },
   {
     id: "item-3",
-    title: "Sector & Theme Rotation",
-    signal: "Find emerging strength",
+    title: "Theme & Sector Intelligence",
+    signal: "Map relative opportunity",
     summary:
-      "Discover sectors and long-term investment themes gaining institutional attention, helping you focus on where capital is flowing—not where it has already gone.",
+      "Monitor persistent investment themes and rank sectors by macro fit, liquidity, market characteristics, and theme exposure to focus research on the strongest relative setups.",
     image: SectorRotationArt,
     alt: "Rotating sector towers with emerging market leaders illuminated",
   },
   {
     id: "item-4",
-    title: "Institutional & Risk Analysis",
-    signal: "Measure conviction",
+    title: "Stock Prioritization",
+    signal: "Rank the opportunity set",
     summary:
-      "Evaluate every investment using institutional conviction and a multi-dimensional risk framework covering liquidity, volatility, trend strength, and momentum.",
+      "Apply Nova's Institutional Score across capital flow, asset allocation, sector strength, fundamentals, and technical characteristics to rank candidates for deeper review.",
     image: RiskAnalysisArt,
     alt: "Institutional conviction balanced against layered market risk",
   },
   {
     id: "item-5",
-    title: "Smart Position Sizing",
-    signal: "Control every entry",
+    title: "Forecasting & Risk Filters",
+    signal: "Test the opportunity",
     summary:
-      "Determine the appropriate position size based on your risk profile, portfolio allocation, and the current market environment to improve risk-adjusted returns.",
+      "Assess expected return, downside conditions, liquidity, and forecast confidence so candidates that do not meet defined investment criteria can be filtered out early.",
     image: PositionSizingArt,
     alt: "Capital blocks measured and allocated into a balanced portfolio",
   },
   {
     id: "item-6",
-    title: "Scenario Analysis",
-    signal: "Prepare for outcomes",
+    title: "Decision Intelligence",
+    signal: "Focus analyst attention",
     summary:
-      "Prepare for multiple market outcomes with AI-generated Bull, Base, and Bear scenarios, allowing you to understand potential opportunities and risks before entering a position.",
+      "Bring the surviving candidates, supporting evidence, and bull, base, and bear scenarios into a focused review for better-informed investment decisions.",
     image: ScenarioAnalysisArt,
     alt: "One market signal branching into upside, base, and downside paths",
   },
@@ -99,9 +99,9 @@ const intelligenceSignals = [
   "Macro regime",
   "Liquidity shifts",
   "Sector rotation",
-  "Institutional conviction",
-  "Position sizing",
-  "Bull · Base · Bear",
+  "Theme persistence",
+  "Institutional Score",
+  "Forecast & risk filters",
 ];
 
 function WhatYouGetSection() {
@@ -174,21 +174,21 @@ function WhatYouGetSection() {
       <div className="relative mx-auto grid max-w-[96rem] gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
         <div ref={introRef} className="self-start lg:col-span-4">
           <p className="mb-7 max-w-sm text-sm font-medium leading-relaxed text-gray-500">
-            One connected intelligence system, designed to turn noisy market
-            data into decisions you can act on.
+            A unified research system for turning fragmented market data into
+            structured, decision-relevant intelligence.
           </p>
           <h2 className="max-w-5xl font-heading text-[clamp(3.15rem,12vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-gray-950 lg:text-[clamp(3.5rem,4vw,5rem)]">
-            See the market
+            Research the market
             <span
               aria-hidden="true"
               className="mx-2 inline-block h-[0.58em] w-[1.45em] rounded-full bg-cover bg-center align-[0.05em] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] sm:mx-3"
               style={{ backgroundImage: `url(${MacroIntelligenceArt})` }}
             />
-            before the move.
+            with greater focus.
           </h2>
           <p className="mt-8 max-w-md text-base leading-7 text-gray-600">
-            Nova AI connects macro context, capital flows, institutional
-            signals, and risk into one clear investment workflow.
+            Nova connects macro conditions, capital allocation, themes, sector
+            rotation, stock prioritization, and risk controls in one workflow.
           </p>
 
           <div className="mt-10 overflow-hidden border-y border-gray-300/80 py-4">
@@ -274,37 +274,37 @@ function WhatYouGetSection() {
 const workflowStages = [
   {
     signal: "Market context",
-    title: "Read the economic regime",
+    title: "Establish the market context",
     description:
-      "Nova continuously organizes inflation, rates, growth, currencies, and liquidity into a coherent view of the environment shaping risk assets.",
-    outcome: "A structured macro view, before security selection begins.",
+      "Nova organizes growth, inflation, rates, currencies, and liquidity into a coherent view of the environment shaping the supported markets.",
+    outcome: "A consistent macro foundation for every research cycle.",
     image: MacroIntelligenceArt,
     imageAlt: "Macro intelligence signals arranged around a market regime model",
   },
   {
     signal: "Capital movement",
-    title: "Trace where liquidity is moving",
+    title: "Evaluate capital allocation",
     description:
-      "Capital flows, asset allocation, and persistent investment themes reveal where institutional attention is building across markets.",
-    outcome: "Emerging demand becomes visible before it becomes consensus.",
+      "Liquidity, capital flows, asset allocation, and theme evidence show where market participation and investment activity are developing.",
+    outcome: "A clearer view of where conditions support further research.",
     image: CapitalFlowArt,
     imageAlt: "Capital streams flowing between global asset classes",
   },
   {
     signal: "Opportunity map",
-    title: "Rank sectors with improving conditions",
+    title: "Rank themes and sectors",
     description:
       "Nova combines macro fit, liquidity, sector characteristics, and theme exposure to identify the areas with the strongest relative setup.",
-    outcome: "A broad market is reduced to a focused opportunity set.",
+    outcome: "The investable universe becomes a focused opportunity set.",
     image: SectorRotationArt,
     imageAlt: "Sector structures rotating toward areas of relative strength",
   },
   {
     signal: "Decision focus",
-    title: "Prioritize the candidates worth reviewing",
+    title: "Prioritize candidates for review",
     description:
-      "Institutional Score, fundamentals, technical strength, forecasting, and risk filters narrow the field to a small set of high-conviction candidates.",
-    outcome: "Analysts spend time evaluating decisions, not screening noise.",
+      "Nova's Institutional Score combines capital flow, asset allocation, sector strength, fundamentals, and technical characteristics before forecasting and risk filters narrow the field.",
+    outcome: "Analysts focus on decision-ready candidates instead of manual screening.",
     image: RiskAnalysisArt,
     imageAlt: "Investment candidates passing through institutional risk filters",
   },
@@ -316,7 +316,7 @@ const workflowSignals = [
   "Themes",
   "Sector strength",
   "Institutional Score",
-  "Risk filters",
+  "Prioritized opportunities",
 ];
 
 function HowNovaWorksSection() {
@@ -433,21 +433,22 @@ function HowNovaWorksSection() {
             className="self-start lg:col-span-4 lg:flex lg:min-h-[calc(100vh-5.5rem)] lg:flex-col lg:justify-center"
           >
             <p className="max-w-sm text-sm leading-6 text-cyan-200/70">
-              Nova begins above the stock level, where market context and
-              capital movement explain why an opportunity deserves attention.
+              Nova begins with the market environment, then progressively
+              narrows evidence into opportunities worthy of analyst attention.
             </p>
             <h2 className="mt-7 max-w-5xl font-heading text-[clamp(3.4rem,12vw,5.75rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(3.75rem,5vw,5.75rem)]">
-              From market
+              From fragmented
               <span
                 aria-hidden="true"
                 className="mx-2 inline-block h-[0.56em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-white/20 sm:mx-3"
                 style={{ backgroundImage: `url(${CapitalFlowArt})` }}
               />
-              noise to investment conviction.
+              data to decision intelligence.
             </h2>
             <p className="mt-8 max-w-md text-base leading-7 text-white/55">
-              Each layer narrows the universe, preserving the evidence that
-              matters and removing the work that does not.
+              Each stage standardizes part of the research process, expands
+              coverage, and preserves the evidence behind every prioritized
+              candidate.
             </p>
 
             <div
@@ -525,9 +526,11 @@ function HowNovaWorksSection() {
               </div>
               <div className="flex flex-col gap-3 px-4 py-5 text-left sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <p className="font-heading text-lg font-semibold tracking-[-0.02em] text-gray-950">
-                  One workspace. A traceable path from signal to decision.
+                  One workspace. A traceable path from market data to decision.
                 </p>
-                <p className="text-sm text-gray-500">Built for focused review</p>
+                <p className="text-sm text-gray-500">
+                  Built for investment teams
+                </p>
               </div>
             </div>
           </div>
@@ -576,21 +579,21 @@ const marketCoverage = [
     flag: Indonesia,
     flagAlt: "Indonesian flag",
     description:
-      "Local sector structure, domestic consumption, resource value chains, and infrastructure-led themes in one connected view.",
+      "Connect Indonesia's macro backdrop with domestic demand, resource value chains, sector conditions, and market-specific investment themes.",
     sectors: indonesiaSectors,
     image: SectorRotationArt,
     imageAlt: "Sector intelligence map for the Indonesian equity market",
     themeGroups: [
       {
-        title: "Digital economy",
+        title: "Digital growth",
         themes: ["Indonesia Digitalization", "Indonesia Consumer"],
       },
       {
-        title: "Industrial value",
+        title: "Industrial transformation",
         themes: ["Indonesia Hilirization", "Infrastructure Logistics"],
       },
       {
-        title: "Domestic resilience",
+        title: "Domestic demand",
         themes: ["Indonesia Gold", "Indonesia Healthcare"],
       },
     ],
@@ -601,7 +604,7 @@ const marketCoverage = [
     flag: USA,
     flagAlt: "United States flag",
     description:
-      "Global technology leadership, industrial investment, critical infrastructure, and defensive demand across the U.S. market.",
+      "Connect the U.S. macro backdrop with technology leadership, industrial investment, critical infrastructure, and durable sources of demand.",
     sectors: americanSectors,
     image: CapitalFlowArt,
     imageAlt: "Capital-flow intelligence across the United States equity market",
@@ -732,22 +735,22 @@ function SectorCoverageSection() {
           className="self-start lg:col-span-5 lg:flex lg:min-h-[calc(100vh-5.5rem)] lg:flex-col lg:justify-center"
         >
           <p className="max-w-md text-sm leading-6 text-gray-600">
-            Nova monitors different market structures through one consistent
-            research framework, so regional context never gets lost in the
-            comparison.
+            Nova applies one consistent research framework while preserving
+            the macro, sector, and thematic context unique to each supported
+            market.
           </p>
           <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.45rem,12vw,6rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:text-[clamp(4rem,5.25vw,6rem)]">
-            Two markets. One
+            Cross-market research. One
             <span
               aria-hidden="true"
               className="mx-2 inline-block h-[0.55em] w-[1.4em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-gray-950/10 sm:mx-3"
               style={{ backgroundImage: `url(${SectorRotationArt})` }}
             />
-            connected opportunity map.
+            consistent framework.
           </h2>
           <p className="mt-8 max-w-lg text-base leading-7 text-gray-600">
-            Move from national market structure to sectors and durable themes
-            without changing tools or rebuilding the research process.
+            Compare market conditions, sector leadership, and durable themes
+            without rebuilding the research process for each region.
           </p>
 
           <div className="mt-10 flex items-center justify-between border-t border-gray-950/15 pt-6">
@@ -838,14 +841,14 @@ function SectorCoverageSection() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
-                  Research universe
+                  Coverage universe
                 </p>
                 <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em]">
-                  Sector coverage
+                  Monitored sectors
                 </h3>
               </div>
               <p className="text-sm text-gray-500">
-                {market.sectors.length} sector groups monitored
+                {market.sectors.length} sector groups in the research universe
               </p>
             </div>
             <div className="mt-8 flex flex-wrap gap-2">
@@ -954,23 +957,23 @@ function RealTradePerformanceSection({
 
   const performanceMetrics = [
     {
-      label: "Average return / trade",
+      label: "Average realized return",
       value: formatPerformanceValue(
         statistics?.averageReturnPerTrade,
         "%",
         2,
       ),
-      context: "Mean realized return across completed positions.",
+      context: "Mean realized return across all recorded closed positions.",
     },
     {
       label: "Profit factor",
       value: formatPerformanceValue(statistics?.profitFactor, "", 2),
-      context: "Gross gains relative to gross losses.",
+      context: "Recorded gross gains relative to recorded gross losses.",
     },
     {
-      label: "Total return",
+      label: "Cumulative realized return",
       value: formatPerformanceValue(statistics?.totalReturn, "%", 2),
-      context: "Cumulative outcome from recorded closed trades.",
+      context: "Aggregate realized outcome across the recorded trade history.",
     },
   ];
 
@@ -1052,22 +1055,23 @@ function RealTradePerformanceSection({
       <div className="relative mx-auto max-w-[96rem]">
         <header className="mx-auto max-w-6xl text-center">
           <p className="mx-auto max-w-2xl text-sm leading-6 text-cyan-100/55">
-            Completed positions are recorded against their realized market
-            outcomes, creating an evidence trail that can be reviewed trade by
-            trade.
+            Nova retains completed positions and realized outcomes so
+            investment teams can review the historical evidence behind the
+            platform's recommendations.
           </p>
           <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.35rem,10vw,6.6rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-            Performance you can
+            Review the evidence
             <span
               aria-hidden="true"
               className="mx-2 inline-block h-[0.55em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] opacity-90 ring-1 ring-white/15 sm:mx-3"
               style={{ backgroundImage: `url(${RiskAnalysisArt})` }}
             />
-            inspect, not just a claim.
+            behind the outcomes.
           </h2>
           <p className="mx-auto mt-8 max-w-2xl text-base leading-7 text-white/50">
-            Summary metrics update as positions close. The ledger below keeps
-            the entry, target, risk level, and final outcome visible together.
+            Summary metrics update as positions close, while the ledger keeps
+            each entry, target, risk floor, and realized result available for
+            transparent evaluation.
           </p>
         </header>
 
@@ -1082,7 +1086,7 @@ function RealTradePerformanceSection({
               <div className="flex min-h-[27rem] flex-col justify-between bg-[#d8faf4] p-7 text-gray-950 sm:p-10 lg:col-span-7 lg:min-h-[31rem]">
                 <div className="flex items-start justify-between gap-6">
                   <p className="max-w-xs text-xs font-semibold uppercase tracking-[0.17em] text-emerald-800">
-                    Realized win rate
+                    Recorded win rate
                   </p>
                   <p className="text-right text-sm text-gray-600">
                     {statistics?.winningTrades ?? 0} wins<br />
@@ -1100,9 +1104,11 @@ function RealTradePerformanceSection({
 
                 <div className="flex flex-col gap-3 border-t border-gray-950/15 pt-5 sm:flex-row sm:items-center sm:justify-between">
                   <p className="font-['Outfit_Variable',sans-serif] text-xl font-semibold tracking-[-0.025em]">
-                    {statistics?.totalTrades ?? 0} completed trades
+                    {statistics?.totalTrades ?? 0} recorded outcomes
                   </p>
-                  <p className="text-sm text-gray-600">Updated automatically</p>
+                  <p className="text-sm text-gray-600">
+                    Updated as positions close
+                  </p>
                 </div>
               </div>
 
@@ -1120,10 +1126,10 @@ function RealTradePerformanceSection({
                 </div>
                 <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9">
                   <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-300">
-                    Evidence, not projection
+                    Historical evidence
                   </p>
                   <p className="mt-4 max-w-sm font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em]">
-                    Closed trades stay visible after the recommendation.
+                    Recommendation outcomes remain available for review.
                   </p>
                 </div>
               </div>
@@ -1168,15 +1174,15 @@ function RealTradePerformanceSection({
               <div className="flex flex-col gap-5 border-b border-gray-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
                 <div className="text-left">
                   <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
-                    Completed positions
+                    Outcome history
                   </p>
                   <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
-                    The trade ledger
+                    Recommendation ledger
                   </h3>
                 </div>
                 <p className="max-w-md text-left text-sm leading-6 text-gray-500 sm:text-right">
-                  Historical results describe recorded outcomes and do not
-                  guarantee future performance.
+                  Recorded outcomes support due diligence; they do not predict
+                  or guarantee future performance.
                 </p>
               </div>
 
@@ -1252,7 +1258,7 @@ function RealTradePerformanceSection({
                   </div>
                 ) : (
                   <p className="rounded-[1.5rem] bg-gray-100 p-8 text-center text-sm text-gray-500">
-                    No completed trades at this time.
+                    No recorded outcomes are available at this time.
                   </p>
                 )}
 
@@ -1397,7 +1403,7 @@ function RealTradePerformanceSection({
                           colSpan={6}
                           className="py-16 text-center text-sm text-gray-500"
                         >
-                          No completed trades at this time.
+                          No recorded outcomes are available at this time.
                         </TableCell>
                       </TableRow>
                     )}
@@ -1421,11 +1427,11 @@ const faqVisuals = [
 ];
 
 const faqSignals = [
-  "Built for direct use",
-  "Probability over certainty",
-  "Research without surveillance",
-  "Selectivity over activity",
-  "One connected framework",
+  "Institutional workflow",
+  "Evidence over certainty",
+  "Expanded research coverage",
+  "Selectivity by design",
+  "Integrated intelligence",
 ];
 
 function FAQSection({ items }) {
@@ -1538,18 +1544,18 @@ function FAQSection({ items }) {
         <header className="grid grid-flow-dense grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
             <p className="max-w-md text-sm leading-6 text-gray-600">
-              Clear expectations matter in investment research. These are the
-              questions teams ask before deciding whether Nova belongs in
-              their workflow.
+              Investment teams need clarity on fit, methodology, and risk.
+              These answers explain how Nova supports a professional research
+              process—and where human judgment remains essential.
             </p>
             <h2 className="mt-7 max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.6rem,11vw,7.2rem)] font-semibold leading-[0.87] tracking-[-0.075em]">
-              Clarity before
+              Evaluate Nova with
               <span
                 aria-hidden="true"
                 className="mx-2 inline-block h-[0.55em] w-[1.38em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-gray-950/10 sm:mx-3"
                 style={{ backgroundImage: `url(${ScenarioAnalysisArt})` }}
               />
-              commitment.
+              confidence.
             </h2>
           </div>
 
@@ -1565,8 +1571,8 @@ function FAQSection({ items }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-cyan-300/5" />
               <p className="absolute inset-x-0 bottom-0 max-w-sm p-7 font-['Outfit_Variable',sans-serif] text-2xl font-semibold leading-tight tracking-[-0.035em] text-white sm:p-9 sm:text-3xl">
-                Understand what Nova does, where it helps, and what it never
-                promises.
+                Understand Nova's role, its research value, and the limits of
+                AI-assisted investment intelligence.
               </p>
             </div>
           </div>
@@ -1593,7 +1599,7 @@ function FAQSection({ items }) {
         <div className="mt-20 grid grid-flow-dense grid-cols-1 gap-14 lg:mt-28 lg:grid-cols-12 lg:gap-12 xl:gap-16">
           <aside className="self-start lg:sticky lg:top-28 lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
-              Currently in focus
+              Evaluation topic
             </p>
             <p className="mt-5 max-w-sm font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em]">
               {items[activeQuestion].title}
@@ -1644,8 +1650,8 @@ function FAQSection({ items }) {
             </div>
 
             <p className="mt-7 max-w-sm text-sm leading-6 text-gray-500">
-              Browse every answer or use the controls to move directly to the
-              concern most relevant to your evaluation.
+              Review each answer or move directly to the topic most relevant
+              to your team's evaluation.
             </p>
           </aside>
 
@@ -1751,25 +1757,25 @@ function FAQSection({ items }) {
 const decisionPerspectives = [
   {
     role: "Research analysts",
-    title: "Begin with a defensible opportunity set",
+    title: "Start with a defensible opportunity set",
     description:
-      "Replace a fragmented first pass with structured macro context, capital-flow evidence, sector strength, and ranked candidates ready for deeper review.",
+      "Replace fragmented data gathering with structured macro context, capital-flow evidence, theme and sector intelligence, and ranked candidates ready for deeper review.",
     image: MacroIntelligenceArt,
     imageAlt: "Structured macro signals supporting an analyst research workflow",
   },
   {
     role: "Portfolio managers",
-    title: "Connect conviction to portfolio risk",
+    title: "Evaluate opportunities in context",
     description:
-      "Evaluate each candidate within the current regime, expected return, liquidity, and downside conditions before it competes for portfolio capital.",
+      "Review each candidate against the current regime, expected return, liquidity, and downside conditions before deciding whether it merits portfolio capital.",
     image: RiskAnalysisArt,
     imageAlt: "Risk intelligence connecting market conviction to portfolio decisions",
   },
   {
     role: "Investment committees",
-    title: "Review the reasoning, not just the output",
+    title: "Review the evidence behind the output",
     description:
-      "Bring a consistent evidence trail from market conditions through sector selection and security prioritization into the decision conversation.",
+      "Bring a consistent evidence trail from market conditions through theme and sector selection, security prioritization, forecasting, and risk filtering into the decision process.",
     image: ScenarioAnalysisArt,
     imageAlt: "Scenario pathways prepared for an investment committee review",
   },
@@ -1777,27 +1783,27 @@ const decisionPerspectives = [
 
 const decisionShifts = [
   {
-    title: "See context",
+    title: "Establish context",
     description:
-      "Understand the economic regime and the direction of liquidity before evaluating individual securities.",
+      "Organize the economic regime, liquidity, and capital flows before evaluating individual securities.",
     image: MacroIntelligenceArt,
   },
   {
-    title: "Focus research",
+    title: "Prioritize research",
     description:
-      "Narrow broad markets into sectors, themes, and candidates with improving relative conditions.",
+      "Narrow broad markets into themes, sectors, and candidates with stronger relative conditions.",
     image: SectorRotationArt,
   },
   {
-    title: "Decide with evidence",
+    title: "Support the decision",
     description:
-      "Carry institutional scoring, forecasting, and risk filters into a traceable investment decision.",
+      "Carry Institutional Score, forecasting, scenarios, and risk filters into a traceable investment review.",
     image: RiskAnalysisArt,
   },
 ];
 
 const finalNarrative =
-  "Nova brings market structure, capital movement, opportunity ranking, and risk into one connected research workflow—so every stock-level decision begins with a clearer understanding of the environment around it.";
+  "Nova unifies macro intelligence, capital flows, investment themes, sector rotation, stock prioritization, forecasting, and risk filters—giving investment teams a structured path from market data to better-informed decisions.";
 
 function FinalMarketCTASection({ user }) {
   const [activePerspective, setActivePerspective] = useState(0);
@@ -1918,13 +1924,13 @@ function FinalMarketCTASection({ user }) {
 
           <div className="relative flex min-h-[50rem] flex-col items-center justify-center px-6 py-24 text-center sm:px-10 lg:px-16">
             <h2 className="max-w-6xl font-['Outfit_Variable',sans-serif] text-[clamp(3.5rem,9.3vw,7.9rem)] font-semibold leading-[0.84] tracking-[-0.075em]">
-              Stop picking in isolation. Start seeing
+              Turn market complexity into
               <span
                 aria-hidden="true"
                 className="mx-2 inline-block h-[0.54em] w-[1.35em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-white/20 sm:mx-4"
                 style={{ backgroundImage: `url(${SectorRotationArt})` }}
               />
-              the whole market.
+              structured decisions.
             </h2>
 
             <p
@@ -1946,14 +1952,14 @@ function FinalMarketCTASection({ user }) {
                 to={user ? "/dashboard" : "/signup"}
                 className="group/button inline-flex min-h-14 flex-1 items-center justify-center rounded-full bg-white px-7 text-sm font-semibold text-gray-950 transition duration-500 hover:-translate-y-1 hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
               >
-                {user ? "Open Nova workspace" : "Start with Nova"}
+                {user ? "Open Nova workspace" : "Evaluate Nova"}
                 <ArrowUpRight className="ml-2 size-4 transition-transform duration-500 group-hover/button:-translate-y-0.5 group-hover/button:translate-x-0.5" />
               </Link>
               <Link
                 to={user ? "/dashboard/macro" : "/login"}
                 className="inline-flex min-h-14 flex-1 items-center justify-center rounded-full border border-white/25 bg-gray-950/35 px-7 text-sm font-semibold text-white backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
               >
-                {user ? "Review macro intelligence" : "Sign in"}
+                {user ? "Review macro intelligence" : "Client sign in"}
               </Link>
             </div>
           </div>
@@ -1969,10 +1975,10 @@ function FinalMarketCTASection({ user }) {
             <div className="grid grid-flow-dense grid-cols-1 lg:grid-cols-12">
               <div className="border-b border-gray-200 p-7 sm:p-10 lg:col-span-5 lg:border-b-0 lg:border-r lg:p-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-700">
-                  Built around the decision
+                  Designed for investment teams
                 </p>
                 <h3 className="mt-5 max-w-md font-['Outfit_Variable',sans-serif] text-4xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-5xl">
-                  One platform, viewed from every investment role.
+                  One intelligence platform. Multiple decision perspectives.
                 </h3>
 
                 <div className="mt-10 flex items-center justify-between border-t border-gray-200 pt-6">
@@ -2097,35 +2103,35 @@ function App() {
   const PAGE_SIZE = 10;
   const faqItems = [
     {
-      category: "Product use",
-      title: "Does the founder use this AI directly?",
+      category: "Team fit",
+      title: "Who is Nova AI designed for?",
       content:
-        "Yes. Nova AI is also used directly by the founder in investment transactions. The platform is designed to help retail investors get access to the same technology used by professionals, so they can make more informed and structured investment decisions.",
+        "Nova is designed for professional investment teams, including asset managers, pension funds, securities firms, research teams, portfolio managers, and investment committees. It provides a shared, structured starting point for identifying and evaluating opportunities across supported markets.",
     },
     {
-      category: "Risk and accuracy",
-      title: "Is this AI signal 100% accurate?",
+      category: "Decision responsibility",
+      title: "Does Nova replace analysts or guarantee outcomes?",
       content:
-        "No. Markets remain risky and no system is always right. Nova AI doesn't aim to predict the market perfectly, but rather helps users make more structured decisions based on data, probability, and risk management.",
+        "No. Nova supports research and decision-making; it does not replace professional judgment or guarantee investment performance. Markets remain uncertain, so forecasts and recommendations should be evaluated alongside an institution's mandate, due diligence, and risk controls.",
     },
     {
-      category: "Research workflow",
-      title: "Do I have to stare at the screen all day?",
+      category: "Workflow value",
+      title: "How does Nova improve the research process?",
       content:
-        "No. Nova AI helps filter the market and provides important insights so users only need to look at pre-analyzed stock options, not monitor all market movements manually.",
+        "Nova reduces time spent gathering and processing fragmented information. It organizes market context, monitors capital flows and themes, ranks sectors and securities, and applies forecasting and risk filters so analysts can begin deeper work with a focused, evidence-backed opportunity set.",
     },
     {
-      category: "Opportunity frequency",
-      title: "Does Nova AI always find opportunities every day?",
+      category: "Research discipline",
+      title: "Will Nova always surface an investment opportunity?",
       content:
-        "Not always. Nova AI is not designed to force searching for opportunities every day. The system first evaluates macroeconomic conditions, liquidity, market sentiment, and market regime before providing insights. In less favorable conditions, Nova AI may recommend being more cautious or even not investing at the moment.",
+        "No. Nova is designed to be selective, not to manufacture activity. When macro conditions, liquidity, expected return, or risk criteria are unfavorable, the platform may narrow the opportunity set substantially or indicate that no candidate currently passes the full research pipeline.",
     },
     {
-      category: "Platform difference",
+      category: "Platform differentiation",
       title:
-        "What makes Nova AI different from free indicators on the internet?",
+        "How is Nova different from a collection of market indicators?",
       content:
-        "Nova AI doesn't rely on just one or two technical indicators. The system combines macroeconomic analysis, global liquidity, market regime detection, risk modeling, market data, and AI reasoning in one integrated framework. The goal is not just to find stocks that might go up, but to understand market conditions behind every investment decision.",
+        "Nova is an integrated investment-intelligence workflow, not a standalone signal or generic stock screener. It connects macro analysis, liquidity and capital flows, theme monitoring, sector rotation, Institutional Score, forecasting, and risk filtering while preserving the evidence behind each prioritized candidate.",
     },
   ];
 
@@ -2210,158 +2216,6 @@ function App() {
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
         </div>
-
-        {/* <div className="text-center border-y-1 border-gray-200/70 px-8">
-          <div className="border-x-1 border-gray-200/70 py-12 px-8">
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-              <SparkleIcon size={12} />
-              Testimoni
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-1">
-              Investing feels clearer with
-            </h2>
-            <h2 className="text-4xl font-bold mb-4">
-              <span className="text-cyan-400">the right guidance</span>
-            </h2>
-            <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Real experiences from people using AI to
-              invest wisely, not emotionally
-            </p>
-            <div className="grid grid-cols-4 mt-12 gap-4">
-              <Card
-                style={{
-                  backgroundImage: `url(${Gradient})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-                className="text-white"
-              >
-                <CardContent className={"text-left"}>
-                  <div className="flex">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <HiMiniStar
-                          key={i}
-                          className="h-5 w-5 fill-yellow-500 text-yellow-500"
-                        />
-                      ))}
-                  </div>
-                  <p className="mt-3">
-                    "Usually I have to open many applications and read news
-                    one by one. Now Nova directly gives me a market summary and
-                    easy-to-understand stock insights."
-                  </p>
-                  <User
-                    avatarProps={{
-                      src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                      radius: "md",
-                    }}
-                    description="Investor Saham Retail"
-                    name="Andi Pratama"
-                    className="mt-20"
-                  />
-                </CardContent>
-              </Card>
-              <div className="flex flex-col gap-4">
-                <Card>
-                  <CardContent className={"text-left"}>
-                    <User
-                      avatarProps={{
-                        src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                        radius: "md",
-                      }}
-                      description="Karyawan Swasta"
-                      name="Kevin Wijaya"
-                    />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className={"text-left"}>
-                    <div className="flex">
-                      {Array(5)
-                        .fill(0)
-                        .map((_, i) => (
-                          <HiMiniStar
-                            key={i}
-                            className="h-5 w-5 fill-yellow-500 text-yellow-500"
-                          />
-                        ))}
-                    </div>
-                    <p className="mt-20">
-                      "The AI forecasting feature helps me screen stocks faster
-                      without having to analyze everything manually."
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="flex flex-col gap-4">
-                <Card>
-                  <CardContent className={"text-left"}>
-                    <div className="flex">
-                      {Array(5)
-                        .fill(0)
-                        .map((_, i) => (
-                          <HiMiniStar
-                            key={i}
-                            className="h-5 w-5 fill-yellow-500 text-yellow-500"
-                          />
-                        ))}
-                    </div>
-                    <p className="mt-20">
-                      "I like it because the insights provided are not too
-                      complex. Perfect for retail investors who want to learn
-                      to understand the market."
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className={"text-left"}>
-                    <User
-                      avatarProps={{
-                        src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                        radius: "md",
-                      }}
-                      description="Mahasiswa"
-                      name="Felicia Tan"
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-              <Card>
-                <CardContent className={"text-left"}>
-                  <div className="flex">
-                    {Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <HiMiniStar
-                          key={i}
-                          className="h-5 w-5 fill-yellow-500 text-yellow-500"
-                        />
-                      ))}
-                  </div>
-                  <p className="mt-3">
-                    "Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Rem error facere quasi accusantium earum laboriosam
-                    architecto facilis deserunt consequatur."
-                  </p>
-                  <User
-                    avatarProps={{
-                      src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                      radius: "md",
-                    }}
-                    description="Product Designer"
-                    name="Jane Doe"
-                    className="mt-20"
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-        <div className="px-8">
-          <div className="border-x-1 border-gray-200/70">&nbsp;</div>
-        </div> */}
 
         <SectorCoverageSection />
 
