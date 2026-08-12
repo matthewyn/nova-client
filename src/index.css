@@ -46,6 +46,43 @@
   caret-color: #c4b5fd;
 }
 
+.signup-page,
+.signup-page * {
+  font-family: "Geist Variable", sans-serif;
+}
+
+.signup-auth-input input,
+.signup-auth-phone input,
+.signup-otp-form input {
+  color: rgba(255, 255, 255, 0.94) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
+  caret-color: #a5f3fc;
+}
+
+.signup-auth-input input::placeholder,
+.signup-auth-phone input::placeholder,
+.signup-otp-form input::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 1;
+}
+
+.signup-auth-input label,
+.signup-auth-phone label {
+  color: rgba(255, 255, 255, 0.58) !important;
+}
+
+.signup-auth-input input:-webkit-autofill,
+.signup-auth-input input:-webkit-autofill:hover,
+.signup-auth-input input:-webkit-autofill:focus,
+.signup-auth-phone input:-webkit-autofill,
+.signup-auth-phone input:-webkit-autofill:hover,
+.signup-auth-phone input:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 0 0 1000px #111b1e inset !important;
+  caret-color: #a5f3fc;
+}
+
 .primary {
   @apply bg-primary text-primary-foreground;
 }

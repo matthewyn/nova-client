@@ -89,14 +89,21 @@ function PhoneInput({
   setPhone,
   phone,
   countryIsDisabled = false,
+  appearance = "default",
 }) {
+  const isDark = appearance === "dark";
+
   return (
-    <div className="flex gap-2 items-stretch">
+    <div className={`flex items-stretch gap-2 ${isDark ? "signup-auth-phone" : ""}`}>
       <Popover placement="bottom-start">
         <PopoverTrigger className="flex">
           <Button
             variant="bordered"
-            className="min-w-fit flex h-auto"
+            className={`flex h-auto min-w-fit ${
+              isDark
+                ? "border-white/10 bg-white/[0.055] px-4 text-white hover:bg-white/[0.08]"
+                : ""
+            }`}
             isDisabled={countryIsDisabled}
           >
             {getCountryFlag(selectedCountry.code)} {selectedCountry.dialCode}
@@ -135,7 +142,18 @@ function PhoneInput({
           );
           setPhone(formatted);
         }}
-        className="flex-1"
+        className={`flex-1 ${isDark ? "signup-auth-input" : ""}`}
+        classNames={
+          isDark
+            ? {
+                input: "text-white placeholder:text-white/25",
+                inputWrapper:
+                  "h-14 border border-white/10 bg-white/[0.055] shadow-none transition-colors data-[hover=true]:bg-white/[0.08] group-data-[focus=true]:border-cyan-200/60 group-data-[focus=true]:bg-white/[0.08]",
+                label:
+                  "text-white/45 group-data-[filled-within=true]:text-white/55",
+              }
+            : undefined
+        }
         minLength={10}
       />
     </div>

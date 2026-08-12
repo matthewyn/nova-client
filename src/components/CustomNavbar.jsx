@@ -32,7 +32,7 @@ function CustomNavbar() {
   const location = useLocation();
   const showSidebarToggle = location.pathname.startsWith("/dashboard");
 
-  if (location.pathname === "/login") {
+  if (["/login", "/signup"].includes(location.pathname)) {
     return null;
   }
 
