@@ -1,72 +1,12 @@
-import { Card, CardBody, Button, Input } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import axios from "@/utils/apiClient";
 import { useState } from "react";
-import { HiMiniEnvelope, HiLockClosed } from "react-icons/hi2";
+import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { generateApiOrigin } from "@/utils/apiOrigin";
 import { useAuth } from "@/contexts/AuthContext";
 import { createSession, saveSession } from "@/utils/token";
 import { toast } from "sonner";
-
-export const EyeSlashFilledIcon = (props) => {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      focusable="false"
-      height="1em"
-      role="presentation"
-      viewBox="0 0 24 24"
-      width="1em"
-      {...props}
-    >
-      <path
-        d="M21.2714 9.17834C20.9814 8.71834 20.6714 8.28834 20.3514 7.88834C19.9814 7.41834 19.2814 7.37834 18.8614 7.79834L15.8614 10.7983C16.0814 11.4583 16.1214 12.2183 15.9214 13.0083C15.5714 14.4183 14.4314 15.5583 13.0214 15.9083C12.2314 16.1083 11.4714 16.0683 10.8114 15.8483C10.8114 15.8483 9.38141 17.2783 8.35141 18.3083C7.85141 18.8083 8.01141 19.6883 8.68141 19.9483C9.75141 20.3583 10.8614 20.5683 12.0014 20.5683C13.7814 20.5683 15.5114 20.0483 17.0914 19.0783C18.7014 18.0783 20.1514 16.6083 21.3214 14.7383C22.2714 13.2283 22.2214 10.6883 21.2714 9.17834Z"
-        fill="currentColor"
-      />
-      <path
-        d="M14.0206 9.98062L9.98062 14.0206C9.47062 13.5006 9.14062 12.7806 9.14062 12.0006C9.14062 10.4306 10.4206 9.14062 12.0006 9.14062C12.7806 9.14062 13.5006 9.47062 14.0206 9.98062Z"
-        fill="currentColor"
-      />
-      <path
-        d="M18.25 5.74969L14.86 9.13969C14.13 8.39969 13.12 7.95969 12 7.95969C9.76 7.95969 7.96 9.76969 7.96 11.9997C7.96 13.1197 8.41 14.1297 9.14 14.8597L5.76 18.2497H5.75C4.64 17.3497 3.62 16.1997 2.75 14.8397C1.75 13.2697 1.75 10.7197 2.75 9.14969C3.91 7.32969 5.33 5.89969 6.91 4.91969C8.49 3.95969 10.22 3.42969 12 3.42969C14.23 3.42969 16.39 4.24969 18.25 5.74969Z"
-        fill="currentColor"
-      />
-      <path
-        d="M14.8581 11.9981C14.8581 13.5681 13.5781 14.8581 11.9981 14.8581C11.9381 14.8581 11.8881 14.8581 11.8281 14.8381L14.8381 11.8281C14.8581 11.8881 14.8581 11.9381 14.8581 11.9981Z"
-        fill="currentColor"
-      />
-      <path
-        d="M21.7689 2.22891C21.4689 1.92891 20.9789 1.92891 20.6789 2.22891L2.22891 20.6889C1.92891 20.9889 1.92891 21.4789 2.22891 21.7789C2.37891 21.9189 2.56891 21.9989 2.76891 21.9989C2.96891 21.9989 3.15891 21.9189 3.30891 21.7689L21.7689 3.30891C22.0789 3.00891 22.0789 2.52891 21.7689 2.22891Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
-
-export const EyeFilledIcon = (props) => {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      focusable="false"
-      height="1em"
-      role="presentation"
-      viewBox="0 0 24 24"
-      width="1em"
-      {...props}
-    >
-      <path
-        d="M21.25 9.14969C18.94 5.51969 15.56 3.42969 12 3.42969C10.22 3.42969 8.49 3.94969 6.91 4.91969C5.33 5.89969 3.91 7.32969 2.75 9.14969C1.75 10.7197 1.75 13.2697 2.75 14.8397C5.06 18.4797 8.44 20.5597 12 20.5597C13.78 20.5597 15.51 20.0397 17.09 19.0697C18.67 18.0897 20.09 16.6597 21.25 14.8397C22.25 13.2797 22.25 10.7197 21.25 9.14969ZM12 16.0397C9.76 16.0397 7.96 14.2297 7.96 11.9997C7.96 9.76969 9.76 7.95969 12 7.95969C14.24 7.95969 16.04 9.76969 16.04 11.9997C16.04 14.2297 14.24 16.0397 12 16.0397Z"
-        fill="currentColor"
-      />
-      <path
-        d="M11.9984 9.14062C10.4284 9.14062 9.14844 10.4206 9.14844 12.0006C9.14844 13.5706 10.4284 14.8506 11.9984 14.8506C13.5684 14.8506 14.8584 13.5706 14.8584 12.0006C14.8584 10.4306 13.5684 9.14062 11.9984 9.14062Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
 
 const urlFetch = generateApiOrigin("/auth/login");
 
@@ -78,11 +18,11 @@ function LoginCard() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const toggleVisibility = () => setIsVisible((visible) => !visible);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (event) => {
     try {
-      e.preventDefault();
+      event.preventDefault();
       setIsLoading(true);
 
       const response = await axios.post(urlFetch, {
@@ -98,7 +38,6 @@ function LoginCard() {
           type: "success",
           position: "top-center",
         });
-        return;
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -120,69 +59,88 @@ function LoginCard() {
   };
 
   return (
-    <>
-      <div
-        className="max-w-120 relative z-10 p-4 rounded-2xl 
-         bg-white/30 backdrop-blur-xl"
-      >
-        <h1 className="font-semibold text-2xl text-center mt-2">Welcome</h1>
-        <p className="text-gray-500 text-center mt-1">
-          Please enter your credentials to continue your investment journey.
-        </p>
-        <form className="flex flex-col gap-3 mt-5" onSubmit={handleSubmit}>
-          <div>
-            <Input
-              isRequired
-              label="Email"
-              type="email"
-              placeholder="Email"
-              startContent={
-                <HiMiniEnvelope size={20} className="text-gray-400" />
-              }
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+    <div className="rounded-[1.75rem] border border-white/15 bg-white/[0.075] p-2 shadow-[0_32px_100px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
+      <div className="rounded-[1.3rem] border border-white/10 bg-[#0c0e13]/88 p-6 text-left sm:p-8">
+        <div className="mb-7">
+          <h2 className="text-2xl font-medium tracking-[-0.035em]">Welcome back</h2>
+          <p className="mt-2 text-sm leading-6 text-white/45">
+            Access your research workspace securely.
+          </p>
+        </div>
+
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <Input
+            isRequired
+            label="Work email"
+            type="email"
+            placeholder="you@company.com"
+            autoComplete="email"
+            startContent={<Mail className="size-[18px] text-white/35" />}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            classNames={{
+              input: "text-white placeholder:text-white/25",
+              inputWrapper:
+                "h-14 border border-white/10 bg-white/[0.055] shadow-none transition-colors data-[hover=true]:bg-white/[0.08] group-data-[focus=true]:border-violet-300/60 group-data-[focus=true]:bg-white/[0.08]",
+              label: "text-white/45 group-data-[filled-within=true]:text-white/55",
+            }}
+          />
+          <Input
+            isRequired
+            label="Password"
+            placeholder="Enter your password"
+            type={isVisible ? "text" : "password"}
+            autoComplete="current-password"
+            minLength={6}
+            startContent={<LockKeyhole className="size-[18px] text-white/35" />}
+            endContent={
+              <button
+                aria-label={isVisible ? "Hide password" : "Show password"}
+                className="rounded-md p-1 text-white/35 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-violet-300"
+                type="button"
+                onClick={toggleVisibility}
+              >
+                {isVisible ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            }
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            classNames={{
+              input: "text-white placeholder:text-white/25",
+              inputWrapper:
+                "h-14 border border-white/10 bg-white/[0.055] shadow-none transition-colors data-[hover=true]:bg-white/[0.08] group-data-[focus=true]:border-violet-300/60 group-data-[focus=true]:bg-white/[0.08]",
+              label: "text-white/45 group-data-[filled-within=true]:text-white/55",
+            }}
+          />
+
+          <div className="flex items-center justify-between gap-4 py-1 text-sm">
+            <span className="text-white/35">Private and encrypted</span>
+            <Link
+              className="text-white/65 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              to="/forgotpassword"
+            >
+              Forgot password?
+            </Link>
           </div>
-          <div>
-            <Input
-              isRequired
-              endContent={
-                <button
-                  aria-label="toggle password visibility"
-                  className="focus:outline-solid outline-transparent"
-                  type="button"
-                  onClick={toggleVisibility}
-                >
-                  {isVisible ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  )}
-                </button>
-              }
-              startContent={
-                <HiLockClosed size={20} className="text-gray-400" />
-              }
-              label="Password"
-              placeholder="Password"
-              type={isVisible ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-            />
-          </div>
-          <Link
-            className="text-right text-gray-500 text-sm"
-            to="/forgotpassword"
+
+          <Button
+            className="h-14 w-full rounded-full bg-white text-base font-semibold text-[#090b10] transition-transform duration-300 hover:-translate-y-0.5 hover:bg-violet-100"
+            type="submit"
+            isLoading={isLoading}
           >
-            Forgot password?
-          </Link>
-          <Button className="primary" type="submit" isLoading={isLoading}>
-            Sign In
+            Sign in to Nova
+          </Button>
+          <Button
+            as={Link}
+            to="/signup"
+            variant="bordered"
+            className="h-14 w-full rounded-full border-white/15 bg-transparent text-base font-medium text-white transition-colors hover:border-white/30 hover:bg-white/[0.07]"
+          >
+            Create an account
           </Button>
         </form>
       </div>
-    </>
+    </div>
   );
 }
 

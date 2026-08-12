@@ -32,6 +32,10 @@ function CustomNavbar() {
   const location = useLocation();
   const showSidebarToggle = location.pathname.startsWith("/dashboard");
 
+  if (location.pathname === "/login") {
+    return null;
+  }
+
   const handleLogout = async () => {
     try {
       await logoutSession();

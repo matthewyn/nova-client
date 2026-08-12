@@ -17,6 +17,11 @@
   font-family: "DM Sans", sans-serif;
 }
 
+.login-page,
+.login-page * {
+  font-family: "Geist Variable", sans-serif;
+}
+
 .primary {
   @apply bg-primary text-primary-foreground;
 }
