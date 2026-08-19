@@ -13,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EtherealBeamsHero from "@/components/ui/ethereal-beams-hero";
 import Dashboard from "@/assets/dashboard.png";
 import {
   ArrowLeft,
@@ -37,6 +36,199 @@ import PositionSizingArt from "@/assets/what-you-get/position-sizing.webp";
 import ScenarioAnalysisArt from "@/assets/what-you-get/scenario-analysis.webp";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const heroSignals = [
+  "Macro context",
+  "Capital flow",
+  "Theme intelligence",
+  "Sector rotation",
+  "Institutional Score",
+  "Risk filtering",
+];
+
+function HeroSection({ user }) {
+  const sectionRef = useRef(null);
+  const visualRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const headingRef = useRef(null);
+  const summaryRef = useRef(null);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          headingRef.current,
+          { autoAlpha: 0, y: 56 },
+          { autoAlpha: 1, y: 0, duration: 1.1, ease: "power4.out" },
+        );
+
+        gsap.to(marqueeRef.current, {
+          xPercent: -50,
+          duration: 26,
+          ease: "none",
+          repeat: -1,
+        });
+
+        const words = gsap.utils.toArray(".hero-summary-word");
+        gsap.fromTo(
+          words,
+          { opacity: 0.12 },
+          {
+            opacity: 1,
+            stagger: 0.04,
+            ease: "none",
+            scrollTrigger: {
+              trigger: summaryRef.current,
+              start: "top 82%",
+              end: "bottom 50%",
+              scrub: 0.7,
+            },
+          },
+        );
+
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.9,
+            },
+          })
+          .fromTo(
+            visualRef.current,
+            { autoAlpha: 0.5, scale: 0.82, y: 70 },
+            { autoAlpha: 1, scale: 1, y: 0, ease: "none" },
+          )
+          .to(visualRef.current, {
+            autoAlpha: 0.2,
+            scale: 0.96,
+            y: -60,
+            ease: "none",
+          });
+      });
+
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  const heroSummary =
+    "Nova turns fragmented market information into structured intelligence, prioritized opportunities, and a clearer starting point for every investment decision.";
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative isolate min-h-[110svh] overflow-hidden bg-[#071011] px-5 pb-20 pt-20 text-white sm:px-8 sm:pt-24 lg:pb-28 lg:pt-32"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_26%,rgba(45,212,191,0.16),transparent_27%),radial-gradient(circle_at_18%_84%,rgba(99,102,241,0.13),transparent_30%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:72px_72px]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-black/40 to-transparent" />
+
+      <div className="relative mx-auto max-w-[96rem]">
+        <div className="grid min-h-[calc(100svh-10rem)] items-center gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
+          <div className="lg:col-span-7">
+            <div ref={headingRef}>
+              <p className="mb-8 max-w-md text-sm font-medium leading-6 text-cyan-100/65">
+                Investment intelligence for teams that need a sharper view of
+                markets, not another stream of disconnected signals.
+              </p>
+
+              <h1 className="max-w-6xl font-['Satoshi','Geist_Variable',sans-serif] text-[clamp(3rem,14vw,7.6rem)] font-semibold leading-[0.84] tracking-[-0.075em] text-white lg:text-[clamp(4.5rem,6.8vw,7.4rem)]">
+                Market noise.
+                <span
+                  aria-hidden="true"
+                  className="mx-3 inline-block h-[0.55em] w-[1.28em] overflow-hidden rounded-full bg-cover bg-center align-[0.03em] ring-1 ring-white/20 sm:mx-4"
+                  style={{ backgroundImage: `url(${CapitalFlowArt})` }}
+                />
+                Investment clarity.
+              </h1>
+
+              <p
+                ref={summaryRef}
+                className="mt-9 max-w-2xl text-lg leading-8 text-white sm:text-xl sm:leading-9"
+              >
+                {heroSummary.split(" ").map((word, index) => (
+                  <span
+                    key={`${word}-${index}`}
+                    className="hero-summary-word inline-block pr-[0.28em]"
+                  >
+                    {word}
+                  </span>
+                ))}
+              </p>
+
+              <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  to={user ? "/dashboard" : "/signup"}
+                  className="group inline-flex min-h-14 items-center justify-center rounded-full bg-[#d8faf4] px-7 text-sm font-semibold text-[#071011] transition-colors duration-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-4 focus-visible:ring-offset-[#071011]"
+                >
+                  {user ? "Open intelligence workspace" : "Explore Nova AI"}
+                  <ArrowRight className="ml-3 size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+                <a
+                  href="#how-nova-works"
+                  className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/20 bg-white/[0.06] px-7 text-sm font-semibold text-white backdrop-blur-md transition-colors duration-300 hover:border-white/40 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-[#071011]"
+                >
+                  See the research workflow
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 lg:pl-4">
+            <div
+              ref={visualRef}
+              className="group relative mx-auto max-w-xl will-change-transform"
+            >
+              <div className="absolute -inset-12 rounded-full bg-cyan-300/10 blur-3xl transition-colors duration-700 group-hover:bg-cyan-300/15" />
+              <div className="relative rotate-[1.5deg] overflow-hidden rounded-[2rem] border border-white/15 bg-white/[0.07] p-2 shadow-[0_45px_140px_-45px_rgba(45,212,191,0.4)] backdrop-blur-2xl transition-transform duration-700 ease-out group-hover:rotate-0 group-hover:scale-[1.015] sm:p-3">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-[1.45rem] bg-[#101b1e]">
+                  <img
+                    src={Dashboard}
+                    alt="Nova AI workspace organizing market intelligence and prioritized opportunities"
+                    className="h-full w-full object-cover object-left-top opacity-85 contrast-125 grayscale-[0.15] transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#071011] via-transparent to-cyan-200/5" />
+                </div>
+
+                <div className="grid gap-5 px-5 py-6 sm:grid-cols-[1fr_auto] sm:items-end sm:px-6">
+                  <blockquote className="max-w-sm font-['Satoshi','Geist_Variable',sans-serif] text-xl font-medium leading-snug tracking-[-0.025em] text-white">
+                    “A traceable path from market context to the opportunities
+                    worth deeper review.”
+                  </blockquote>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200/70">
+                    One research system
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-14 overflow-hidden border-y border-white/10 py-4 lg:mt-20">
+          <div
+            ref={marqueeRef}
+            aria-hidden="true"
+            className="flex w-max will-change-transform"
+          >
+            {[...heroSignals, ...heroSignals].map((signal, index) => (
+              <span
+                key={`${signal}-${index}`}
+                className="flex items-center whitespace-nowrap pr-10 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/45"
+              >
+                <span className="mr-10 h-px w-10 bg-cyan-200/60" />
+                {signal}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const intelligenceFeatures = [
   {
@@ -402,6 +594,7 @@ function HowNovaWorksSection() {
 
   return (
     <section
+      id="how-nova-works"
       ref={sectionRef}
       className="relative overflow-hidden border-y border-white/10 bg-[#071012] px-5 py-28 text-white sm:px-8 md:py-40"
     >
@@ -2193,15 +2386,8 @@ function App() {
 
   return (
     <main className="min-h-screen w-full max-w-full overflow-x-hidden bg-gray-50">
-      {/* Hero / Pricing header */}
       <div>
-        <div className="px-8">
-          <EtherealBeamsHero
-            user={user}
-            statistics={statistics}
-            isLoading={isLoading}
-          />
-        </div>
+        <HeroSection user={user} />
 
         <div className="px-8">
           <div className="border-x-1 border-gray-200/70">&nbsp;</div>
