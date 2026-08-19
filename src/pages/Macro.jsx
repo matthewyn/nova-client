@@ -471,35 +471,10 @@ function SectorMarketCard({ data, market }) {
 }
 
 function SectorIntelligence({ indonesia, us, isLoading }) {
-  const sectionRef = useRef(null);
-  const introRef = useRef(null);
-
-  useGSAP(
-    () => {
-      const media = gsap.matchMedia();
-      media.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          ScrollTrigger.create({
-            trigger: introRef.current,
-            endTrigger: sectionRef.current,
-            start: "top top+=88",
-            end: "bottom bottom",
-            pin: introRef.current,
-            pinSpacing: false,
-            invalidateOnRefresh: true,
-          });
-        },
-      );
-      return () => media.revert();
-    },
-    { scope: sectionRef },
-  );
-
   return (
-    <section ref={sectionRef} className="px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
+    <section className="px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
       <div className="mx-auto grid max-w-[96rem] grid-flow-dense gap-6 lg:grid-cols-12">
-        <div ref={introRef} className="self-start lg:col-span-4">
+        <div className="self-start lg:sticky lg:top-[88px] lg:col-span-4">
           <div className="rounded-2xl bg-[#0b1618] p-5 text-white lg:p-6">
             <BarChart3 className="size-5 text-cyan-200/65" />
             <h2 className="mt-5 font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-[0.95] tracking-[-0.045em]">
