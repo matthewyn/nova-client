@@ -1,278 +1,626 @@
-import SparkleIcon from "@/components/SparkleIcon";
-import { Card, CardContent } from "@/components/ui/card";
-import { generateApiOrigin } from "@/utils/apiOrigin";
-import { useEffect, useState, useRef } from "react";
-import { getAuthHeader } from "@/utils/token";
+import { useEffect, useMemo, useRef, useState } from "react";
+import "@fontsource-variable/outfit";
+import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  CircleDollarSign,
+  Gauge,
+  Globe2,
+  Layers3,
+  ShieldAlert,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import axios from "@/utils/apiClient";
+import { generateApiOrigin } from "@/utils/apiOrigin";
+import { getAuthHeader } from "@/utils/token";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangleIcon } from "lucide-react";
+import CapitalFlowArt from "@/assets/what-you-get/capital-flow.webp";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const ALLOCATION_CONFIG = {
-  CASH: { label: "Cash" },
-  USD: { label: "USD" },
-  GOLD: { label: "Gold" },
-  COMMODITIES: { label: "Commodities" },
-  US_TREASURY: { label: "US Treasury" },
-  ID_BOND: { label: "ID Bond" },
-  US_EQUITY: { label: "US Equity" },
-  ID_EQUITY: { label: "ID Equity" },
-  REIT: { label: "REIT" },
+  CASH: "Cash",
+  USD: "USD",
+  GOLD: "Gold",
+  COMMODITIES: "Commodities",
+  US_TREASURY: "US Treasury",
+  ID_BOND: "Indonesia Bond",
+  US_EQUITY: "US Equity",
+  ID_EQUITY: "Indonesia Equity",
+  REIT: "REIT",
 };
 
 const SECTOR_CONFIG = {
-  GOLD: { label: "Gold" },
-  COAL: { label: "Coal" },
-  NICKEL: { label: "Nickel" },
-  CPO: { label: "CPO" },
-  ENERGY_SHIPPING: { label: "Energy Ship" },
-  CONSUMER_STAPLES: { label: "Con. Staples" },
-  BANKING: { label: "Banking" },
-  HEALTHCARE: { label: "Healthcare" },
-  TELECOM: { label: "Telecom" },
-  INFRASTRUCTURE: { label: "Infra" },
-  PROPERTY: { label: "Property" },
-  CONSUMER_DISCRETIONARY: { label: "Con. Disc." },
-  TECHNOLOGY: { label: "Technology" },
-  ENERGY: { label: "Energy" },
-  COPPER: { label: "Copper" },
-  COMMUNICATION_SERVICES: { label: "Comm. Services" },
-  FINANCIALS: { label: "Financials" },
-  INDUSTRIALS: { label: "Industrials" },
-  TRANSPORTATION: { label: "Transportation" },
-  MATERIALS: { label: "Materials" },
-  UTILITIES: { label: "Utilities" },
+  GOLD: "Gold",
+  COAL: "Coal",
+  NICKEL: "Nickel",
+  CPO: "CPO",
+  ENERGY_SHIPPING: "Energy Shipping",
+  CONSUMER_STAPLES: "Consumer Staples",
+  BANKING: "Banking",
+  HEALTHCARE: "Healthcare",
+  TELECOM: "Telecommunication",
+  INFRASTRUCTURE: "Infrastructure",
+  PROPERTY: "Property",
+  CONSUMER_DISCRETIONARY: "Consumer Discretionary",
+  TECHNOLOGY: "Technology",
+  ENERGY: "Energy",
+  COPPER: "Copper",
+  COMMUNICATION_SERVICES: "Communication Services",
+  FINANCIALS: "Financials",
+  INDUSTRIALS: "Industrials",
+  TRANSPORTATION: "Transportation",
+  MATERIALS: "Materials",
+  UTILITIES: "Utilities",
 };
 
-function formatThemeLabel(theme) {
+const urlFetchCapitalFlow = generateApiOrigin("/capital-flow/current");
+const urlFetchSectorIndonesia = generateApiOrigin(
+  "/sector-intelligence/current?country=Indonesia",
+);
+const urlFetchSectorUS = generateApiOrigin(
+  "/sector-intelligence/current?country=US",
+);
+const urlFetchThemeUS = generateApiOrigin("/theme/current?country=US");
+const urlFetchThemeIndonesia = generateApiOrigin(
+  "/theme/current?country=Indonesia",
+);
+
+function formatThemeLabel(theme = "") {
   return theme
     .split("_")
     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
     .join(" ");
 }
 
-const stripeBg = {
-  backgroundImage:
-    "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 2px, transparent 2px, transparent 8px)",
-};
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setIsMobile(mq.matches);
-    const handler = (e) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isMobile;
+function formatScore(value, digits = 1) {
+  if (value == null || !Number.isFinite(Number(value))) return "—";
+  return Number(value).toFixed(digits);
 }
 
-function SummaryCardSkeleton({
-  rows = 5,
-  isMobile = false,
-  variant = "default",
-}) {
-  const gridClass =
-    variant === "compact"
-      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-      : "grid-cols-1 md:grid-cols-3 lg:grid-cols-4";
+function formatDate(value) {
+  if (!value) return "Latest available snapshot";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Latest available snapshot";
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
 
-  if (isMobile) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-24 rounded-full bg-gray-200" />
-          <Skeleton className="h-7 w-16 rounded-full bg-gray-200" />
-        </div>
-        {Array.from({ length: rows }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-2xl border border-gray-200/70 bg-gray-50 px-3 py-3"
-          >
-            <Skeleton className="h-4 w-20 rounded-full shrink-0 bg-gray-200" />
-            <Skeleton className="h-3 flex-1 rounded-full bg-gray-200" />
-            <Skeleton className="h-4 w-10 rounded-full bg-gray-200" />
-          </div>
-        ))}
-        <div className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4">
-          <Skeleton className="mb-2 h-3 w-3/4 rounded-full bg-gray-200" />
-          <Skeleton className="mb-2 h-3 w-full rounded-full bg-gray-200" />
-          <Skeleton className="h-3 w-2/3 rounded-full bg-gray-200" />
-        </div>
-      </div>
-    );
-  }
+function clampScore(value) {
+  return Math.min(Math.max(Number(value) || 0, 0), 100);
+}
+
+function LoadingPanel({ className = "h-72" }) {
+  return <Skeleton className={`rounded-2xl bg-slate-200 ${className}`} />;
+}
+
+function MacroHeader({ date, summary }) {
+  const headerRef = useRef(null);
+  const summaryRef = useRef(null);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".macro-header-item",
+          { autoAlpha: 0, y: 28 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.75,
+            stagger: 0.08,
+            ease: "power3.out",
+          },
+        );
+
+        const words = gsap.utils.toArray(".macro-reveal-word");
+        gsap.fromTo(
+          words,
+          { opacity: 0.12 },
+          {
+            opacity: 1,
+            stagger: 0.025,
+            ease: "none",
+            scrollTrigger: {
+              trigger: summaryRef.current,
+              start: "top 90%",
+              end: "bottom 55%",
+              scrub: 0.6,
+            },
+          },
+        );
+      });
+      return () => media.revert();
+    },
+    { scope: headerRef },
+  );
+
+  const brief =
+    summary ||
+    "Connect capital preference, durable themes, and sector leadership before narrowing the opportunity set.";
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-28 rounded-full bg-gray-200" />
-          <Skeleton className="h-3 w-44 rounded-full bg-gray-200" />
-        </div>
-        <Skeleton className="h-7 w-16 rounded-full bg-gray-200" />
-      </div>
-
-      <div className={`grid gap-3 ${gridClass}`}>
-        {Array.from({ length: rows }).map((_, i) => (
-          <div
-            key={i}
-            className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4"
-          >
-            <Skeleton className="mb-3 h-4 w-16 rounded-full bg-gray-200" />
-            <Skeleton className="mb-3 h-24 rounded-xl bg-gray-200" />
-            <Skeleton className="h-3 w-12 rounded-full bg-gray-200" />
+    <header
+      ref={headerRef}
+      className="relative overflow-hidden border-b border-white/10 bg-[#071011] px-5 py-7 text-white sm:px-8 lg:px-10 lg:py-9"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_10%,rgba(45,212,191,0.16),transparent_28%),radial-gradient(circle_at_8%_90%,rgba(99,102,241,0.1),transparent_30%)]" />
+      <div className="relative mx-auto grid max-w-[96rem] grid-flow-dense items-end gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <div className="macro-header-item flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100/55">
+            <Globe2 className="size-4" />
+            Macro research workspace
           </div>
-        ))}
+          <h1 className="macro-header-item mt-4 max-w-5xl font-['Outfit_Variable',sans-serif] text-[clamp(2.25rem,5vw,4rem)] font-semibold leading-[0.92] tracking-[-0.055em]">
+            Macro and
+            <span
+              aria-hidden="true"
+              className="mx-3 inline-block h-[0.55em] w-[1.3em] rounded-full bg-cover bg-center align-[0.04em] ring-1 ring-white/20"
+              style={{ backgroundImage: `url(${CapitalFlowArt})` }}
+            />
+            capital-flow intelligence.
+          </h1>
+        </div>
+
+        <div className="macro-header-item border-l border-white/10 pl-5 lg:col-span-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/35">
+            Snapshot date
+          </p>
+          <p className="mt-2 text-sm font-medium text-white/80">
+            {formatDate(date)}
+          </p>
+          <p ref={summaryRef} className="mt-4 text-sm leading-6 text-white/55">
+            {brief.split(" ").map((word, index) => (
+              <span
+                key={`${word}-${index}`}
+                className="macro-reveal-word inline-block pr-[0.25em]"
+              >
+                {word}
+              </span>
+            ))}
+          </p>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function ScoreBar({ label, score, tone = "cyan", rank }) {
+  const colors = {
+    cyan: "bg-cyan-600",
+    positive: "bg-emerald-600",
+    negative: "bg-rose-500",
+    violet: "bg-violet-600",
+  };
+
+  return (
+    <div className="group grid items-center gap-3 sm:grid-cols-[1.25rem_minmax(7rem,10rem)_1fr_2.5rem]">
+      <span className="hidden text-[0.65rem] font-semibold text-slate-300 sm:block">
+        {String(rank).padStart(2, "0")}
+      </span>
+      <span className="truncate text-xs font-medium text-slate-600">{label}</span>
+      <div className="relative h-2 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={`h-full rounded-full transition-[width] duration-1000 ease-out ${colors[tone]}`}
+          style={{ width: `${clampScore(score)}%` }}
+        />
+      </div>
+      <span className="text-right text-xs font-semibold tabular-nums text-slate-900">
+        {formatScore(score)}
+      </span>
+    </div>
+  );
+}
+
+function CapitalPreference({ entries, topAsset, isLoading }) {
+  return (
+    <section className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
+      <div className="mx-auto grid max-w-[96rem] grid-flow-dense gap-4 lg:grid-cols-12">
+        <article className="relative overflow-hidden rounded-2xl bg-[#0b1618] p-5 text-white lg:col-span-4 lg:p-6">
+          <div className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-cyan-300/10 blur-3xl" />
+          <div className="relative flex h-full flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between gap-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200/60">
+                    Cross-asset preference
+                  </p>
+                  <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em]">
+                    Capital flow
+                  </h2>
+                </div>
+                <CircleDollarSign className="size-5 text-cyan-200/65" />
+              </div>
+              <p className="mt-4 text-sm leading-6 text-white/50">
+                Relative allocation signals across liquidity, defensive assets,
+                duration, and equity risk.
+              </p>
+            </div>
+
+            <div className="mt-8 border-t border-white/10 pt-5">
+              <p className="text-xs text-white/35">Strongest current preference</p>
+              <p className="mt-2 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em] text-cyan-100">
+                {topAsset || "Awaiting data"}
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-45px_rgba(15,23,42,0.35)] lg:col-span-8 lg:p-6">
+          <div className="flex items-end justify-between gap-5 border-b border-slate-200 pb-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Relative signal strength
+              </p>
+              <h3 className="mt-2 text-lg font-semibold text-slate-950">
+                Asset-class ranking
+              </h3>
+            </div>
+            <Gauge className="size-5 text-slate-400" />
+          </div>
+
+          {isLoading ? (
+            <div className="mt-5 space-y-3">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <Skeleton key={index} className="h-7 rounded-lg bg-slate-100" />
+              ))}
+            </div>
+          ) : entries.length ? (
+            <div className="mt-5 grid grid-flow-dense grid-cols-1 gap-x-8 gap-y-3 xl:grid-cols-2">
+              {entries.map(([key, score], index) => (
+                <ScoreBar
+                  key={key}
+                  label={ALLOCATION_CONFIG[key] || formatThemeLabel(key)}
+                  score={score}
+                  rank={index + 1}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="py-12 text-center text-sm text-slate-500">
+              No capital-flow snapshot is available.
+            </p>
+          )}
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function ThemeMarket({ market, themes, summary, tone }) {
+  const toneStyles = {
+    indonesia: {
+      accent: "text-cyan-700",
+      bar: "cyan",
+      surface: "bg-[#e8f8f5]",
+    },
+    us: {
+      accent: "text-violet-700",
+      bar: "violet",
+      surface: "bg-[#f0effb]",
+    },
+  }[tone];
+
+  return (
+    <article
+      className={`group flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl p-5 transition-[flex] duration-500 ease-out hover:flex-[1.4] focus-within:flex-[1.4] lg:p-6 ${toneStyles.surface}`}
+    >
+      <div className="flex items-start justify-between gap-5">
+        <div>
+          <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${toneStyles.accent}`}>
+            {market} market
+          </p>
+          <h3 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em] text-slate-950">
+            Theme leadership
+          </h3>
+        </div>
+        <Layers3 className="size-5 text-slate-500" />
       </div>
 
-      <div className="rounded-2xl border border-gray-200/70 bg-gray-50 p-4">
-        <Skeleton className="mb-2 h-3 w-3/4 rounded-full bg-gray-200" />
-        <Skeleton className="mb-2 h-3 w-full rounded-full bg-gray-200" />
-        <Skeleton className="h-3 w-2/3 rounded-full bg-gray-200" />
+      <div className="mt-6 space-y-3">
+        {themes.slice(0, 6).map((theme, index) => (
+          <ScoreBar
+            key={theme.theme}
+            label={formatThemeLabel(theme.theme)}
+            score={theme.score}
+            tone={toneStyles.bar}
+            rank={index + 1}
+          />
+        ))}
+        {!themes.length ? (
+          <p className="py-8 text-sm text-slate-500">No theme signals available.</p>
+        ) : null}
+      </div>
+
+      {summary ? (
+        <p className="mt-6 border-t border-slate-900/10 pt-4 text-xs leading-5 text-slate-600">
+          {summary}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+function ThemeIntelligence({ indonesia, us, isLoading }) {
+  return (
+    <section className="border-y border-slate-200 bg-[#e9efed] px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
+      <div className="mx-auto max-w-[96rem]">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+              Persistent investment narratives
+            </p>
+            <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em] text-slate-950">
+              Theme intelligence
+            </h2>
+          </div>
+          <p className="max-w-lg text-sm leading-5 text-slate-500 sm:text-right">
+            Compare evidence-backed themes across both supported markets without
+            separating the research workflow.
+          </p>
+        </div>
+
+        {isLoading ? (
+          <div className="grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-2">
+            <LoadingPanel />
+            <LoadingPanel />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 lg:flex-row">
+            <ThemeMarket
+              market="Indonesia"
+              themes={indonesia.themes}
+              summary={indonesia.summary}
+              tone="indonesia"
+            />
+            <ThemeMarket
+              market="United States"
+              themes={us.themes}
+              summary={us.summary}
+              tone="us"
+            />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function SectorList({ title, sectors, tone }) {
+  const positive = tone === "positive";
+  return (
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        {positive ? (
+          <TrendingUp className="size-4 text-emerald-700" />
+        ) : (
+          <TrendingDown className="size-4 text-rose-700" />
+        )}
+        <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          {title}
+        </h4>
+      </div>
+      <div className="space-y-3">
+        {sectors.map((item, index) => (
+          <ScoreBar
+            key={item.sector}
+            label={SECTOR_CONFIG[item.sector] || formatThemeLabel(item.sector)}
+            score={item.score}
+            tone={tone}
+            rank={index + 1}
+          />
+        ))}
+        {!sectors.length ? (
+          <p className="py-5 text-xs text-slate-400">No sectors meet this threshold.</p>
+        ) : null}
       </div>
     </div>
   );
 }
 
-function AllocationBar({
-  label,
-  value,
-  animate,
-  variant = "primary",
-  horizontal = false,
-}) {
-  if (horizontal) {
-    return (
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-gray-600 w-24 shrink-0 text-right leading-tight">
-          {label}
-        </span>
-        <div
-          className="relative flex-1 h-8 rounded-xl bg-gray-100 overflow-hidden border border-gray-200/60"
-          style={stripeBg}
-        >
-          {value > 0 ? (
-            <div
-              className={`h-full rounded-xl flex items-center px-2 ${
-                variant === "primary"
-                  ? "primary"
-                  : variant === "green"
-                    ? "bg-green-500"
-                    : "bg-red-500"
-              }`}
-              style={{
-                width: animate ? `${value}%` : "0%",
-                transition: "width 0.85s cubic-bezier(0.23, 1, 0.32, 1)",
-              }}
-            >
-              <span className="text-xs font-semibold text-white leading-none whitespace-nowrap">
-                {value}%
-              </span>
+function SectorMarketCard({ data, market }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_70px_-50px_rgba(15,23,42,0.4)] lg:p-6">
+      <div className="flex items-start justify-between gap-6 border-b border-slate-200 pb-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-700">
+            {market}
+          </p>
+          <h3 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em] text-slate-950">
+            Sector conditions
+          </h3>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-slate-400">Regime</p>
+          <p className="mt-1 text-sm font-semibold text-slate-800">
+            {data?.regime || "Unknown"}
+          </p>
+        </div>
+      </div>
+
+      {data ? (
+        <>
+          <div className="mt-5 grid grid-flow-dense gap-7 xl:grid-cols-2">
+            <SectorList title="Research priority" sectors={data.top_sectors || []} tone="positive" />
+            <SectorList title="Risk-filtered" sectors={data.avoid_sectors || []} tone="negative" />
+          </div>
+          {data.summary ? (
+            <p className="mt-6 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">
+              {data.summary}
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <p className="py-12 text-center text-sm text-slate-500">
+          No sector-intelligence snapshot is available.
+        </p>
+      )}
+    </article>
+  );
+}
+
+function SectorIntelligence({ indonesia, us, isLoading }) {
+  const sectionRef = useRef(null);
+  const introRef = useRef(null);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+      media.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          ScrollTrigger.create({
+            trigger: introRef.current,
+            endTrigger: sectionRef.current,
+            start: "top top+=88",
+            end: "bottom bottom",
+            pin: introRef.current,
+            pinSpacing: false,
+            invalidateOnRefresh: true,
+          });
+        },
+      );
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  return (
+    <section ref={sectionRef} className="px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
+      <div className="mx-auto grid max-w-[96rem] grid-flow-dense gap-6 lg:grid-cols-12">
+        <div ref={introRef} className="self-start lg:col-span-4">
+          <div className="rounded-2xl bg-[#0b1618] p-5 text-white lg:p-6">
+            <BarChart3 className="size-5 text-cyan-200/65" />
+            <h2 className="mt-5 font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-[0.95] tracking-[-0.045em]">
+              Sector rotation across two market structures.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-white/50">
+              Priority sectors pass the current macro, liquidity, and theme
+              conditions. Risk-filtered sectors warrant reduced research priority.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/10">
+              <div className="bg-[#0d1b1e] p-4">
+                <p className="text-xs text-white/35">Indonesia priority</p>
+                <p className="mt-2 text-xl font-semibold text-cyan-100">
+                  {indonesia?.top_sectors?.length || 0}
+                </p>
+              </div>
+              <div className="bg-[#0d1b1e] p-4">
+                <p className="text-xs text-white/35">US priority</p>
+                <p className="mt-2 text-xl font-semibold text-cyan-100">
+                  {us?.top_sectors?.length || 0}
+                </p>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 lg:col-span-8">
+          {isLoading ? (
+            <>
+              <LoadingPanel className="h-96" />
+              <LoadingPanel className="h-96" />
+            </>
           ) : (
-            <div className="w-full h-1.5 rounded-r-xl bg-gray-200/80" />
+            <>
+              <SectorMarketCard data={indonesia} market="Indonesia" />
+              <SectorMarketCard data={us} market="United States" />
+            </>
           )}
         </div>
       </div>
+    </section>
+  );
+}
+
+function AnalystBriefing({ briefings }) {
+  const [activeBriefing, setActiveBriefing] = useState(0);
+  const briefing = briefings[activeBriefing];
+
+  const selectBriefing = (direction) => {
+    setActiveBriefing(
+      (current) => (current + direction + briefings.length) % briefings.length,
     );
-  }
+  };
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div
-        className="relative w-full h-44 rounded-2xl bg-gray-100 overflow-hidden flex flex-col justify-end border border-gray-200/60"
-        style={stripeBg}
-      >
-        {value > 0 ? (
-          <div
-            className={`w-full rounded-2xl flex items-start p-2 ${
-              variant === "primary"
-                ? "primary"
-                : variant === "green"
-                  ? "bg-green-500"
-                  : "bg-red-500"
-            }`}
-            style={{
-              height: animate ? `${value}%` : "0%",
-              transition: "height 0.85s cubic-bezier(0.23, 1, 0.32, 1)",
-            }}
-          >
-            <span className="text-xs font-semibold text-white leading-none">
-              {value}%
-            </span>
+    <section className="border-t border-white/10 bg-[#071011] px-5 py-8 text-white sm:px-8 lg:px-10 lg:py-10">
+      <div className="mx-auto grid max-w-[96rem] grid-flow-dense overflow-hidden rounded-2xl border border-white/10 bg-white/10 lg:grid-cols-12">
+        <div className="bg-[#d8faf4] p-6 text-[#071011] lg:col-span-4">
+          <ShieldAlert className="size-5 text-emerald-800/65" />
+          <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-900/55">
+            Analyst briefing
+          </p>
+          <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em]">
+            Preserve the narrative behind the score.
+          </h2>
+        </div>
+
+        <div className="flex min-h-64 flex-col justify-between bg-[#0d181b] p-6 lg:col-span-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200/60">
+              {briefing.label}
+            </p>
+            <p className="mt-5 max-w-3xl font-['Outfit_Variable',sans-serif] text-2xl font-medium leading-snug tracking-[-0.025em] text-white/90">
+              {briefing.summary}
+            </p>
           </div>
-        ) : (
-          <div className="w-full h-1.5 rounded-b-2xl bg-gray-200/80" />
-        )}
+          <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-5">
+            <p className="text-xs text-white/35">
+              {activeBriefing + 1} of {briefings.length}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => selectBriefing(-1)}
+                className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:bg-white hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Previous briefing"
+              >
+                <ArrowLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => selectBriefing(1)}
+                className="inline-flex size-10 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:bg-white hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Next briefing"
+              >
+                <ArrowRight className="size-4" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <span className="text-xs text-center leading-tight">{label}</span>
-    </div>
+
+      <div className="mx-auto mt-5 flex max-w-[96rem] flex-col gap-3 sm:flex-row sm:justify-end">
+        <Link
+          to="/dashboard"
+          className="inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
+        >
+          Return to opportunity dashboard
+          <ArrowRight className="ml-2 size-4" />
+        </Link>
+        <Link
+          to="/dashboard/transactions"
+          className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          Review transaction evidence
+          <ArrowUpRight className="ml-2 size-4" />
+        </Link>
+      </div>
+    </section>
   );
 }
-
-function SectorBars({ data, animate, horizontal = false }) {
-  const topSet = new Set(data.top_sectors.map((s) => s.sector));
-  const combined = [...data.top_sectors, ...data.avoid_sectors].sort(
-    (a, b) => b.score - a.score,
-  );
-  const cols = combined.length;
-
-  if (horizontal) {
-    return (
-      <div className="flex flex-col gap-2">
-        {combined.map(({ sector, score }) => {
-          const config = SECTOR_CONFIG[sector];
-          if (!config) return null;
-          return (
-            <AllocationBar
-              key={sector}
-              label={config.label}
-              value={Math.round(score * 10) / 10}
-              animate={animate}
-              variant={topSet.has(sector) ? "green" : "red"}
-              horizontal
-            />
-          );
-        })}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="grid gap-3"
-      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-    >
-      {combined.map(({ sector, score }) => {
-        const config = SECTOR_CONFIG[sector];
-        if (!config) return null;
-        return (
-          <AllocationBar
-            key={sector}
-            label={config.label}
-            value={Math.round(score * 10) / 10}
-            animate={animate}
-            variant={topSet.has(sector) ? "green" : "red"}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-const urlFetch = generateApiOrigin("/capital-flow/current");
-const urlFetchSectorScoresIndonesia = generateApiOrigin(
-  "/sector-intelligence/current?country=Indonesia",
-);
-const urlFetchSectorScoresUS = generateApiOrigin(
-  "/sector-intelligence/current?country=US",
-);
-const urlFetchThemeScoreUS = generateApiOrigin("/theme/current?country=US");
-const urlFetchThemeScoreIndonesia = generateApiOrigin(
-  "/theme/current?country=Indonesia",
-);
 
 function Macro() {
   const [capitalFlow, setCapitalFlow] = useState(null);
@@ -281,62 +629,37 @@ function Macro() {
   const [themeScoresIndonesia, setThemeScoresIndonesia] = useState(null);
   const [themeScoresUS, setThemeScoresUS] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [animate, setAnimate] = useState(false);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
-    async function fetchCapitalFlow() {
+    async function fetchMacroIntelligence() {
       setIsLoading(true);
       try {
-        const [
-          capitalFlowResponse,
-          sectorScoresIndonesiaResponse,
-          sectorScoresUSResponse,
-          themeScoresIndonesiaResponse,
-          themeScoresUSResponse,
-        ] = await Promise.all([
-          axios.get(urlFetch, { headers: getAuthHeader() }),
-          axios.get(urlFetchSectorScoresIndonesia, {
-            headers: getAuthHeader(),
-          }),
-          axios.get(urlFetchSectorScoresUS, {
-            headers: getAuthHeader(),
-          }),
-          axios.get(urlFetchThemeScoreIndonesia, {
-            headers: getAuthHeader(),
-          }),
-          axios.get(urlFetchThemeScoreUS, {
-            headers: getAuthHeader(),
-          }),
+        const responses = await Promise.allSettled([
+          axios.get(urlFetchCapitalFlow, { headers: getAuthHeader() }),
+          axios.get(urlFetchSectorIndonesia, { headers: getAuthHeader() }),
+          axios.get(urlFetchSectorUS, { headers: getAuthHeader() }),
+          axios.get(urlFetchThemeIndonesia, { headers: getAuthHeader() }),
+          axios.get(urlFetchThemeUS, { headers: getAuthHeader() }),
         ]);
-        if (capitalFlowResponse.status == 200) {
-          const { data } = capitalFlowResponse;
-          setCapitalFlow(data);
-          requestAnimationFrame(() => {
-            setTimeout(() => setAnimate(true), 60);
-          });
+
+        const [capital, sectorIndonesia, sectorUS, themeIndonesia, themeUS] =
+          responses;
+
+        if (capital.status === "fulfilled") setCapitalFlow(capital.value.data);
+        if (sectorIndonesia.status === "fulfilled") {
+          setSectorScoresIndonesia(sectorIndonesia.value.data);
         }
-        if (sectorScoresIndonesiaResponse.status == 200) {
-          const { data } = sectorScoresIndonesiaResponse;
-          setSectorScoresIndonesia(data);
+        if (sectorUS.status === "fulfilled") setSectorScoresUS(sectorUS.value.data);
+        if (themeIndonesia.status === "fulfilled") {
+          setThemeScoresIndonesia(themeIndonesia.value.data);
         }
-        if (sectorScoresUSResponse.status == 200) {
-          const { data } = sectorScoresUSResponse;
-          setSectorScoresUS(data);
-        }
-        if (themeScoresIndonesiaResponse.status == 200) {
-          const { data } = themeScoresIndonesiaResponse;
-          setThemeScoresIndonesia(data);
-        }
-        if (themeScoresUSResponse.status == 200) {
-          const { data } = themeScoresUSResponse;
-          setThemeScoresUS(data);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
+        if (themeUS.status === "fulfilled") setThemeScoresUS(themeUS.value.data);
+
+        const rejected = responses.find((response) => response.status === "rejected");
+        if (rejected && axios.isAxiosError(rejected.reason)) {
           console.error(
             "Macro intelligence request failed with status:",
-            error.response?.status,
+            rejected.reason.response?.status,
           );
         }
       } finally {
@@ -344,410 +667,94 @@ function Macro() {
       }
     }
 
-    fetchCapitalFlow();
+    fetchMacroIntelligence();
   }, []);
 
-  const sortedEntries = capitalFlow?.scores
-    ? Object.entries(capitalFlow.scores).sort(([, a], [, b]) => b - a)
-    : [];
-  const sortedThemesIndonesia = Array.isArray(themeScoresIndonesia?.themes)
-    ? [...themeScoresIndonesia.themes].sort((a, b) => b.score - a.score)
-    : [];
-  const sortedThemesUS = Array.isArray(themeScoresUS?.themes)
-    ? [...themeScoresUS.themes].sort((a, b) => b.score - a.score)
-    : [];
+  const capitalEntries = useMemo(
+    () =>
+      capitalFlow?.scores
+        ? Object.entries(capitalFlow.scores).sort(([, a], [, b]) => b - a)
+        : [],
+    [capitalFlow],
+  );
 
-  const topAsset =
-    sortedEntries.length > 0
-      ? ALLOCATION_CONFIG[sortedEntries[0][0]]?.label
-      : null;
+  const indonesiaThemes = useMemo(
+    () =>
+      Array.isArray(themeScoresIndonesia?.themes)
+        ? [...themeScoresIndonesia.themes].sort((a, b) => b.score - a.score)
+        : [],
+    [themeScoresIndonesia],
+  );
+
+  const usThemes = useMemo(
+    () =>
+      Array.isArray(themeScoresUS?.themes)
+        ? [...themeScoresUS.themes].sort((a, b) => b.score - a.score)
+        : [],
+    [themeScoresUS],
+  );
+
+  const topAsset = capitalEntries.length
+    ? ALLOCATION_CONFIG[capitalEntries[0][0]] ||
+      formatThemeLabel(capitalEntries[0][0])
+    : null;
+
+  const briefings = [
+    {
+      label: "Capital-flow interpretation",
+      summary:
+        capitalFlow?.summary ||
+        "Capital-flow narrative is unavailable for the current snapshot.",
+    },
+    {
+      label: "Indonesia theme interpretation",
+      summary:
+        themeScoresIndonesia?.summary ||
+        "Indonesia theme narrative is unavailable for the current snapshot.",
+    },
+    {
+      label: "United States theme interpretation",
+      summary:
+        themeScoresUS?.summary ||
+        "United States theme narrative is unavailable for the current snapshot.",
+    },
+    {
+      label: "Indonesia sector interpretation",
+      summary:
+        sectorScoresIndonesia?.summary ||
+        "Indonesia sector narrative is unavailable for the current snapshot.",
+    },
+    {
+      label: "United States sector interpretation",
+      summary:
+        sectorScoresUS?.summary ||
+        "United States sector narrative is unavailable for the current snapshot.",
+    },
+  ];
 
   return (
-    <div className="bg-gray-50 select-none">
-      <div className="text-center border-y border-gray-200/70 px-8">
-        <div className="border-x border-gray-200/70 py-12 px-8">
-          <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-            <SparkleIcon size={12} />
-            Market Intelligence
-          </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-1">
-            Understand where capital is flowing
-          </h2>
-          <p className="text-sm text-gray-400 max-w-lg mx-auto">
-            Monitor macroeconomic conditions, capital flows, and sector rotation
-            across global markets to identify where liquidity is moving and
-            which opportunities are gaining momentum.
-          </p>
-
-          <div className="mt-12">
-            {/* Capital Flow Card */}
-            <Card className="relative">
-              <CardContent className="text-left">
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-bold text-foreground mb-1">
-                        Capital Flow
-                      </h2>
-                      {!isLoading && topAsset && (
-                        <p className="text-sm text-foreground/70">
-                          Top performer:{" "}
-                          <span className="font-semibold text-foreground">
-                            {topAsset}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                    <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
-                      Live
-                    </span>
-                  </div>
-
-                  {isLoading ? (
-                    <SummaryCardSkeleton rows={9} isMobile={isMobile} />
-                  ) : sortedEntries.length > 0 ? (
-                    isMobile ? (
-                      <div className="flex flex-col gap-2">
-                        {sortedEntries.map(([key, value]) => {
-                          const config = ALLOCATION_CONFIG[key];
-                          return config ? (
-                            <AllocationBar
-                              key={key}
-                              label={config.label}
-                              value={value}
-                              animate={animate}
-                              horizontal
-                            />
-                          ) : null;
-                        })}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-9 gap-3">
-                        {sortedEntries.map(([key, value]) => {
-                          const config = ALLOCATION_CONFIG[key];
-                          return config ? (
-                            <AllocationBar
-                              key={key}
-                              label={config.label}
-                              value={value}
-                              animate={animate}
-                            />
-                          ) : null;
-                        })}
-                      </div>
-                    )
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No capital flow data available
-                    </p>
-                  )}
-
-                  {!isLoading && capitalFlow.summary && (
-                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                      <AlertTriangleIcon />
-                      <AlertTitle>Insight Nova AI</AlertTitle>
-                      <AlertDescription>{capitalFlow.summary}</AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="mt-4">
-              {/* Active Indonesia Themes Card */}
-              <Card className="relative">
-                <CardContent className="text-left">
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h2 className="text-xl font-bold text-foreground mb-1">
-                          Active Indonesia Themes
-                        </h2>
-                        {!isLoading && sortedThemesIndonesia.length > 0 && (
-                          <p className="text-sm text-foreground/70">
-                            Top theme:{" "}
-                            <span className="font-semibold text-foreground">
-                              {formatThemeLabel(sortedThemesIndonesia[0].theme)}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
-                        Live
-                      </span>
-                    </div>
-
-                    {isLoading ? (
-                      <SummaryCardSkeleton
-                        rows={5}
-                        isMobile={isMobile}
-                        variant="compact"
-                      />
-                    ) : sortedThemesIndonesia.length > 0 ? (
-                      isMobile ? (
-                        <div className="flex flex-col gap-2">
-                          {sortedThemesIndonesia.map((themeData) => (
-                            <AllocationBar
-                              key={themeData.theme}
-                              label={formatThemeLabel(themeData.theme)}
-                              value={Math.round(themeData.score * 10) / 10}
-                              animate={animate}
-                              horizontal
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div
-                          className="grid gap-3"
-                          style={{
-                            gridTemplateColumns: `repeat(${sortedThemesIndonesia.length}, minmax(0, 1fr))`,
-                          }}
-                        >
-                          {sortedThemesIndonesia.map((themeData) => (
-                            <AllocationBar
-                              key={themeData.theme}
-                              label={formatThemeLabel(themeData.theme)}
-                              value={Math.round(themeData.score * 10) / 10}
-                              animate={animate}
-                            />
-                          ))}
-                        </div>
-                      )
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        No theme data available
-                      </p>
-                    )}
-
-                    {!isLoading &&
-                      themeScoresIndonesia &&
-                      themeScoresIndonesia.summary && (
-                        <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                          <AlertTriangleIcon />
-                          <AlertTitle>Insight Nova AI</AlertTitle>
-                          <AlertDescription>
-                            {themeScoresIndonesia.summary}
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Active US Themes Card */}
-            <div className="mt-4">
-              <Card className="relative">
-                <CardContent className="text-left">
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h2 className="text-xl font-bold text-foreground mb-1">
-                          Active US Themes
-                        </h2>
-                        {!isLoading && sortedThemesUS.length > 0 && (
-                          <p className="text-sm text-foreground/70">
-                            Top theme:{" "}
-                            <span className="font-semibold text-foreground">
-                              {formatThemeLabel(sortedThemesUS[0].theme)}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
-                        Live
-                      </span>
-                    </div>
-
-                    {isLoading ? (
-                      <SummaryCardSkeleton
-                        rows={5}
-                        isMobile={isMobile}
-                        variant="compact"
-                      />
-                    ) : sortedThemesUS.length > 0 ? (
-                      isMobile ? (
-                        <div className="flex flex-col gap-2">
-                          {sortedThemesUS.map((themeData) => (
-                            <AllocationBar
-                              key={themeData.theme}
-                              label={formatThemeLabel(themeData.theme)}
-                              value={Math.round(themeData.score * 10) / 10}
-                              animate={animate}
-                              horizontal
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div
-                          className="grid gap-3"
-                          style={{
-                            gridTemplateColumns: `repeat(${sortedThemesUS.length}, minmax(0, 1fr))`,
-                          }}
-                        >
-                          {sortedThemesUS.map((themeData) => (
-                            <AllocationBar
-                              key={themeData.theme}
-                              label={formatThemeLabel(themeData.theme)}
-                              value={Math.round(themeData.score * 10) / 10}
-                              animate={animate}
-                            />
-                          ))}
-                        </div>
-                      )
-                    ) : (
-                      <p className="text-sm text-gray-500">
-                        No theme data available
-                      </p>
-                    )}
-
-                    {!isLoading && themeScoresUS && themeScoresUS.summary && (
-                      <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                        <AlertTriangleIcon />
-                        <AlertTitle>Insight Nova AI</AlertTitle>
-                        <AlertDescription>
-                          {themeScoresUS.summary}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Indonesia Top Sectors Card */}
-            <Card className="relative mt-4">
-              <CardContent className="text-left">
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-bold text-foreground mb-1">
-                        Indonesia Top Sectors
-                      </h2>
-                      {!isLoading && sectorScoresIndonesia && (
-                        <p className="text-sm text-foreground/70">
-                          Regime:{" "}
-                          <span className="font-semibold text-foreground">
-                            {sectorScoresIndonesia.regime}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1.5 text-xs text-green-600">
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-green-500" />
-                        Top
-                      </span>
-                      <span className="flex items-center gap-1.5 text-xs text-red-500">
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-red-400" />
-                        Avoid
-                      </span>
-                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
-                        Live
-                      </span>
-                    </div>
-                  </div>
-
-                  {isLoading ? (
-                    <SummaryCardSkeleton
-                      rows={14}
-                      isMobile={isMobile}
-                      variant="compact"
-                    />
-                  ) : sectorScoresIndonesia ? (
-                    <SectorBars
-                      data={sectorScoresIndonesia}
-                      animate={animate}
-                      horizontal={isMobile}
-                    />
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No sector data available
-                    </p>
-                  )}
-
-                  {!isLoading &&
-                    sectorScoresIndonesia &&
-                    sectorScoresIndonesia.summary && (
-                      <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                        <AlertTriangleIcon />
-                        <AlertTitle>Insight Nova AI</AlertTitle>
-                        <AlertDescription>
-                          {sectorScoresIndonesia.summary}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* US Top Sectors Card */}
-            <Card className="relative mt-4">
-              <CardContent className="text-left">
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-bold text-foreground mb-1">
-                        US Top Sectors
-                      </h2>
-                      {!isLoading && sectorScoresUS && (
-                        <p className="text-sm text-foreground/70">
-                          Regime:{" "}
-                          <span className="font-semibold text-foreground">
-                            {sectorScoresUS.regime}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1.5 text-xs text-green-600">
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-green-500" />
-                        Top
-                      </span>
-                      <span className="flex items-center gap-1.5 text-xs text-red-500">
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-red-400" />
-                        Avoid
-                      </span>
-                      <span className="text-xs bg-green-50 text-green-600 font-medium px-3 py-1 rounded-full border border-green-100">
-                        Live
-                      </span>
-                    </div>
-                  </div>
-
-                  {isLoading ? (
-                    <SummaryCardSkeleton
-                      rows={14}
-                      isMobile={isMobile}
-                      variant="compact"
-                    />
-                  ) : sectorScoresUS ? (
-                    <SectorBars
-                      data={sectorScoresUS}
-                      animate={animate}
-                      horizontal={isMobile}
-                    />
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No sector data available
-                    </p>
-                  )}
-
-                  {!isLoading && sectorScoresUS && sectorScoresUS.summary && (
-                    <Alert className="border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-900 dark:bg-violet-950 dark:text-violet-50 mt-4">
-                      <AlertTriangleIcon />
-                      <AlertTitle>Insight Nova AI</AlertTitle>
-                      <AlertDescription>
-                        {sectorScoresUS.summary}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
+    <main className="w-full max-w-full overflow-x-hidden bg-[#f2f5f4] font-['Outfit_Variable',sans-serif] text-slate-950">
+      <MacroHeader date={capitalFlow?.date} summary={capitalFlow?.summary} />
+      <CapitalPreference
+        entries={capitalEntries}
+        topAsset={topAsset}
+        isLoading={isLoading}
+      />
+      <ThemeIntelligence
+        indonesia={{
+          themes: indonesiaThemes,
+          summary: themeScoresIndonesia?.summary,
+        }}
+        us={{ themes: usThemes, summary: themeScoresUS?.summary }}
+        isLoading={isLoading}
+      />
+      <SectorIntelligence
+        indonesia={sectorScoresIndonesia}
+        us={sectorScoresUS}
+        isLoading={isLoading}
+      />
+      <AnalystBriefing briefings={briefings} />
+    </main>
   );
 }
 

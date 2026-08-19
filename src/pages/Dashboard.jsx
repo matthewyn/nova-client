@@ -1,53 +1,45 @@
-import SparkleIcon from "@/components/SparkleIcon";
-import { Card, CardContent } from "@/components/ui/card";
-import { Chip, Image } from "@heroui/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import "@fontsource-variable/outfit";
+import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  HiOutlineInformationCircle,
-  HiArrowUpRight,
-  HiArrowDownRight,
-} from "react-icons/hi2";
-import { cn } from "@/lib/utils";
-import { BipolarProgress } from "@/components/ui/bipolar-progress";
-import { StocksCarousel } from "@/components/ui/stocks-carousel";
-import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
+  Activity,
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Globe2,
+  Layers3,
+  ShieldCheck,
+  Target,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import axios from "@/utils/apiClient";
 import { generateApiOrigin } from "@/utils/apiOrigin";
+import { getAuthHeader } from "@/utils/token";
+import { useAuth } from "@/contexts/AuthContext";
+import { StocksCarousel } from "@/components/ui/stocks-carousel";
 import { Skeleton } from "@/components/ui/skeleton";
+import WatermarkOverlay from "@/components/WatermarkOverlay";
 import Indonesia from "@/assets/indonesia.png";
 import USA from "@/assets/usa.png";
-import { getAuthHeader } from "@/utils/token";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import CapitalizeFirstLetter from "@/utils/string";
-import StockModal from "@/components/StockModal";
-import { Divider } from "@heroui/react";
-import { ChartRadialText } from "@/components/ui/chart-radial-text";
-import DotGrid from "@/components/DotGrid";
-import { useAuth } from "@/contexts/AuthContext";
-import WatermarkOverlay from "@/components/WatermarkOverlay";
 import { stocksSector } from "@/utils/stocks";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangleIcon, Info } from "lucide-react";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const urlFetchIndonesia = generateApiOrigin("/stocks/new/ID");
 const urlFetchUSA = generateApiOrigin("/stocks/new/US");
@@ -59,52 +51,573 @@ const urlFetchDistribution = generateApiOrigin(
   "/transaction/sector-distribution",
 );
 
-function getGrowthDescription(score) {
-  if (score >= 50)
-    return "Economic activity is accelerating. Business expansion, employment, and demand indicators point to above-trend growth.";
-  if (score >= 15)
-    return "Growth remains healthy. Economic indicators suggest steady expansion with supportive business conditions.";
-  if (score >= -15)
-    return "Growth is near trend. Economic activity shows limited acceleration or slowdown.";
-  if (score >= -50)
-    return "Growth momentum is weakening. Leading indicators suggest softer demand and slower economic expansion.";
-  return "Economic activity is contracting. Recessionary pressures and weakening demand are becoming more evident.";
+const PAGE_SIZE = 5;
+const allocationColors = [
+  "#0f766e",
+  "#0891b2",
+  "#4f46e5",
+  "#7c3aed",
+  "#c2410c",
+  "#475569",
+];
+
+function formatMetric(value, suffix = "", digits = 2) {
+  if (value == null || !Number.isFinite(Number(value))) return "—";
+  return `${Number(value).toFixed(digits)}${suffix}`;
 }
 
-function getInflationDescription(score) {
-  if (score >= 50)
-    return "Inflation pressures are elevated. Prices, wages, and input costs continue to rise above target levels.";
-  if (score >= 15)
-    return "Inflation remains moderately above target but appears manageable.";
-  if (score >= -15)
-    return "Inflation is close to central bank targets with relatively stable price conditions.";
-  if (score >= -50)
-    return "Inflation pressures are easing as price growth moderates across the economy.";
-  return "Disinflation or deflation risks are emerging as pricing power and demand weaken.";
+function formatPrice(value, country) {
+  if (value == null || !Number.isFinite(Number(value))) return "—";
+  const currency = country === "Indonesia" ? "IDR" : "USD";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: country === "Indonesia" ? 0 : 2,
+  }).format(value);
 }
 
-function getLiquidityDescription(score) {
-  if (score >= 50)
-    return "Financial conditions are highly accommodative. Liquidity is abundant and credit availability is strong.";
-  if (score >= 15)
-    return "Liquidity conditions are supportive. Funding markets and credit channels remain healthy.";
-  if (score >= -15)
-    return "Liquidity conditions are balanced with no significant tightening or easing pressures.";
-  if (score >= -50)
-    return "Liquidity is becoming tighter as funding costs rise and credit conditions become more restrictive.";
-  return "Liquidity conditions are restrictive. Access to capital and credit is increasingly constrained.";
+function getTargetPrice(stock) {
+  if (stock.target_price != null) return stock.target_price;
+  if (stock.take_profit != null) return stock.take_profit;
+  if (
+    stock.initial_price == null ||
+    stock.predicted_pct_change == null ||
+    !Number.isFinite(Number(stock.initial_price)) ||
+    !Number.isFinite(Number(stock.predicted_pct_change))
+  ) {
+    return null;
+  }
+  return (
+    Number(stock.initial_price) *
+    (1 + Number(stock.predicted_pct_change) / 100)
+  );
 }
 
-function getRiskDescription(score) {
-  if (score >= 50)
-    return "Investors are actively embracing risk. Capital flows favor equities, growth assets, and cyclical sectors.";
-  if (score >= 15)
-    return "Risk appetite remains constructive with investors showing confidence in market conditions.";
-  if (score >= -15)
-    return "Market sentiment is balanced with no clear preference for risk-taking or defensiveness.";
-  if (score >= -50)
-    return "Risk appetite is fading as investors rotate toward defensive assets and safer sectors.";
-  return "Risk aversion dominates markets. Capital flows favor cash, bonds, and defensive positioning.";
+function formatDate(value, options = {}) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    ...options,
+  }).format(date);
+}
+
+function toneClass(value, positiveIsGood = true) {
+  if (value == null || Number(value) === 0) return "text-slate-700";
+  const isGood = positiveIsGood ? Number(value) > 0 : Number(value) < 0;
+  return isGood ? "text-emerald-700" : "text-rose-700";
+}
+
+function getMacroDescription(type, score) {
+  const direction = score >= 15 ? "positive" : score <= -15 ? "negative" : "neutral";
+  const descriptions = {
+    growth: {
+      positive: "Expansion signals remain supportive for cyclical activity.",
+      neutral: "Growth is near trend with limited directional conviction.",
+      negative: "Forward activity is weakening and warrants defensive review.",
+    },
+    inflation: {
+      positive: "Price pressure remains elevated relative to target conditions.",
+      neutral: "Price conditions are broadly stable and near policy targets.",
+      negative: "Disinflation is developing across demand and input indicators.",
+    },
+    liquidity: {
+      positive: "Funding and credit conditions are supportive of risk assets.",
+      neutral: "Liquidity is balanced without a strong easing or tightening impulse.",
+      negative: "Funding conditions are restrictive and capital is becoming selective.",
+    },
+    risk: {
+      positive: "Flows show constructive participation in higher-beta assets.",
+      neutral: "Positioning is balanced between risk-taking and defensiveness.",
+      negative: "Capital is rotating toward liquidity and defensive exposures.",
+    },
+  };
+  return descriptions[type]?.[direction] || "Awaiting sufficient macro evidence.";
+}
+
+function LoadingBlock({ className = "h-24" }) {
+  return <Skeleton className={`rounded-2xl bg-slate-200 ${className}`} />;
+}
+
+function MacroContext({ macroRegime, isLoading }) {
+  const dimensions = macroRegime
+    ? [
+        { key: "growth", label: "Growth", score: macroRegime.scores?.growth },
+        { key: "inflation", label: "Inflation", score: macroRegime.scores?.inflation },
+        { key: "liquidity", label: "Liquidity", score: macroRegime.scores?.liquidity },
+        { key: "risk", label: "Risk appetite", score: macroRegime.scores?.risk },
+      ]
+    : [];
+
+  return (
+    <article className="relative overflow-hidden rounded-2xl bg-[#0b1618] p-5 text-white shadow-[0_24px_70px_-45px_rgba(15,23,42,0.8)] sm:p-6 lg:col-span-5">
+      <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-cyan-300/10 blur-3xl" />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200/65">Current market context</p>
+            <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em]">Macro regime</h2>
+          </div>
+          <Globe2 className="size-6 text-cyan-200/70" />
+        </div>
+
+        {isLoading ? (
+          <div className="mt-5 space-y-3">
+            <LoadingBlock className="h-20 bg-white/10" />
+            <LoadingBlock className="h-52 bg-white/10" />
+          </div>
+        ) : macroRegime ? (
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10">
+              <div className="bg-[#0d1b1e] p-4">
+                <p className="text-xs text-white/45">Regime</p>
+                <p className="mt-2 text-lg font-semibold text-white">{macroRegime.regime}</p>
+              </div>
+              <div className="bg-[#0d1b1e] p-4">
+                <p className="text-xs text-white/45">Model confidence</p>
+                <p className="mt-2 text-lg font-semibold text-cyan-200">{formatMetric(macroRegime.confidence, "/100", 0)}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex min-h-52 overflow-hidden rounded-xl border border-white/10 bg-white/10">
+              {dimensions.map((item) => (
+                <div
+                  key={item.key}
+                  className="group flex min-w-0 flex-1 flex-col justify-between overflow-hidden bg-[#0d1b1e] p-3 transition-[flex,background-color] duration-500 ease-out hover:flex-[2.6] hover:bg-[#12262a] focus:flex-[2.6] focus:bg-[#12262a] focus:outline-none sm:p-4"
+                  tabIndex={0}
+                >
+                  <div>
+                    <p className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-white/45 group-hover:text-cyan-200 group-focus:text-cyan-200">{item.label}</p>
+                    <p className="mt-3 font-['Outfit_Variable',sans-serif] text-xl font-semibold tracking-[-0.04em]">{formatMetric(item.score, "", 0)}</p>
+                  </div>
+                  <div className="mt-5">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-cyan-300 transition-[width] duration-700"
+                        style={{ width: `${Math.min(Math.max((Number(item.score) + 100) / 2, 0), 100)}%` }}
+                      />
+                    </div>
+                    <p className="mt-3 hidden min-w-40 text-xs leading-5 text-white/50 group-hover:block group-focus:block">{getMacroDescription(item.key, item.score)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="mt-8 text-sm leading-6 text-white/50">Macro context is not available for the current account.</p>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function OpportunitySet({ stocks, isLoading, user }) {
+  return (
+    <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_24px_70px_-50px_rgba(15,23,42,0.35)] lg:col-span-7">
+      <WatermarkOverlay userId={user?.user_id} email={user?.email} />
+      <div className="relative flex flex-col gap-3 border-b border-slate-200 px-1 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Prioritized research queue</p>
+          <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em] text-slate-950">Opportunity set</h2>
+          <p className="mt-1 max-w-xl text-sm leading-5 text-slate-500">Newly surfaced candidates across supported markets, prepared for analyst review.</p>
+        </div>
+        <p className="text-sm font-medium text-slate-500">{stocks.length} candidates in view</p>
+      </div>
+
+      <div className="relative mt-1 min-h-64">
+        {isLoading ? (
+          <div className="grid grid-flow-dense grid-cols-1 gap-3 p-3 sm:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, index) => <LoadingBlock key={index} className="h-48" />)}
+          </div>
+        ) : stocks.length ? (
+          <StocksCarousel title="Cross-market candidates" stocks={stocks} />
+        ) : (
+          <div className="flex min-h-72 items-center justify-center text-sm text-slate-500">No candidates currently pass the research pipeline.</div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function AllocationPanel({ sectors, countries, isLoading }) {
+  const totalSectors = sectors.reduce((sum, item) => sum + item.count, 0);
+  const totalCountries = countries.reduce((sum, item) => sum + item.count, 0);
+  const countryMeta = {
+    Indonesia: { name: "Indonesia", image: Indonesia },
+    US: { name: "United States", image: USA },
+  };
+
+  return (
+    <aside className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 lg:col-span-4">
+      <div className="flex items-start justify-between gap-5">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Active exposure</p>
+          <h3 className="mt-2 font-['Outfit_Variable',sans-serif] text-xl font-semibold tracking-[-0.03em] text-slate-950">Allocation context</h3>
+        </div>
+        <Layers3 className="size-5 text-slate-400" />
+      </div>
+
+      {isLoading ? (
+        <div className="mt-5 space-y-3"><LoadingBlock className="h-8" /><LoadingBlock className="h-44" /></div>
+      ) : sectors.length ? (
+        <>
+          <div className="mt-5 flex h-2 overflow-hidden rounded-full bg-slate-100">
+            {sectors.map((item, index) => (
+              <div
+                key={item.sector}
+                style={{
+                  width: `${totalSectors ? (item.count / totalSectors) * 100 : 0}%`,
+                  backgroundColor: allocationColors[index % allocationColors.length],
+                }}
+              />
+            ))}
+          </div>
+          <div className="mt-4 space-y-2.5">
+            {sectors.slice(0, 6).map((item, index) => (
+              <div key={item.sector} className="flex items-center justify-between gap-4 text-sm">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: allocationColors[index % allocationColors.length] }} />
+                  <span className="truncate text-slate-600">{stocksSector[item.sector] || item.sector}</span>
+                </div>
+                <span className="font-semibold text-slate-900">{formatMetric(totalSectors ? (item.count / totalSectors) * 100 : 0, "%", 0)}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 border-t border-slate-200 pt-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Market split</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {countries.map((item) => {
+                const meta = countryMeta[item.country] || { name: item.country };
+                return (
+                  <div key={item.country} className="rounded-xl bg-slate-50 p-4">
+                    <div className="flex items-center gap-2">
+                      {meta.image ? <img src={meta.image} alt="" className="size-5 object-contain" /> : null}
+                      <span className="truncate text-xs text-slate-500">{meta.name}</span>
+                    </div>
+                    <p className="mt-3 text-lg font-semibold text-slate-950">{formatMetric(totalCountries ? (item.count / totalCountries) * 100 : 0, "%", 0)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className="mt-8 text-sm leading-6 text-slate-500">Exposure will appear when positions enter active monitoring.</p>
+      )}
+    </aside>
+  );
+}
+
+function ActiveMonitoring({ stocks, isLoading, page, totalPages, setPage, user }) {
+  return (
+    <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 lg:col-span-8">
+      <WatermarkOverlay userId={user?.user_id} email={user?.email} />
+      <div className="relative flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Portfolio surveillance</p>
+          <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-2xl font-semibold tracking-[-0.035em] text-slate-950">Active monitoring</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-500">Candidates under observation, ordered by the platform’s research priority.</p>
+        </div>
+        <Link to="/dashboard/transactions" className="inline-flex items-center text-sm font-semibold text-slate-900 hover:text-cyan-700">Full ledger <ArrowUpRight className="ml-2 size-4" /></Link>
+      </div>
+
+      <div className="relative mt-2 divide-y divide-slate-200">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="grid gap-3 py-4 sm:grid-cols-5">
+              {Array.from({ length: 5 }).map((__, cell) => <LoadingBlock key={cell} className="h-10" />)}
+            </div>
+          ))
+        ) : stocks.length ? (
+          stocks.map((stock, index) => (
+            <Link
+              key={stock.id || `${stock.name}-${index}`}
+              to={`/dashboard/transactions/${stock.id}`}
+              className="group grid items-center gap-3 py-4 transition-colors hover:bg-slate-50 sm:grid-cols-[1.25fr_1fr_1fr_1fr_auto] sm:px-2"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">{(page - 1) * PAGE_SIZE + index + 1}</span>
+                <div className="size-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  {stock.logo ? <img src={stock.logo} alt="" className="h-full w-full object-contain p-1.5 transition-transform duration-700 ease-out group-hover:scale-105" /> : null}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-950">{stock.name?.replace(".JK", "")}</p>
+                  <p className="mt-1 text-xs text-slate-500">{stock.country}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Current / entry</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{formatPrice(stock.close, stock.country)}</p>
+                <p className="mt-0.5 text-xs text-slate-400">{formatPrice(stock.initial_price, stock.country)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Target / stop</p>
+                <p className="mt-1 text-sm font-semibold text-emerald-700">{formatPrice(getTargetPrice(stock), stock.country)}</p>
+                <p className="mt-0.5 text-xs font-medium text-rose-700">{formatPrice(stock.stop_loss, stock.country)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Realized movement</p>
+                <p className={`mt-1 text-sm font-semibold ${toneClass(stock.pct_gain)}`}>{formatMetric(stock.pct_gain, "%")}</p>
+              </div>
+              <div className="flex items-center justify-between gap-4 sm:justify-end">
+                <div className="text-right">
+                  <p className="text-xs text-slate-400">Forecast</p>
+                  <p className={`mt-1 text-sm font-semibold ${toneClass(stock.predicted_pct_change)}`}>{formatMetric(stock.predicted_pct_change, "%")}</p>
+                </div>
+                <ChevronRight className="size-4 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-slate-700" />
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p className="py-14 text-center text-sm text-slate-500">No positions currently require active monitoring.</p>
+        )}
+      </div>
+
+      <div className="relative mt-3 flex items-center justify-between border-t border-slate-200 pt-4">
+        <p className="text-xs text-slate-500">Page {page} of {Math.max(totalPages, 1)}</p>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setPage((current) => Math.max(current - 1, 1))} disabled={page <= 1} className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition-colors hover:bg-slate-950 hover:text-white disabled:pointer-events-none disabled:opacity-35" aria-label="Previous page"><ChevronLeft className="size-4" /></button>
+          <button type="button" onClick={() => setPage((current) => Math.min(current + 1, totalPages))} disabled={page >= totalPages} className="inline-flex size-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 transition-colors hover:bg-slate-950 hover:text-white disabled:pointer-events-none disabled:opacity-35" aria-label="Next page"><ChevronRight className="size-4" /></button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MetricCard({ label, value, context, icon: Icon, tone = "neutral" }) {
+  const tones = {
+    positive: "bg-[#dff8f1] text-emerald-950",
+    negative: "bg-[#fff0ed] text-rose-950",
+    dark: "bg-[#0b1618] text-white",
+    neutral: "bg-white text-slate-950",
+  };
+  return (
+    <div className={`group min-h-40 p-5 ${tones[tone]}`}>
+      <div className="flex items-start justify-between gap-5">
+        <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${tone === "dark" ? "text-white/45" : "text-slate-500"}`}>{label}</p>
+        <Icon className={`size-5 ${tone === "dark" ? "text-cyan-200" : "text-slate-400"}`} />
+      </div>
+      <p className="mt-5 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">{value}</p>
+      <p className={`mt-3 text-xs leading-5 ${tone === "dark" ? "text-white/45" : "text-slate-500"}`}>{context}</p>
+    </div>
+  );
+}
+
+function PerformanceTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl border border-white/10 bg-[#0b1618]/95 p-4 text-xs text-white shadow-2xl backdrop-blur-xl">
+      <p className="text-white/45">{formatDate(label)}</p>
+      <p className="mt-2 font-semibold">Equity {formatMetric(payload[0]?.value, "", 2)}</p>
+    </div>
+  );
+}
+
+function PerformanceAnalytics({ statistics, completedStocks, isLoading }) {
+  const sectionRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        cardsRef.current.forEach((card, index) => {
+          if (!card) return;
+          gsap.fromTo(card, { autoAlpha: 0.4, y: 90, scale: 0.95 }, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: { trigger: card, start: "top 90%", end: "top 50%", scrub: 0.8 },
+          });
+          if (index < cardsRef.current.length - 1) {
+            gsap.to(card, {
+              scale: 0.98,
+              autoAlpha: 0.32,
+              ease: "none",
+              scrollTrigger: { trigger: cardsRef.current[index + 1], start: "top 78%", end: "top 42%", scrub: 0.8 },
+            });
+          }
+        });
+      });
+      return () => media.revert();
+    },
+    { scope: sectionRef },
+  );
+
+  const equityCurve = statistics?.equity_curve || [];
+  const monthlyPerformance = statistics?.monthly_performance || [];
+  const directionPerformance = statistics?.direction_performance || [];
+
+  return (
+    <section ref={sectionRef} className="relative overflow-hidden bg-[#071011] px-5 py-10 text-white sm:px-8 lg:px-12 lg:py-12">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(45,212,191,0.13),transparent_28%),radial-gradient(circle_at_92%_82%,rgba(99,102,241,0.1),transparent_30%)]" />
+      <div className="relative mx-auto max-w-[96rem]">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="max-w-xl text-sm leading-6 text-cyan-100/60">Closed-position evidence is separated into outcomes, return quality, downside behavior, consistency, and period attribution.</p>
+            <h2 className="mt-3 max-w-5xl font-['Outfit_Variable',sans-serif] text-[clamp(2.5rem,5vw,4.5rem)] font-semibold leading-[0.92] tracking-[-0.055em]">Performance, with the risk context intact.</h2>
+          </div>
+          <p className="max-w-sm text-sm leading-6 text-white/45 lg:text-right">Historical model outcomes are research evidence, not a guarantee of future performance.</p>
+        </div>
+
+        {isLoading ? (
+          <div className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => <LoadingBlock key={index} className="h-48 bg-white/10" />)}
+          </div>
+        ) : statistics ? (
+          <div className="mt-8 space-y-5 lg:space-y-7">
+            <article
+              ref={(node) => { cardsRef.current[0] = node; }}
+              className="dashboard-stack-card sticky top-20 overflow-hidden rounded-2xl border border-white/10 bg-[#0d181b]/95 p-2 shadow-[0_32px_90px_-45px_rgba(0,0,0,0.9)] backdrop-blur-xl will-change-transform"
+            >
+              <div className="grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-[1.35rem] bg-slate-200 sm:grid-cols-2 lg:grid-cols-12">
+                <div className="lg:col-span-3"><MetricCard label="Win rate" value={formatMetric(statistics.winrate, "%", 1)} context={`${statistics.winning_trades} wins · ${statistics.losing_trades} losses · ${statistics.breakeven_trades} flat`} icon={Target} tone="positive" /></div>
+                <div className="lg:col-span-3"><MetricCard label="Compounded return" value={formatMetric(statistics.compounded_return, "%", 1)} context={`Simple aggregate return: ${formatMetric(statistics.total_return, "%")}`} icon={TrendingUp} tone="dark" /></div>
+                <div className="lg:col-span-3"><MetricCard label="Maximum drawdown" value={formatMetric(statistics.max_drawdown, "%", 1)} context={`Recovery factor: ${formatMetric(statistics.recovery_factor, "", 2)}`} icon={ShieldCheck} tone="negative" /></div>
+                <div className="lg:col-span-3"><MetricCard label="Profit factor" value={formatMetric(statistics.profit_factor, "", 2)} context={`Gross profit / gross loss across ${statistics.total_trades} outcomes`} icon={Activity} /></div>
+              </div>
+            </article>
+
+            <article
+              ref={(node) => { cardsRef.current[1] = node; }}
+              className="dashboard-stack-card sticky top-24 overflow-hidden rounded-2xl border border-white/10 bg-[#0d181b]/95 p-2 shadow-[0_32px_90px_-45px_rgba(0,0,0,0.9)] backdrop-blur-xl will-change-transform"
+            >
+              <div className="grid min-h-[29rem] gap-px overflow-hidden rounded-[1.1rem] bg-white/10 lg:grid-cols-12">
+                <div className="bg-[#101d20] p-5 sm:p-6 lg:col-span-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200/60">Compounded outcome path</p>
+                      <h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em]">Equity and drawdown</h3>
+                    </div>
+                    <p className="text-xs text-white/40">Base equity: 100</p>
+                  </div>
+                  <div className="mt-6 h-[20rem] w-full">
+                    {equityCurve.length ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={equityCurve} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
+                          <defs><linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#67e8f9" stopOpacity={0.42} /><stop offset="100%" stopColor="#67e8f9" stopOpacity={0} /></linearGradient></defs>
+                          <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
+                          <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.38)", fontSize: 11 }} tickLine={false} axisLine={false} minTickGap={48} />
+                          <YAxis tick={{ fill: "rgba(255,255,255,0.38)", fontSize: 11 }} tickLine={false} axisLine={false} />
+                          <Tooltip content={<PerformanceTooltip />} />
+                          <Area type="monotone" dataKey="equity" stroke="#67e8f9" strokeWidth={2} fill="url(#equityFill)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-sm text-white/40">Equity history is not available.</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col bg-[#0b1618] p-5 sm:p-6 lg:col-span-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/40">Return quality</p>
+                  <div className="mt-4 divide-y divide-white/10">
+                    {[
+                      ["Average return", formatMetric(statistics.avg_return_per_trade, "%")],
+                      ["Median return", formatMetric(statistics.median_return_per_trade, "%")],
+                      ["Expectancy", formatMetric(statistics.expectancy, "%")],
+                      ["Return volatility", formatMetric(statistics.return_volatility, "%")],
+                      ["Average win", formatMetric(statistics.average_win, "%")],
+                      ["Average loss", formatMetric(statistics.average_loss, "%")],
+                      ["Payoff ratio", formatMetric(statistics.payoff_ratio, "", 2)],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between gap-5 py-3"><span className="text-sm text-white/45">{label}</span><span className="text-sm font-semibold text-white">{value}</span></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article
+              ref={(node) => { cardsRef.current[2] = node; }}
+              className="dashboard-stack-card sticky top-28 overflow-hidden rounded-2xl border border-white/10 bg-[#f4f7f6] p-2 text-slate-950 shadow-[0_32px_90px_-45px_rgba(0,0,0,0.9)] will-change-transform"
+            >
+              <div className="grid gap-px overflow-hidden rounded-[1.25rem] bg-slate-200 lg:grid-cols-12">
+                <div className="bg-white p-5 sm:p-6 lg:col-span-7">
+                  <div className="flex items-start justify-between gap-6">
+                    <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Period attribution</p><h3 className="mt-3 font-['Outfit_Variable',sans-serif] text-3xl font-semibold tracking-[-0.04em]">Monthly consistency</h3></div>
+                    <BarChart3 className="size-5 text-slate-400" />
+                  </div>
+                  <div className="mt-5 overflow-x-auto">
+                    <table className="w-full min-w-[36rem] text-left text-sm">
+                      <thead className="border-b border-slate-200 text-xs uppercase tracking-[0.1em] text-slate-400">
+                        <tr><th className="pb-4 font-semibold">Period</th><th className="pb-4 text-right font-semibold">Trades</th><th className="pb-4 text-right font-semibold">Win rate</th><th className="pb-4 text-right font-semibold">Avg return</th><th className="pb-4 text-right font-semibold">Total return</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {monthlyPerformance.map((period) => (
+                          <tr key={period.period}>
+                            <td className="py-4 font-semibold text-slate-900">{period.period}</td>
+                            <td className="py-4 text-right text-slate-500">{period.total_trades}</td>
+                            <td className="py-4 text-right font-medium text-slate-700">{formatMetric(period.winrate, "%", 1)}</td>
+                            <td className={`py-4 text-right font-semibold ${toneClass(period.avg_return_per_trade)}`}>{formatMetric(period.avg_return_per_trade, "%")}</td>
+                            <td className={`py-4 text-right font-semibold ${toneClass(period.total_return)}`}>{formatMetric(period.total_return, "%")}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="bg-[#e6f8f4] p-5 sm:p-6 lg:col-span-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-800/60">Consistency and extremes</p>
+                  <div className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-emerald-950/10">
+                    <div className="bg-[#e6f8f4] p-5"><Clock3 className="size-5 text-emerald-800/60" /><p className="mt-5 text-2xl font-semibold">{formatMetric(statistics.average_holding_days, "d", 1)}</p><p className="mt-1 text-xs text-emerald-950/55">Average holding period</p></div>
+                    <div className="bg-[#e6f8f4] p-5"><Activity className="size-5 text-emerald-800/60" /><p className="mt-5 text-2xl font-semibold">{statistics.max_consecutive_wins}</p><p className="mt-1 text-xs text-emerald-950/55">Longest winning sequence</p></div>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    <div className="rounded-2xl bg-white/70 p-5"><div className="flex items-center justify-between gap-4"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Best outcome</span><TrendingUp className="size-4 text-emerald-700" /></div><p className="mt-3 text-lg font-semibold text-emerald-800">{statistics.best_trade || "—"}</p><p className="mt-1 text-xs text-slate-500">{formatDate(statistics.best_trade_details?.end_date)}</p></div>
+                    <div className="rounded-2xl bg-white/70 p-5"><div className="flex items-center justify-between gap-4"><span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Worst outcome</span><TrendingDown className="size-4 text-rose-700" /></div><p className="mt-3 text-lg font-semibold text-rose-800">{statistics.worst_trade || "—"}</p><p className="mt-1 text-xs text-slate-500">{formatDate(statistics.worst_trade_details?.end_date)}</p></div>
+                  </div>
+                  {directionPerformance.length ? (
+                    <div className="mt-7 border-t border-emerald-950/10 pt-6">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-950/45">Direction attribution</p>
+                      <div className="mt-4 space-y-3">
+                        {directionPerformance.map((direction) => (
+                          <div key={direction.direction} className="flex items-center justify-between text-sm"><span className="capitalize text-emerald-950/60">{direction.direction}</span><span className="font-semibold text-emerald-950">{direction.total_trades} trades · {formatMetric(direction.winrate, "%", 1)}</span></div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </article>
+          </div>
+        ) : (
+          <p className="mt-8 rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-white/50">Performance analytics are unavailable.</p>
+        )}
+
+        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 lg:grid-cols-12">
+          <div className="bg-[#d8faf4] p-6 text-[#071011] lg:col-span-7">
+            <p className="font-['Outfit_Variable',sans-serif] text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl">Audit the evidence behind every completed outcome.</p>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-emerald-950/60">Review entries, exits, forecasts, and realized results in the full transaction ledger.</p>
+          </div>
+          <div className="flex flex-col justify-center gap-3 bg-[#0d181b] p-6 sm:flex-row sm:items-center lg:col-span-5">
+            <Link to="/dashboard/transactions" className="inline-flex min-h-13 items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200">Review transaction ledger <ArrowRight className="ml-3 size-4" /></Link>
+            <Link to="/dashboard/macro" className="inline-flex min-h-13 items-center justify-center rounded-full border border-white/15 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Open macro workspace</Link>
+          </div>
+        </div>
+
+        {completedStocks.length ? (
+          <div className="mt-8 border-t border-white/10 pt-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/35">Latest closed outcomes</p>
+            <div className="mt-5 grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-2xl bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
+              {completedStocks.slice(0, 5).map((stock) => (
+                <Link key={stock.id} to={`/dashboard/transactions/${stock.id}`} className="group bg-[#0d181b] p-5 transition-colors hover:bg-[#132428]">
+                  <div className="flex items-center justify-between gap-4"><span className="font-semibold">{stock.name?.replace(".JK", "")}</span><ArrowUpRight className="size-4 text-white/30 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-cyan-200" /></div>
+                  <p className={`mt-4 text-lg font-semibold ${Number(stock.pct_gain) >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{formatMetric(stock.pct_gain, "%")}</p>
+                  <p className="mt-1 text-xs text-white/35">{formatDate(stock.end_date)}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
 }
 
 function Dashboard() {
@@ -112,1123 +625,93 @@ function Dashboard() {
   const [stocksUSA, setStocksUSA] = useState([]);
   const [runningStocks, setRunningStocks] = useState([]);
   const [completedStocks, setCompletedStocks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedStockForTrend, setSelectedStockForTrend] = useState(null);
   const [statistics, setStatistics] = useState(null);
+  const [macroRegime, setMacroRegime] = useState(null);
+  const [sectorDistributions, setSectorDistributions] = useState([]);
+  const [countryDistributions, setCountryDistributions] = useState([]);
+  const [isOverviewLoading, setIsOverviewLoading] = useState(true);
+  const [isPositionsLoading, setIsPositionsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [macroRegime, setMacroRegime] = useState(null);
-  const [sectorDistributions, setSectorDistributions] = useState(null);
-  const [countryDistributions, setCountryDistributions] = useState(null);
-  const { user, setUser } = useAuth();
-  const navigate = useNavigate();
-  const PAGE_SIZE = 5;
+  const { user } = useAuth();
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
+    async function fetchOverview() {
+      setIsOverviewLoading(true);
       try {
-        const [
-          newStocksResponseIndonesia,
-          newStocksResponseUSA,
-          completedStocksResponse,
-          statisticsResponse,
-          macroResponse,
-          distributionsResponse,
-        ] = await Promise.all([
+        const [indonesiaResponse, usaResponse, completedResponse, statisticsResponse, macroResponse, distributionsResponse] = await Promise.all([
           axios.get(urlFetchIndonesia, { headers: getAuthHeader() }),
           axios.get(urlFetchUSA, { headers: getAuthHeader() }),
-          axios.get(urlFetchCompleted, {
-            headers: getAuthHeader(),
-            params: { page: 1, page_size: PAGE_SIZE },
-          }),
+          axios.get(urlFetchCompleted, { headers: getAuthHeader(), params: { page: 1, page_size: PAGE_SIZE } }),
           axios.get(urlFetchStatistics, { headers: getAuthHeader() }),
           axios.get(urlFetchMacro, { headers: getAuthHeader() }),
           axios.get(urlFetchDistribution, { headers: getAuthHeader() }),
         ]);
-        if (newStocksResponseIndonesia.status === 200) {
-          const { stocks } = newStocksResponseIndonesia.data;
-          setStocksIndonesia(stocks);
-        }
-        if (newStocksResponseUSA.status === 200) {
-          const { stocks } = newStocksResponseUSA.data;
-          setStocksUSA(stocks);
-        }
-        if (completedStocksResponse.status === 200) {
-          const { stocks } = completedStocksResponse.data;
-          setCompletedStocks(stocks);
-        }
-        if (statisticsResponse.status === 200) {
-          const {
-            winrate,
-            total_trades,
-            winning_trades,
-            losing_trades,
-            profit_factor,
-            total_return,
-            avg_return_per_trade,
-            best_trade,
-            worst_trade,
-          } = statisticsResponse.data;
-          setStatistics({
-            winRate: winrate,
-            totalTrades: total_trades,
-            winningTrades: winning_trades,
-            losingTrades: losing_trades,
-            profitFactor: profit_factor,
-            totalReturn: total_return,
-            averageReturnPerTrade: avg_return_per_trade,
-            bestTrade: best_trade,
-            worstTrade: worst_trade,
-          });
-        }
-        if (macroResponse.status === 200) {
-          setMacroRegime(macroResponse.data);
-        }
-        if (distributionsResponse.status === 200) {
-          const { data } = distributionsResponse;
-          setSectorDistributions(data.sectors);
-          setCountryDistributions(data.countries);
-        }
+
+        setStocksIndonesia(indonesiaResponse.data?.stocks || []);
+        setStocksUSA(usaResponse.data?.stocks || []);
+        setCompletedStocks(completedResponse.data?.stocks || []);
+        setStatistics(statisticsResponse.data || null);
+        setMacroRegime(macroResponse.data || null);
+        setSectorDistributions(distributionsResponse.data?.sectors || []);
+        setCountryDistributions(distributionsResponse.data?.countries || []);
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(
-            "Dashboard request failed with status:",
-            error.response?.status,
-          );
-        }
+        if (axios.isAxiosError(error)) console.error("Dashboard request failed with status:", error.response?.status);
       } finally {
-        setIsLoading(false);
+        setIsOverviewLoading(false);
       }
     }
-
-    fetchData();
+    fetchOverview();
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
+    async function fetchPositions() {
+      setIsPositionsLoading(true);
       try {
-        const { data } = await axios.get(urlFetchRunning, {
-          headers: getAuthHeader(),
-          params: { page: page, page_size: PAGE_SIZE },
-        });
-
-        setRunningStocks(data.stocks);
-        setTotalPages(Math.ceil(data.total / PAGE_SIZE));
+        const { data } = await axios.get(urlFetchRunning, { headers: getAuthHeader(), params: { page, page_size: PAGE_SIZE } });
+        setRunningStocks(data?.stocks || []);
+        setTotalPages(Math.max(Math.ceil((data?.total || 0) / PAGE_SIZE), 1));
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(
-            "Running stocks request failed with status:",
-            error.response?.status,
-          );
-        }
+        if (axios.isAxiosError(error)) console.error("Running stocks request failed with status:", error.response?.status);
       } finally {
-        setIsLoading(false);
+        setIsPositionsLoading(false);
       }
     }
-
-    fetchData();
+    fetchPositions();
   }, [page]);
 
+  const opportunityStocks = useMemo(() => [...stocksIndonesia, ...stocksUSA], [stocksIndonesia, stocksUSA]);
+
   return (
-    <div className="bg-gray-50 select-none">
-      <div className="text-center border-y-1 border-gray-200/70 px-8">
-        <div className="border-x-1 border-gray-200/70 py-12 px-8">
-          <div className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full mb-5">
-            <SparkleIcon size={12} />
-            Stock Intelligence
-          </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-1">Dashboard</h2>
-          <p className="text-sm text-gray-400 max-w-lg mx-auto">
-            Here are the stocks currently covered by Nova AI analysis. Analysis
-            is updated daily based on data changes and market conditions. Please
-            check regularly to see the latest insights.
-          </p>
-          <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50 mt-12">
-            <AlertTriangleIcon />
-            <AlertTitle>Investment Disclaimer</AlertTitle>
-            <AlertDescription>
-              Nova AI provides data-driven and machine learning-based analysis
-              for informational and educational purposes. The information
-              displayed is not investment advice or a solicitation to buy or
-              sell stocks. All investment decisions and associated risks are the
-              responsibility of the user. Past performance does not guarantee
-              future results.
-            </AlertDescription>
-          </Alert>
-          <div className="mt-4">
-            <Card className="relative">
-              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
-              <CardContent className={"text-left"}>
-                <div className="w-full bg-background flex items-center justify-center">
-                  {isLoading ? (
-                    <div className="w-full font-sans p-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="bg-card border border-gray-200 rounded-2xl p-4 space-y-3"
-                          >
-                            <div className="flex justify-between items-center">
-                              <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <Skeleton className="h-12 w-12 rounded-md bg-gray-200 flex-shrink-0" />
-                              <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4 bg-gray-200 rounded-md" />
-                                <Skeleton className="h-4 w-1/2 bg-gray-200 rounded-md" />
-                                <Skeleton className="h-3 w-2/3 bg-gray-200 rounded-md" />
-                              </div>
-                            </div>
-                            <Skeleton className="h-10 w-full rounded-md bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <StocksCarousel
-                      title="Latest Insights (Indonesia Stocks)"
-                      stocks={stocksIndonesia}
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="mt-4">
-            <Card className="relative">
-              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
-              <CardContent className={"text-left"}>
-                <div className="w-full bg-background flex items-center justify-center">
-                  {isLoading ? (
-                    <div className="w-full font-sans p-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="bg-card border border-gray-200 rounded-2xl p-4 space-y-3"
-                          >
-                            <div className="flex justify-between items-center">
-                              <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <Skeleton className="h-12 w-12 rounded-md bg-gray-200 flex-shrink-0" />
-                              <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4 bg-gray-200 rounded-md" />
-                                <Skeleton className="h-4 w-1/2 bg-gray-200 rounded-md" />
-                                <Skeleton className="h-3 w-2/3 bg-gray-200 rounded-md" />
-                              </div>
-                            </div>
-                            <Skeleton className="h-10 w-full rounded-md bg-gray-200" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <StocksCarousel
-                      title="Latest Insights (US Stocks)"
-                      stocks={stocksUSA}
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid md:grid-cols-2 mt-4 items-stretch">
-            <Card className="md:rounded-r-none relative order-2 md:order-1 mt-4 md:mt-0">
-              <WatermarkOverlay userId={user?.user_id} email={user?.email} />
-              <CardContent className={"text-left"}>
-                <div className="p-4">
-                  {isLoading ? (
-                    <>
-                      <Skeleton className="h-7 w-32 mb-4" />
-                      <div className="space-y-2 mb-4">
-                        <Skeleton className="h-4 w-full bg-gray-200 rounded-md" />
-                        <Skeleton className="h-4 w-3/4 bg-gray-200 rounded-md" />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <h2 className="text-xl font-bold text-foreground mb-4">
-                        Running Trades
-                      </h2>
-                      <p className="text-sm text-foreground/70 mb-4">
-                        This section displays all active investment ideas
-                        currently monitored by Nova AI, ranked by Institutional
-                        Score.
-                      </p>
-                    </>
-                  )}
-                  <div className="flex flex-col gap-4">
-                    {isLoading ? (
-                      <div className="space-y-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white"
-                          >
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-3">
-                                <Skeleton className="h-10 w-10 rounded-md bg-gray-200 flex-shrink-0" />
-                                <Skeleton className="h-5 w-32 bg-gray-200 rounded-md" />
-                              </div>
-                              <div className="text-right space-y-1">
-                                <Skeleton className="h-5 w-20 bg-gray-200 rounded-md" />
-                                <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
-                              </div>
-                            </div>
-                            <Skeleton className="h-px w-full bg-gray-200" />
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                              {Array.from({ length: 3 }).map((_, j) => (
-                                <div key={j} className="space-y-1">
-                                  <Skeleton className="h-4 w-20 bg-gray-200 rounded-md" />
-                                  <Skeleton className="h-3 w-24 bg-gray-200 rounded-md" />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : runningStocks.length > 0 ? (
-                      runningStocks.map((stock, index) => (
-                        <Card key={index}>
-                          <CardContent className={"text-left"}>
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-3">
-                                {index < 3 && page == 1 ? (
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-sm font-semibold text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300">
-                                    {index + 1}
-                                  </div>
-                                ) : null}
-                                <img
-                                  src={stock.logo}
-                                  alt={`${stock.name} logo`}
-                                  className="h-10 w-10 rounded-md"
-                                />
-                                <h3 className="font-semibold text-medium text-foreground">
-                                  {stock.name.replace(".JK", "")}
-                                </h3>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold text-foreground text-medium">
-                                  {stock.country === "Indonesia" ? "Rp " : "$"}
-                                  {stock.close.toLocaleString()}
-                                </p>
-                                <span className="flex items-center gap-1">
-                                  {stock.pct_gain > 0 ? (
-                                    <FaCaretUp
-                                      className="inline text-green-500"
-                                      size={20}
-                                    />
-                                  ) : (
-                                    <FaCaretDown
-                                      className="inline text-red-500"
-                                      size={20}
-                                    />
-                                  )}
-                                  {Math.abs(stock.pct_gain).toFixed(2)}%
-                                </span>
-                              </div>
-                            </div>
-                            <Divider className="my-3" />
-                            <div className="grid grid-cols-3 gap-8">
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-foreground text-medium">
-                                  {stock.country === "Indonesia" ? "Rp " : "$"}
-                                  {stock.initial_price.toLocaleString()}
-                                </p>
-                                <p>Entry Price</p>
-                              </div>
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-foreground text-medium">
-                                  {stock.country === "Indonesia" ? "Rp " : "$"}
-                                  {(
-                                    stock.initial_price +
-                                    (stock.initial_price *
-                                      stock.predicted_pct_change) /
-                                      100
-                                  ).toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })}
-                                </p>
-                                <p>Estimated Target</p>
-                              </div>
-                              <div className="text-sm text-foreground">
-                                <p className="font-semibold text-medium text-red-500">
-                                  {stock.country === "Indonesia" ? "Rp " : "$"}
-                                  {stock.stop_loss.toLocaleString()}
-                                </p>
-                                <p>Stop Loss</p>
-                              </div>
-                            </div>
-                            <Divider className="my-3 mb-5" />
-                            <div className="grid grid-cols-3 gap-8 items-center">
-                              {stock.status ? (
-                                <Chip
-                                  className="bg-indigo-500/20 text-indigo-500 col-span-2"
-                                  radius="sm"
-                                >
-                                  {stock.status}
-                                </Chip>
-                              ) : (
-                                <>
-                                  <div>
-                                    <p className="text-sm text-foreground font-semibold">
-                                      Prediction:{" "}
-                                    </p>
-                                    <span className="flex items-center gap-1">
-                                      {stock.predicted_pct_change > 0 ? (
-                                        <FaCaretUp
-                                          className="inline text-green-500"
-                                          size={20}
-                                        />
-                                      ) : (
-                                        <FaCaretDown
-                                          className="inline text-red-500"
-                                          size={20}
-                                        />
-                                      )}
-                                      {Math.abs(
-                                        stock.predicted_pct_change,
-                                      ).toFixed(2)}
-                                      %
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-foreground font-semibold">
-                                      Risk:{" "}
-                                    </p>
-                                    <span>
-                                      {CapitalizeFirstLetter(stock.risk_level)}
-                                    </span>
-                                  </div>
-                                </>
-                              )}
-
-                              <div className="flex gap-2">
-                                <Link
-                                  to={`/dashboard/transactions/${stock.id}`}
-                                  className="flex-1"
-                                >
-                                  <Button
-                                    size="lg"
-                                    className="cursor-pointer w-full"
-                                    variant={
-                                      stock.predicted_pct_change < 0
-                                        ? "destructive"
-                                        : "default"
-                                    }
-                                  >
-                                    Monitor
-                                  </Button>
-                                </Link>
-                                <Button
-                                  variant="outline"
-                                  size="icon-lg"
-                                  className="cursor-pointer"
-                                  onClick={() =>
-                                    setSelectedStockForTrend(stock)
-                                  }
-                                >
-                                  <HiOutlineInformationCircle size={20} />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    ) : (
-                      <p className="text-sm text-foreground/70">
-                        No running trades from stocks currently being analyzed.
-                      </p>
-                    )}
-                  </div>
-                  <Pagination className="mt-6">
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page > 1) setPage(page - 1);
-                          }}
-                          className={
-                            page === 1 ? "pointer-events-none opacity-50" : ""
-                          }
-                        />
-                      </PaginationItem>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (pageNum) => (
-                          <PaginationItem key={pageNum}>
-                            <PaginationLink
-                              href="#"
-                              isActive={pageNum === page}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setPage(pageNum);
-                              }}
-                            >
-                              {pageNum}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ),
-                      )}
-                      <PaginationItem>
-                        <PaginationNext
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (page < totalPages) setPage(page + 1);
-                          }}
-                          className={
-                            page === totalPages
-                              ? "pointer-events-none opacity-50"
-                              : ""
-                          }
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="md:rounded-l-none order-1">
-              <CardContent className={"text-left"}>
-                <div className="p-4">
-                  {isLoading ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-7 w-40 mb-4 bg-gray-200 rounded-md" />
-                      <Skeleton className="h-16 w-full bg-gray-200 rounded-lg" />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
-                          <Skeleton className="h-8 w-20 bg-gray-200 rounded-md" />
-                        </div>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
-                          <Skeleton className="h-10 w-28 bg-gray-200 rounded-lg" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="p-4 border border-gray-200 rounded-lg space-y-2 bg-white"
-                          >
-                            <Skeleton className="h-6 w-24 bg-gray-200 rounded-md" />
-                            <Skeleton className="h-2 w-full bg-gray-200 rounded-full" />
-                            <Skeleton className="h-8 w-16 bg-gray-200 rounded-md" />
-                            <Skeleton className="h-12 w-full bg-gray-200 rounded-md" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : macroRegime ? (
-                    <>
-                      <h2 className="text-xl font-bold text-foreground mb-3">
-                        Macro Regime Summary
-                      </h2>
-                      <p className="text-sm text-foreground/70 mb-4">
-                        This section provides an overview of the current macro
-                        regime based on the Nova AI framework. Growth,
-                        inflation, liquidity, and risk indicators are combined
-                        to assess the overall investment environment and market
-                        positioning.
-                      </p>
-                      <div className="flex gap-2 mb-6">
-                        <div className="flex-1">
-                          <p className="mb-2">Regime Confidence</p>
-                          <p>
-                            <span className="font-semibold text-foreground text-3xl">
-                              {macroRegime.confidence.toFixed(0)}
-                            </span>
-                            /100
-                          </p>
-                        </div>
-                        <div className="flex-1">
-                          <p className="mb-3">Regime</p>
-                          <Chip
-                            color="primary"
-                            radius="sm"
-                            size="lg"
-                            variant="faded"
-                          >
-                            {macroRegime.regime}
-                          </Chip>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <Card className="relative overflow-hidden">
-                          <DotGrid />
-                          <CardContent className="relative z-10">
-                            <h3 className="text-lg font-semibold mb-2">
-                              Growth
-                            </h3>
-                            <BipolarProgress
-                              value={macroRegime.scores.growth}
-                              className="h-2 mb-2"
-                            />
-                            <p className="text-small text-foreground mb-2">
-                              <span className="font-semibold text-foreground text-3xl">
-                                {macroRegime.scores.growth.toFixed(0)}
-                              </span>
-                              /100
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {getGrowthDescription(macroRegime.scores.growth)}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden">
-                          <DotGrid />
-                          <CardContent className="relative z-10">
-                            <h3 className="text-lg font-semibold mb-2">
-                              Inflation
-                            </h3>
-                            <BipolarProgress
-                              value={macroRegime.scores.inflation}
-                              className="h-2 mb-2"
-                            />
-                            <p className="text-small text-foreground mb-2">
-                              <span className="font-semibold text-foreground text-3xl">
-                                {macroRegime.scores.inflation.toFixed(0)}
-                              </span>
-                              /100
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {getInflationDescription(
-                                macroRegime.scores.inflation,
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden">
-                          <DotGrid />
-                          <CardContent className="relative z-10">
-                            <h3 className="text-lg font-semibold mb-2">
-                              Liquidity
-                            </h3>
-                            <BipolarProgress
-                              value={macroRegime.scores.liquidity}
-                              className="h-2 mb-2"
-                            />
-                            <p className="text-small text-foreground mb-2">
-                              <span className="font-semibold text-foreground text-3xl">
-                                {macroRegime.scores.liquidity.toFixed(0)}
-                              </span>
-                              /100
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {getLiquidityDescription(
-                                macroRegime.scores.liquidity,
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden">
-                          <DotGrid />
-                          <CardContent className="relative z-10">
-                            <h3 className="text-lg font-semibold mb-2">Risk</h3>
-                            <BipolarProgress
-                              value={macroRegime.scores.risk}
-                              className="h-2 mb-2"
-                            />
-                            <p className="text-small text-foreground mb-2">
-                              <span className="font-semibold text-foreground text-3xl">
-                                {macroRegime.scores.risk.toFixed(0)}
-                              </span>
-                              /100
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {getRiskDescription(macroRegime.scores.risk)}
-                            </p>
-                          </CardContent>
-                        </Card>
-                        <Card className="relative overflow-hidden">
-                          <DotGrid />
-                          <CardContent className="relative z-10">
-                            <h3 className="text-lg font-semibold mb-2">
-                              Indonesia External Risk
-                            </h3>
-                            <BipolarProgress
-                              value={macroRegime.scores.indonesia_external_risk}
-                              className="h-2 mb-2"
-                            />
-                            <p className="text-small text-foreground mb-2">
-                              <span className="font-semibold text-foreground text-3xl">
-                                {macroRegime.scores.indonesia_external_risk.toFixed(
-                                  0,
-                                )}
-                              </span>
-                              /100
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {getRiskDescription(
-                                macroRegime.scores.indonesia_external_risk,
-                              )}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </>
-                  ) : (
-                    <h1>Macro Regime Summary</h1>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4 mt-4 items-stretch">
-            <Card className="relative overflow-hidden">
-              <DotGrid />
-              <CardContent className={"text-left relative z-10"}>
-                <div className="p-4">
-                  <div className="flex gap-8">
-                    <div className="flex-1 flex flex-col gap-4">
-                      <div>
-                        {isLoading ? (
-                          <Skeleton className="h-7 w-20 mb-2 bg-gray-200 rounded-md" />
-                        ) : (
-                          <h2 className="text-xl font-bold text-foreground">
-                            Win Rate
-                          </h2>
-                        )}
-                        {isLoading ? (
-                          <div className="space-y-2">
-                            <Skeleton className="h-5 w-16 bg-gray-200 rounded-md" />
-                          </div>
-                        ) : statistics ? (
-                          <p className="text-green-500 font-semibold text-xl flex items-center gap-1">
-                            {statistics.winRate.toFixed(1)}%{" "}
-                            {statistics.winRate >= 0 ? (
-                              <HiArrowUpRight
-                                className="text-green-500"
-                                size={16}
-                              />
-                            ) : statistics.winRate < 0 ? (
-                              <HiArrowDownRight
-                                className="text-red-500"
-                                size={16}
-                              />
-                            ) : null}
-                          </p>
-                        ) : null}
-                      </div>
-                      <Divider />
-                      <div>
-                        {isLoading ? (
-                          <Skeleton className="h-7 w-28 mb-2 bg-gray-200 rounded-md" />
-                        ) : (
-                          <h2 className="text-xl font-bold text-fo-xltext-xlround">
-                            Profit Factor
-                          </h2>
-                        )}
-                        {isLoading ? (
-                          <div className="space-y-2">
-                            <Skeleton className="h-5 w-16 bg-gray-200 rounded-md" />
-                          </div>
-                        ) : statistics ? (
-                          <p className="font-semibold text-xl">
-                            {statistics.profitFactor.toFixed(2)}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className="w-40">
-                      {isLoading ? (
-                        <div className="flex flex-col gap-4 items-center justify-center">
-                          <Skeleton className="h-36 w-36 rounded-full bg-gray-200" />
-                          <div className="flex justify-center gap-4">
-                            <Skeleton className="h-12 w-16 rounded-lg bg-gray-200" />
-                            <Skeleton className="h-12 w-16 rounded-lg bg-gray-200" />
-                          </div>
-                        </div>
-                      ) : statistics ? (
-                        <>
-                          <div className="w-40 h-40 flex-shrink-0">
-                            <ChartRadialText
-                              winRate={statistics.winRate}
-                              totalTrades={statistics.totalTrades}
-                            />
-                          </div>
-                          <div className="flex justify-between">
-                            <div className="text-center">
-                              <p className="font-semibold text-lg text-green-500">
-                                {statistics.winningTrades}
-                              </p>
-                              <p>Wins</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="font-semibold text-lg text-red-500">
-                                {statistics.losingTrades}
-                              </p>
-                              <p>Losses</p>
-                            </div>
-                          </div>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div
-                    className={`w-full border-t border-dashed border-default-300 my-4`}
-                  />
-                  {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i}>
-                          <Skeleton className="h-6 w-28 mb-2 bg-gray-200 rounded-md" />
-                          <Skeleton className="h-7 w-24 bg-gray-200 rounded-md" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : statistics ? (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h2 className="text-medium font-semibold text-foreground">
-                          Total Return
-                        </h2>
-                        <p
-                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.totalReturn >= 0 ? "text-green-500" : "text-red-500"}`}
-                        >
-                          {statistics.totalReturn.toFixed(2)}%{" "}
-                          {statistics.totalReturn >= 0 ? (
-                            <HiArrowUpRight
-                              className="text-green-500"
-                              size={12}
-                            />
-                          ) : statistics.totalReturn < 0 ? (
-                            <HiArrowDownRight
-                              className="text-red-500"
-                              size={12}
-                            />
-                          ) : null}
-                        </p>
-                      </div>
-                      <div>
-                        <h2 className="text-medium font-bold text-foreground">
-                          Avg Return/Trade
-                        </h2>
-                        <p
-                          className={`font-semibold text-medium flex items-center gap-1 ${statistics.averageReturnPerTrade >= 0 ? "text-green-500" : "text-red-500"}`}
-                        >
-                          {statistics.averageReturnPerTrade.toFixed(2)}%{" "}
-                          {statistics.averageReturnPerTrade >= 0 ? (
-                            <HiArrowUpRight
-                              className="text-green-500"
-                              size={12}
-                            />
-                          ) : statistics.averageReturnPerTrade < 0 ? (
-                            <HiArrowDownRight
-                              className="text-red-500"
-                              size={12}
-                            />
-                          ) : null}
-                        </p>
-                      </div>
-                      <div>
-                        <h2 className="text-medium font-bold text-foreground">
-                          Best Trade
-                        </h2>
-                        <p className="text-green-500 font-semibold text-medium flex items-center gap-1">
-                          {statistics.bestTrade}
-                        </p>
-                      </div>
-                      <div>
-                        <h2 className="text-medium font-bold text-foreground">
-                          Worst Trade
-                        </h2>
-                        <p className="text-red-500 font-semibold text-medium flex items-center gap-1">
-                          {statistics.worstTrade
-                            ? statistics.worstTrade
-                            : "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className={"text-left"}>
-                <div className="p-4">
-                  {isLoading ? (
-                    <Skeleton className="h-7 w-40 bg-gray-200 rounded-md" />
-                  ) : (
-                    <h2 className="text-xl font-bold text-foreground mb-4">
-                      Sector Distribution
-                    </h2>
-                  )}
-                  <div className="flex flex-col gap-4 mt-4">
-                    {isLoading ? (
-                      <div className="space-y-4">
-                        <Skeleton className="h-2 w-full rounded-full bg-gray-200" />
-                        <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white">
-                          {Array.from({ length: 3 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center justify-between"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Skeleton className="h-3 w-3 rounded-sm bg-gray-200 flex-shrink-0" />
-                                <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
-                              </div>
-                              <Skeleton className="h-4 w-8 bg-gray-200 rounded-md" />
-                            </div>
-                          ))}
-                        </div>
-                        <div className="border border-gray-200 rounded-lg p-4 space-y-3 bg-white">
-                          {Array.from({ length: 2 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center justify-between"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Skeleton className="h-6 w-6 bg-gray-200 rounded-md flex-shrink-0" />
-                                <Skeleton className="h-4 w-24 bg-gray-200 rounded-md" />
-                              </div>
-                              <Skeleton className="h-4 w-8 bg-gray-200 rounded-md" />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      (() => {
-                        const SECTOR_COLORS = [
-                          "#22c55e",
-                          "#6366f1",
-                          "#a855f7",
-                          "#ef4444",
-                          "#f59e0b",
-                          "#14b8a6",
-                          "#3b82f6",
-                          "#f97316",
-                        ];
-
-                        const sectors = sectorDistributions || [];
-                        const totalSectorCount = sectors.reduce(
-                          (sum, item) => sum + item.count,
-                          0,
-                        );
-
-                        if (sectors.length === 0) {
-                          return (
-                            <p className="text-sm text-foreground/70">
-                              No active positions at this time.
-                            </p>
-                          );
-                        }
-
-                        return (
-                          <>
-                            <div className="flex w-full h-2 rounded-full overflow-hidden mb-5 gap-0.5">
-                              {sectors.map((item, i) => {
-                                const pct =
-                                  totalSectorCount > 0
-                                    ? (item.count / totalSectorCount) * 100
-                                    : 0;
-                                return (
-                                  <div
-                                    key={item.sector}
-                                    style={{
-                                      width: `${pct}%`,
-                                      backgroundColor:
-                                        SECTOR_COLORS[i % SECTOR_COLORS.length],
-                                    }}
-                                    className="h-full rounded-sm"
-                                    title={`${item.sector}: ${pct.toFixed(1)}%`}
-                                  />
-                                );
-                              })}
-                            </div>
-
-                            <Card>
-                              <CardContent className="flex flex-col gap-3">
-                                {sectors.map((item, i) => {
-                                  const pct =
-                                    totalSectorCount > 0
-                                      ? (item.count / totalSectorCount) * 100
-                                      : 0;
-                                  return (
-                                    <div
-                                      key={item.sector}
-                                      className="flex items-center justify-between"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        <span
-                                          className="w-3 h-3 rounded-sm flex-shrink-0"
-                                          style={{
-                                            backgroundColor:
-                                              SECTOR_COLORS[
-                                                i % SECTOR_COLORS.length
-                                              ],
-                                          }}
-                                        />
-                                        <div>
-                                          <p className="text-sm font-semibold text-foreground">
-                                            {stocksSector[item.sector]}
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <p className="text-sm text-foreground">
-                                        {pct.toFixed(0)}%
-                                      </p>
-                                    </div>
-                                  );
-                                })}
-                              </CardContent>
-                            </Card>
-
-                            <Card>
-                              <CardContent className="flex flex-col gap-3">
-                                {(() => {
-                                  const countries = countryDistributions || [];
-                                  const totalCountryCount = countries.reduce(
-                                    (sum, item) => sum + item.count,
-                                    0,
-                                  );
-
-                                  const countryMap = {
-                                    Indonesia: {
-                                      image: Indonesia,
-                                      color: "#ef4444",
-                                    },
-                                    US: { image: USA, color: "#3b82f6" },
-                                  };
-
-                                  return countries.map((item) => {
-                                    const pct =
-                                      totalCountryCount > 0
-                                        ? (item.count / totalCountryCount) * 100
-                                        : 0;
-                                    const countryConfig =
-                                      countryMap[item.country];
-
-                                    return (
-                                      <div
-                                        key={item.country}
-                                        className="flex items-center justify-between"
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          {countryConfig ? (
-                                            <Image
-                                              src={countryConfig.image}
-                                              alt={item.country}
-                                              className="h-6 w-6"
-                                            />
-                                          ) : null}
-                                          <div>
-                                            <p className="text-sm font-semibold text-foreground">
-                                              {item.country === "Indonesia"
-                                                ? "Indonesia"
-                                                : item.country === "US"
-                                                  ? "United States"
-                                                  : item.country}
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <p className="text-sm text-foreground">
-                                          {pct.toFixed(0)}%
-                                        </p>
-                                      </div>
-                                    );
-                                  });
-                                })()}
-                              </CardContent>
-                            </Card>
-                          </>
-                        );
-                      })()
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className={"text-left"}>
-                <div className="p-4">
-                  {isLoading ? (
-                    <Skeleton className="h-7 w-40 bg-gray-200 rounded-md" />
-                  ) : (
-                    <h2 className="text-xl font-bold text-foreground mb-4">
-                      Trade History
-                    </h2>
-                  )}
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="min-w-24">Stock</TableHead>
-                        <TableHead>Profit</TableHead>
-                        <TableHead>Exit Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {isLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="flex gap-2 items-center">
-                              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0 bg-gray-200" />
-                              <Skeleton className="h-4 w-3/4 flex-1 bg-gray-200 rounded-md" />
-                            </TableCell>
-                            <TableCell>
-                              <Skeleton className="h-4 w-32 bg-gray-200 rounded-md" />
-                            </TableCell>
-                            <TableCell>
-                              <Skeleton className="h-4 w-16 bg-gray-200 rounded-md" />
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : completedStocks && completedStocks.length > 0 ? (
-                        completedStocks.map((stock) => (
-                          <TableRow key={stock.id}>
-                            <TableCell className="flex gap-2 items-center">
-                              <img
-                                src={stock.logo}
-                                alt={`${stock.name} logo`}
-                                className="h-8 w-8 rounded-md"
-                              />
-                              <div className="flex-1">
-                                <p className="font-semibold text-foreground">
-                                  {stock.name.replace(".JK", "")}
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell
-                              className={`${stock.pct_gain >= 0 ? "text-green-500" : "text-red-500"}`}
-                            >
-                              {stock.pct_gain.toFixed(2)}%
-                            </TableCell>
-                            <TableCell>
-                              {
-                                new Date(stock.end_date)
-                                  .toISOString()
-                                  .split("T")[0]
-                              }
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={3} className="text-center py-4">
-                            No completed trades at this time.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+    <main className="w-full max-w-full overflow-x-hidden bg-[#f2f5f4] font-['Outfit_Variable',sans-serif] text-slate-950">
+      <section id="opportunity-set" className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-[96rem]">
+          <div className="grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-12">
+            <OpportunitySet stocks={opportunityStocks} isLoading={isOverviewLoading} user={user} />
+            <MacroContext macroRegime={macroRegime} isLoading={isOverviewLoading} />
           </div>
         </div>
-      </div>
+      </section>
 
-      <StockModal
-        selectedStockForTrend={selectedStockForTrend}
-        setSelectedStockForTrend={setSelectedStockForTrend}
-      />
-    </div>
+      <section className="border-y border-slate-200 bg-[#e9efed] px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-[96rem]">
+          <div className="mb-6 max-w-3xl">
+            <p className="text-sm leading-6 text-slate-500">Monitor the candidates already in motion and understand concentration before opening security-level detail.</p>
+            <h2 className="mt-2 font-['Outfit_Variable',sans-serif] text-[clamp(2rem,4vw,3.5rem)] font-semibold leading-[0.95] tracking-[-0.045em]">One active book. Clear research priority.</h2>
+          </div>
+          <div className="grid grid-flow-dense grid-cols-1 gap-4 lg:grid-cols-12">
+            <ActiveMonitoring stocks={runningStocks} isLoading={isPositionsLoading} page={page} totalPages={totalPages} setPage={setPage} user={user} />
+            <AllocationPanel sectors={sectorDistributions} countries={countryDistributions} isLoading={isOverviewLoading} />
+          </div>
+        </div>
+      </section>
+
+      <PerformanceAnalytics statistics={statistics} completedStocks={completedStocks} isLoading={isOverviewLoading} />
+
+      <div className="border-t border-slate-200 bg-white px-5 py-5 sm:px-8 lg:px-10">
+        <p className="mx-auto max-w-[96rem] text-xs leading-5 text-slate-400">Nova AI provides research and decision-intelligence support. It does not replace institutional due diligence, mandate constraints, or professional judgment. Historical outcomes do not guarantee future results.</p>
+      </div>
+    </main>
   );
 }
 
