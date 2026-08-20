@@ -22,7 +22,7 @@ function ScenarioAnalysis({
         Scenario Analysis
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Card
               key={i}
@@ -41,7 +41,7 @@ function ScenarioAnalysis({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="group cursor-pointer transform transition-all duration-500 hover:scale-105 hover:-rotate-1 p-0">
             <CardContent className="h-full text-left text-white rounded-2xl border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] shadow-2xl relative backdrop-blur-xl overflow-hidden hover:border-white/25 hover:shadow-white/5 hover:shadow-3xl">
               <div>

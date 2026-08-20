@@ -1,8 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import DotGrid from "@/components/DotGrid";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangleIcon, Info } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function RiskBreakdown({ isLoading, transaction }) {
@@ -12,7 +10,7 @@ function RiskBreakdown({ isLoading, transaction }) {
         Institutional & Risk Analysis
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="relative overflow-hidden">
               <DotGrid />
@@ -27,7 +25,7 @@ function RiskBreakdown({ isLoading, transaction }) {
         </div>
       ) : transaction ? (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="relative overflow-hidden">
               <DotGrid />
               <CardContent className="p-4 relative z-10">

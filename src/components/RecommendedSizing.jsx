@@ -102,7 +102,7 @@ function RecommendedSizing({
         Recommended Position Sizing
       </h2>
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Card
               key={i}
@@ -117,7 +117,7 @@ function RecommendedSizing({
           ))}
         </div>
       ) : transaction ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="relative overflow-hidden text-white border border-white/10 bg-gradient-to-br from-[#010101] via-[#090909] to-[#010101] relative backdrop-blur-xl">
             <DotGrid />
             <CardContent className="p-4 relative z-10">
@@ -159,7 +159,7 @@ function RecommendedSizing({
           </Card>
         </div>
       ) : null}
-      <div className="grid grid-cols-3 mt-6 gap-4">
+      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">
             Portfolio Allocation

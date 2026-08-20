@@ -374,7 +374,7 @@ function Login() {
                 Terms
               </Link>
               <a
-                href="mailto:hello@novainvest.ai"
+                href="mailto:ceo.novainvest@gmail.com"
                 className="transition-colors hover:text-black"
               >
                 Contact

@@ -381,7 +381,7 @@ function SignUp() {
               <Link to="/terms" className="transition-colors hover:text-black">
                 Terms
               </Link>
-              <a href="mailto:hello@novainvest.ai" className="transition-colors hover:text-black">
+              <a href="mailto:ceo.novainvest@gmail.com" className="transition-colors hover:text-black">
                 Contact
               </a>
             </div>
