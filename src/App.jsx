@@ -312,30 +312,35 @@ function WhatYouGetSection() {
           ease: "none",
           repeat: -1,
         });
-
-        gsap.utils.toArray(".intelligence-visual").forEach((visual) => {
-          gsap
-            .timeline({
-              scrollTrigger: {
-                trigger: visual,
-                start: "top 88%",
-                end: "bottom 12%",
-                scrub: 0.8,
-              },
-            })
-            .fromTo(
-              visual,
-              { autoAlpha: 0.35, scale: 0.82 },
-              { autoAlpha: 1, scale: 1, duration: 0.55, ease: "none" },
-            )
-            .to(visual, {
-              autoAlpha: 0.2,
-              scale: 0.96,
-              duration: 0.45,
-              ease: "none",
-            });
-        });
       });
+
+      media.add(
+        "(min-width: 640px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          gsap.utils.toArray(".intelligence-visual").forEach((visual) => {
+            gsap
+              .timeline({
+                scrollTrigger: {
+                  trigger: visual,
+                  start: "top 88%",
+                  end: "bottom 12%",
+                  scrub: 0.8,
+                },
+              })
+              .fromTo(
+                visual,
+                { autoAlpha: 0.35, scale: 0.82 },
+                { autoAlpha: 1, scale: 1, duration: 0.55, ease: "none" },
+              )
+              .to(visual, {
+                autoAlpha: 0.2,
+                scale: 0.96,
+                duration: 0.45,
+                ease: "none",
+              });
+          });
+        },
+      );
 
       media.add(
         "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
@@ -357,14 +362,15 @@ function WhatYouGetSection() {
 
   return (
     <section
+      id="what-you-get"
       ref={sectionRef}
       className="relative overflow-hidden border-y border-gray-200/70 bg-[#f4f6f7] px-5 py-28 sm:px-8 md:py-40"
     >
       <div className="pointer-events-none absolute -left-48 top-1/4 size-[34rem] rounded-full bg-cyan-300/20 blur-[120px]" />
       <div className="pointer-events-none absolute -right-56 bottom-20 size-[40rem] rounded-full bg-violet-300/15 blur-[140px]" />
 
-      <div className="relative mx-auto grid max-w-[96rem] gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
-        <div ref={introRef} className="self-start lg:col-span-4">
+      <div className="relative mx-auto grid w-full min-w-0 max-w-[96rem] grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-10 xl:gap-16">
+        <div ref={introRef} className="min-w-0 self-start lg:col-span-4">
           <p className="mb-7 max-w-sm text-sm font-medium leading-relaxed text-gray-500">
             A unified research system for turning fragmented market data into
             structured, decision-relevant intelligence.
@@ -383,7 +389,7 @@ function WhatYouGetSection() {
             rotation, stock prioritization, and risk controls in one workflow.
           </p>
 
-          <div className="mt-10 overflow-hidden border-y border-gray-300/80 py-4">
+          <div className="mt-10 max-w-full overflow-hidden border-y border-gray-300/80 py-4">
             <div
               ref={marqueeRef}
               aria-hidden="true"
@@ -404,27 +410,27 @@ function WhatYouGetSection() {
           </div>
         </div>
 
-        <div className="grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-[1.75rem] border border-gray-200 bg-gray-200 shadow-[0_32px_100px_-48px_rgba(15,23,42,0.35)] sm:grid-cols-2 lg:col-span-8 xl:grid-cols-12">
+        <div className="grid min-w-0 grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-[1.25rem] border border-gray-200 bg-gray-200 shadow-[0_32px_100px_-48px_rgba(15,23,42,0.35)] sm:grid-cols-2 sm:rounded-[1.75rem] lg:col-span-8 xl:grid-cols-12">
           {intelligenceFeatures.map((item, index) => {
             const isDark = index === 0 || index === 4;
 
             return (
               <article
                 key={item.id}
-                className={`group relative flex min-h-[29rem] flex-col overflow-hidden p-4 sm:min-h-[31rem] xl:col-span-4 ${
+                className={`group relative flex min-h-0 min-w-0 flex-col overflow-hidden p-3 sm:min-h-[31rem] sm:p-4 xl:col-span-4 ${
                   isDark ? "bg-gray-950 text-white" : "bg-white text-gray-950"
                 }`}
               >
-                <div className="intelligence-visual relative aspect-[4/3] overflow-hidden rounded-[1.1rem] bg-gray-100 will-change-transform">
+                <div className="intelligence-visual relative aspect-[4/3] w-full overflow-hidden rounded-[0.9rem] bg-gray-100 sm:rounded-[1.1rem] sm:will-change-transform">
                   <img
                     src={item.image}
                     alt={item.alt}
-                    className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="h-full w-full object-contain object-center transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-950/30 via-transparent to-white/5" />
                 </div>
 
-                <div className="flex flex-1 flex-col px-2 pb-2 pt-7">
+                <div className="flex flex-1 flex-col px-2 pb-3 pt-5 sm:pb-2 sm:pt-7">
                   <div className="flex items-start justify-between gap-4">
                     <p
                       className={`text-xs font-semibold uppercase tracking-[0.14em] ${
@@ -439,7 +445,7 @@ function WhatYouGetSection() {
                       }`}
                     />
                   </div>
-                  <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-[-0.035em]">
+                  <h3 className="mt-3 text-xl font-semibold leading-tight tracking-[-0.035em] sm:mt-4 sm:text-2xl">
                     {item.title}
                   </h3>
                   <div className="grid flex-1 grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">

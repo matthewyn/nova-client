@@ -59,6 +59,16 @@ function formatDate(value) {
   }).format(date);
 }
 
+function getTargetPrice(transaction) {
+  if (transaction?.target_price != null) return transaction.target_price;
+  if (transaction?.take_profit != null) return transaction.take_profit;
+  const entry = Number(transaction?.initial_price);
+  const change = Number(transaction?.predicted_pct_change);
+  return Number.isFinite(entry) && Number.isFinite(change)
+    ? entry * (1 + change / 100)
+    : null;
+}
+
 function AnalysisSkeleton({ count = 4 }) {
   return (
     <div className="grid grid-flow-dense grid-cols-1 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-4">
@@ -150,12 +160,6 @@ function TransactionDetail() {
             duration: 0.55,
             ease: "none",
           });
-        gsap.to(".detail-marquee-track", {
-          xPercent: -50,
-          duration: 24,
-          repeat: -1,
-          ease: "none",
-        });
         gsap.utils.toArray(".detail-stack-card").forEach((card, index) => {
           gsap.fromTo(
             card,
@@ -203,7 +207,7 @@ function TransactionDetail() {
   const isPositive = pctReturn == null || pctReturn >= 0;
   const symbol = transaction?.name?.replace(".JK", "") || "Transaction";
   const status = transaction?.type === "running" ? "Active" : "Completed";
-  const targetPrice = transaction?.target_price ?? transaction?.take_profit ?? scenarioAnalysis?.base_case?.target_price;
+  const targetPrice = getTargetPrice(transaction);
   const recommendedRiskPercentage = getRecommendedRiskPercentage(transaction?.risk_level);
 
   const analysisNav = [
@@ -278,21 +282,6 @@ function TransactionDetail() {
           </div>
         </div>
       </header>
-
-      <div className="overflow-hidden border-b border-slate-200 bg-white py-3" aria-hidden="true">
-        <div className="detail-marquee-track flex w-max will-change-transform">
-          {[0, 1].map((copy) => (
-            <div key={copy} className="flex shrink-0 items-center">
-              {["Macro context", "Institutional score", "Risk filter", "Scenario range", "Position sizing"].map((item) => (
-                <span key={`${copy}-${item}`} className="flex items-center px-6 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 sm:px-10">
-                  <span className="mr-6 size-1 rounded-full bg-cyan-600 sm:mr-10" />
-                  {item}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {error ? (
         <section className="px-5 py-20 sm:px-8 lg:px-10"><div className="mx-auto max-w-2xl rounded-2xl border border-rose-200 bg-white p-8 text-center shadow-sm"><TrendingDown className="mx-auto size-6 text-rose-700" /><h2 className="mt-4 text-xl font-semibold">Record unavailable</h2><p className="mt-2 text-sm leading-6 text-slate-500">{error}</p><Link to="/dashboard/transactions" className="mt-6 inline-flex h-10 items-center gap-2 rounded-lg bg-[#0b1618] px-4 text-sm font-semibold text-white">Return to ledger <ArrowRight className="size-4" /></Link></div></section>

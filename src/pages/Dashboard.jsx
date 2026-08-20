@@ -327,8 +327,13 @@ function ActiveMonitoring({ stocks, isLoading, page, totalPages, setPage, user }
       <div className="relative mt-2 divide-y divide-slate-200">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="grid gap-3 py-4 sm:grid-cols-5">
-              {Array.from({ length: 5 }).map((__, cell) => <LoadingBlock key={cell} className="h-10" />)}
+            <div key={index} className="grid grid-cols-2 gap-3 py-4 sm:grid-cols-4 md:grid-cols-5">
+              {Array.from({ length: 5 }).map((__, cell) => (
+                <LoadingBlock
+                  key={cell}
+                  className={`h-10 ${cell === 0 ? "col-span-2 sm:col-span-4 md:col-span-1" : ""}`}
+                />
+              ))}
             </div>
           ))
         ) : stocks.length ? (
@@ -336,7 +341,7 @@ function ActiveMonitoring({ stocks, isLoading, page, totalPages, setPage, user }
             <Link
               key={stock.id || `${stock.name}-${index}`}
               to={`/dashboard/transactions/${stock.id}`}
-              className="group grid items-center gap-3 py-4 transition-colors hover:bg-slate-50 sm:grid-cols-[1.25fr_1fr_1fr_1fr_auto] sm:px-2"
+              className="group grid min-w-0 gap-4 py-4 transition-colors hover:bg-slate-50 sm:px-2 md:grid-cols-[minmax(11rem,1.1fr)_minmax(0,3fr)] md:items-center"
             >
               <div className="flex min-w-0 items-center gap-4">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">{(page - 1) * PAGE_SIZE + index + 1}</span>
@@ -348,26 +353,28 @@ function ActiveMonitoring({ stocks, isLoading, page, totalPages, setPage, user }
                   <p className="mt-1 text-xs text-slate-500">{stock.country}</p>
                 </div>
               </div>
-              <div>
-                <p className="text-xs text-slate-400">Current / entry</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{formatPrice(stock.close, stock.country)}</p>
-                <p className="mt-0.5 text-xs text-slate-400">{formatPrice(stock.initial_price, stock.country)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Target / stop</p>
-                <p className="mt-1 text-sm font-semibold text-emerald-700">{formatPrice(getTargetPrice(stock), stock.country)}</p>
-                <p className="mt-0.5 text-xs font-medium text-rose-700">{formatPrice(stock.stop_loss, stock.country)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Realized movement</p>
-                <p className={`mt-1 text-sm font-semibold ${toneClass(stock.pct_gain)}`}>{formatMetric(stock.pct_gain, "%")}</p>
-              </div>
-              <div className="flex items-center justify-between gap-4 sm:justify-end">
-                <div className="text-right">
-                  <p className="text-xs text-slate-400">Forecast</p>
-                  <p className={`mt-1 text-sm font-semibold ${toneClass(stock.predicted_pct_change)}`}>{formatMetric(stock.predicted_pct_change, "%")}</p>
+              <div className="grid min-w-0 grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-4 sm:rounded-none sm:border-0 sm:bg-transparent">
+                <div className="min-w-0 bg-white p-3 md:bg-transparent md:px-2 md:py-0">
+                  <p className="text-xs text-slate-400">Current / entry</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-slate-900">{formatPrice(stock.close, stock.country)}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-400">{formatPrice(stock.initial_price, stock.country)}</p>
                 </div>
-                <ChevronRight className="size-4 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-slate-700" />
+                <div className="min-w-0 bg-white p-3 md:bg-transparent md:px-2 md:py-0">
+                  <p className="text-xs text-slate-400">Target / stop</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-emerald-700">{formatPrice(getTargetPrice(stock), stock.country)}</p>
+                  <p className="mt-0.5 truncate text-xs font-medium text-rose-700">{formatPrice(stock.stop_loss, stock.country)}</p>
+                </div>
+                <div className="min-w-0 bg-white p-3 md:bg-transparent md:px-2 md:py-0">
+                  <p className="text-xs leading-4 text-slate-400">Realized movement</p>
+                  <p className={`mt-1 truncate text-sm font-semibold ${toneClass(stock.pct_gain)}`}>{formatMetric(stock.pct_gain, "%")}</p>
+                </div>
+                <div className="flex min-w-0 items-center justify-between gap-2 bg-white p-3 md:bg-transparent md:px-2 md:py-0">
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400">Forecast</p>
+                    <p className={`mt-1 truncate text-sm font-semibold ${toneClass(stock.predicted_pct_change)}`}>{formatMetric(stock.predicted_pct_change, "%")}</p>
+                  </div>
+                  <ChevronRight className="size-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-slate-700" />
+                </div>
               </div>
             </Link>
           ))
