@@ -89,12 +89,22 @@ function TransactionRow({ transaction, user, closingId, onClose }) {
           <div className="min-w-0"><p className="truncate font-semibold text-slate-950">{symbol}</p><p className="mt-1 truncate text-xs text-slate-400">{transaction.country || "Market unavailable"}</p></div>
         </div>
         <div><span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] ${running ? "border-cyan-200 bg-cyan-50 text-cyan-800" : "border-slate-200 bg-slate-100 text-slate-600"}`}>{running ? "Active" : "Completed"}</span><p className="mt-1 text-xs text-slate-400">{formatDate(transaction.start_date)}</p></div>
-        {[
-          ["Entry", formatPrice(transaction.initial_price, transaction.country), "text-slate-800"],
-          ["Target", formatPrice(getTarget(transaction), transaction.country), "text-emerald-700"],
-          ["Stop", formatPrice(transaction.stop_loss, transaction.country), "text-rose-700"],
-        ].map(([label, value, tone]) => <div key={label}><p className="text-[10px] uppercase tracking-[0.12em] text-slate-400 md:hidden">{label}</p><p className={`text-sm font-semibold tabular-nums ${tone}`}>{value}</p></div>)}
-        <div><p className="text-[10px] uppercase tracking-[0.12em] text-slate-400 md:hidden">Return</p><p className={`text-sm font-bold tabular-nums ${returnTone(transaction.pct_gain)}`}>{formatReturn(transaction.pct_gain)}</p></div>
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 md:contents">
+          {[
+            ["Entry", formatPrice(transaction.initial_price, transaction.country), "text-slate-800"],
+            ["Target", formatPrice(getTarget(transaction), transaction.country), "text-emerald-700"],
+            ["Stop", formatPrice(transaction.stop_loss, transaction.country), "text-rose-700"],
+          ].map(([label, value, tone]) => (
+            <div key={label} className="min-w-0 bg-white p-3 md:bg-transparent md:p-0">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400 md:hidden">{label}</p>
+              <p className={`truncate text-sm font-semibold tabular-nums ${tone}`}>{value}</p>
+            </div>
+          ))}
+          <div className="min-w-0 bg-white p-3 md:bg-transparent md:p-0">
+            <p className="text-[10px] uppercase tracking-[0.12em] text-slate-400 md:hidden">Return</p>
+            <p className={`truncate text-sm font-bold tabular-nums ${returnTone(transaction.pct_gain)}`}>{formatReturn(transaction.pct_gain)}</p>
+          </div>
+        </div>
         <div className="flex justify-end gap-2 md:justify-start md:pr-1">
           <Link to={`/dashboard/transactions/${transaction.id}`} className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 hover:bg-slate-100">Review <ArrowRight className="size-3.5" /></Link>
           {running && user?.role === "admin" && <button type="button" disabled={closingId === transaction.id} onClick={() => onClose(transaction.id)} className="mr-4 h-9 rounded-lg bg-rose-700 px-3 text-xs font-semibold text-white hover:bg-rose-800 disabled:opacity-50 lg:mr-6">{closingId === transaction.id ? "Closing" : "Close"}</button>}

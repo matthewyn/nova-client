@@ -102,7 +102,7 @@ export function AppSidebar() {
     <Sidebar
       variant="inset"
       collapsible="icon"
-      className="border-0 font-['Outfit_Variable',sans-serif] [&_[data-sidebar=sidebar]]:bg-[#071113] [&_[data-sidebar=sidebar]]:text-white"
+      className="border-0 bg-[#071113] font-['Outfit_Variable',sans-serif] text-white [&_[data-sidebar=sidebar]]:bg-[#071113] [&_[data-sidebar=sidebar]]:text-white"
     >
       <SidebarHeader className="border-b border-white/8 p-3 group-data-[collapsible=icon]:p-2">
         <Link
